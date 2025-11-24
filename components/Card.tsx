@@ -7,7 +7,7 @@ import Animated, {
   WithSpringConfig,
 } from "react-native-reanimated";
 
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius } from "@/constants/theme";
 
 interface CardProps {
@@ -45,7 +45,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export function Card({ elevation = 1, onPress, children, style }: CardProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const scale = useSharedValue(1);
 
   const cardBackgroundColor = getBackgroundColorForElevation(elevation, theme);
