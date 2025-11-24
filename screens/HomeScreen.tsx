@@ -36,7 +36,7 @@ export default function HomeScreen() {
     { icon: 'compass', label: 'কিবলা', color: '#2d936c' },
     { icon: 'map-pin', label: 'মসজিদ', color: '#1a5e63' },
     { icon: 'clock', label: 'সময়', color: '#f9a826' },
-    { icon: 'bookmark', label: 'সংরক্ষিত', color: '#2d936c' },
+    { icon: 'star', label: 'সংরক্ষিত', color: '#2d936c' },
     { icon: 'calendar', label: 'রোজা', color: '#1a5e63' },
     { icon: 'gift', label: 'যাকাত', color: '#f9a826' },
     { icon: 'moon', label: 'রমজান', color: '#4CAF50' },
@@ -57,7 +57,7 @@ export default function HomeScreen() {
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Feather name="home" size={32} color="#fff" />
+            <Feather name="navigation" size={32} color="#fff" />
             <View>
               <ThemedText style={styles.appName}>Smart Muslim</ThemedText>
               <ThemedText style={styles.tagline}>ইসলামিক সহায়ক</ThemedText>
@@ -72,7 +72,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Location Card */}
-      <Card style={[styles.card, { ...Shadows.md }]}>
+      <Card style={styles.card}>
         <View style={styles.locationRow}>
           <View style={[styles.iconBox, { backgroundColor: theme.primary + "15" }]}>
             <Feather name="map-pin" size={20} color={theme.primary} />
@@ -89,7 +89,7 @@ export default function HomeScreen() {
 
       {/* Date & Prayer Grid */}
       <View style={styles.gridContainer}>
-        <Card style={[styles.miniCard, { ...Shadows.sm }]}>
+        <Card style={styles.miniCard}>
           <ThemedText style={[styles.miniLabel, { color: theme.textSecondary }]}>হিজরি তারিখ</ThemedText>
           <ThemedText style={[styles.miniValue, { color: theme.primary }]}>১৫ রমজান</ThemedText>
           <ThemedText style={[styles.miniDate, { color: theme.textSecondary }]}>১৪৪৬ হিজরি</ThemedText>
