@@ -8,7 +8,7 @@ import PrayerScreen from "@/screens/PrayerScreen";
 import QuranScreen from "@/screens/QuranScreen";
 import DuaScreen from "@/screens/DuaScreen";
 import MoreScreen from "@/screens/MoreScreen";
-import { useAppTheme } from "@/hooks/useAppTheme.tsx";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 export type MainTabParamList = {
   HomeTab: undefined;
