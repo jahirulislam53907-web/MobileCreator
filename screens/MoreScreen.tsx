@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
+import { HeaderNav } from "@/components/HeaderNav";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
@@ -30,11 +31,13 @@ export default function MoreScreen() {
   };
 
   return (
-    <ScreenScrollView>
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.headerTitle}>আরও বৈশিষ্ট্য</ThemedText>
-        <ThemedText style={styles.headerSubtitle}>সমস্ত সরঞ্জাম এবং বৈশিষ্ট্য</ThemedText>
-      </View>
+    <View style={{ flex: 1 }}>
+      <HeaderNav />
+      <ScreenScrollView>
+        <View style={[styles.header, { backgroundColor: theme.primary }]}>
+          <ThemedText style={styles.headerTitle}>আরও বৈশিষ্ট্য</ThemedText>
+          <ThemedText style={styles.headerSubtitle}>সমস্ত সরঞ্জাম এবং বৈশিষ্ট্য</ThemedText>
+        </View>
 
       <Card style={styles.profileCard}>
         <View style={styles.profileRow}>
@@ -92,7 +95,8 @@ export default function MoreScreen() {
       </Card>
 
       <View style={{ height: 30 }} />
-    </ScreenScrollView>
+      </ScreenScrollView>
+    </View>
   );
 }
 

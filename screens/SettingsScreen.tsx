@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
+import { HeaderNav } from '@/components/HeaderNav';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
 import { type ThemeName } from '@/constants/theme';
@@ -73,12 +74,14 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <ScreenScrollView>
-      {/* Header - HomeScreen Style */}
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
-        <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
-      </View>
+    <View style={{ flex: 1 }}>
+      <HeaderNav />
+      <ScreenScrollView>
+        {/* Header - HomeScreen Style */}
+        <View style={[styles.header, { backgroundColor: theme.primary }]}>
+          <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
+          <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
+        </View>
 
       {/* Content Container */}
       <View style={styles.contentContainer}>
@@ -176,6 +179,7 @@ export default function SettingsScreen() {
         <View style={{ height: 30 }} />
       </View>
     </ScreenScrollView>
+    </View>
   );
 }
 

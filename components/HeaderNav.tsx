@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 interface HeaderNavProps {
@@ -15,6 +16,7 @@ type NavigationType = NativeStackNavigationProp<any>;
 export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
   const navigation = useNavigation<NavigationType>();
   const route = useRoute();
+  const { theme } = useAppTheme();
 
   const handleSettingsClick = () => {
     // Navigate to MoreTab with Settings screen inside
@@ -25,7 +27,7 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
   };
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { backgroundColor: theme.primary }]}>
       <View style={styles.headerContent}>
         <Pressable 
           style={styles.profileButton}
@@ -54,7 +56,6 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#1a5e63",
     paddingHorizontal: 16,
     paddingVertical: 9,
     paddingTop: 9,
