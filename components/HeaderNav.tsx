@@ -17,8 +17,11 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
   const route = useRoute();
 
   const handleSettingsClick = () => {
-    // Navigate directly to Settings screen
-    (navigation as any).navigate("Settings");
+    // Navigate to MoreTab with Settings screen inside
+    const parent = navigation.getParent();
+    parent?.navigate("MoreTab" as any, {
+      screen: "Settings",
+    });
   };
 
   return (
