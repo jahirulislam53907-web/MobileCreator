@@ -90,26 +90,6 @@ export default function PrayerScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-    marginHorizontal: -Spacing.lg,
-    marginTop: -Spacing.lg,
-    marginBottom: Spacing.xl,
-    borderBottomLeftRadius: BorderRadius.lg,
-    borderBottomRightRadius: BorderRadius.lg,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: '#fff',
-    opacity: 0.9,
-    marginTop: 4,
-  },
   prayerGrid: {
     marginBottom: Spacing.xl,
   },
