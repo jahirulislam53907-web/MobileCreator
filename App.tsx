@@ -8,7 +8,7 @@ import { StatusBar } from "expo-status-bar";
 
 import MainTabNavigator from "@/navigation/MainTabNavigator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AppThemeProvider } from "@/hooks/useAppTheme";
+import { AppThemeProvider } from "@/hooks/useAppTheme.tsx";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 function AppContent() {

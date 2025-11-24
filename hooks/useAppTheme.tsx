@@ -1,4 +1,4 @@
-import { useContext, createContext, ReactNode, useState, useEffect } from "react";
+import React, { useContext, createContext, ReactNode, useState } from "react";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors, ThemeName } from "@/constants/theme";
 

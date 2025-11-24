@@ -7,7 +7,7 @@ import Animated, {
   WithSpringConfig,
 } from "react-native-reanimated";
 
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useAppTheme } from "@/hooks/useAppTheme.tsx";
 import { Spacing, BorderRadius } from "@/constants/theme";
 
 interface CardProps {
