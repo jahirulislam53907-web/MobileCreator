@@ -29,15 +29,17 @@ const getBackgroundColorForElevation = (
   elevation: number,
   theme: any,
 ): string => {
+  if (!theme) return "#ffffff";
+  
   switch (elevation) {
     case 1:
-      return theme.backgroundDefault;
+      return theme.backgroundDefault || "#ffffff";
     case 2:
-      return theme.backgroundSecondary;
+      return theme.backgroundSecondary || "#f9f9f9";
     case 3:
-      return theme.backgroundTertiary;
+      return theme.backgroundTertiary || "#eeeeee";
     default:
-      return theme.backgroundRoot;
+      return theme.backgroundRoot || "#f5f5f5";
   }
 };
 

@@ -34,11 +34,17 @@ export function useAppTheme() {
 
   if (!context) {
     const isDark = colorScheme === "dark";
+    const theme = Colors.teal?.[isDark ? "dark" : "light"] || {
+      backgroundDefault: "#ffffff",
+      backgroundSecondary: "#f9f9f9",
+      backgroundTertiary: "#eeeeee",
+      backgroundRoot: "#f5f5f5",
+    };
     return {
       themeName: "teal" as ThemeName,
       setThemeName: () => {},
       isDark,
-      theme: Colors.teal[isDark ? "dark" : "light"],
+      theme,
     };
   }
 
