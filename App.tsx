@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -8,21 +8,8 @@ import { StatusBar } from "expo-status-bar";
 
 import MainTabNavigator from "@/navigation/MainTabNavigator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { initDatabase } from "@/utils/database";
 
 export default function App() {
-  useEffect(() => {
-    const setupDatabase = async () => {
-      try {
-        await initDatabase();
-        console.log('Database initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize database:', error);
-      }
-    };
-
-    setupDatabase();
-  }, []);
 
   return (
   <ErrorBoundary>
