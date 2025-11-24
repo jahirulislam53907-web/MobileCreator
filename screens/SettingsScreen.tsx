@@ -1,75 +1,95 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Switch } from 'react-native';
+import { View, StyleSheet, Pressable, Switch, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
 import { useTheme } from '@/hooks/useTheme';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Spacing, BorderRadius } from '@/constants/theme';
+import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
-  const colorScheme = useColorScheme();
   const [notifications, setNotifications] = useState(true);
   const [prayerReminder, setPrayerReminder] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [vibration, setVibration] = useState(true);
 
-  const SETTINGS = [
+  const handleLogout = () => {
+    Alert.alert('লগ আউট', 'আপনি নিশ্চিত?', [
+      { text: 'বাতিল' },
+      { text: 'লগ আউট', onPress: () => {} }
+    ]);
+  };
+
+  const SETTINGS_SECTIONS = [
     {
-      section: 'প্রদর্শন',
+      title: 'প্রদর্শন',
+      icon: 'monitor',
       items: [
-        { icon: 'moon', label: 'ডার্ক মোড', value: colorScheme === 'dark' },
-        { icon: 'bell', label: 'নোটিফিকেশন', value: notifications },
-      ],
+        { icon: 'moon', label: 'ডার্ক মোড', action: () => {}, hasToggle: true, value: false },
+        { icon: 'type', label: 'ফন্ট সাইজ', subtitle: 'মাঝারি' },
+      ]
     },
     {
-      section: 'নামাজ',
+      title: 'নোটিফিকেশন',
+      icon: 'bell',
       items: [
-        { icon: 'clock', label: 'নামাজের রিমাইন্ডার', value: prayerReminder },
-        { icon: 'volume-2', label: 'আজানের শব্দ', value: true },
-      ],
+        { icon: 'bell', label: 'সমস্ত নোটিফিকেশন', hasToggle: true, value: notifications, onChange: setNotifications },
+        { icon: 'clock', label: 'নামাজের রিমাইন্ডার', hasToggle: true, value: prayerReminder, onChange: setPrayerReminder },
+        { icon: 'volume-2', label: 'নোটিফিকেশন শব্দ', hasToggle: true, value: soundEnabled, onChange: setSoundEnabled },
+        { icon: 'zap', label: 'কম্পন', hasToggle: true, value: vibration, onChange: setVibration },
+      ]
     },
     {
-      section: 'অ্যাপ তথ্য',
+      title: 'অ্যাপ তথ্য',
+      icon: 'info',
       items: [
-        { icon: 'info', label: 'সংস্করণ', subtitle: '1.0.0' },
-        { icon: 'help-circle', label: 'সহায়তা এবং প্রতিক্রিয়া' },
-        { icon: 'shield', label: 'গোপনীয়তা নীতি' },
-      ],
-    },
+        { icon: 'package', label: 'সংস্করণ', subtitle: '1.0.0' },
+        { icon: 'help-circle', label: 'সাহায্য ও সহায়তা', action: () => {} },
+        { icon: 'lock', label: 'গোপনীয়তা নীতি', action: () => {} },
+        { icon: 'file-text', label: 'শর্তাবলী', action: () => {} },
+      ]
+    }
   ];
 
   return (
     <ScreenScrollView>
+      {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
       </View>
 
-      {SETTINGS.map((section, idx) => (
-        <View key={idx}>
-          <ThemedText style={[styles.sectionHeader, { color: theme.primary, marginTop: Spacing.xl }]}>
-            {section.section}
-          </ThemedText>
+      {SETTINGS_SECTIONS.map((section, sectionIdx) => (
+        <View key={sectionIdx}>
+          <View style={styles.sectionHeader}>
+            <Feather name={section.icon as any} size={16} color={theme.primary} />
+            <ThemedText style={[styles.sectionTitle, { color: theme.primary }]}>{section.title}</ThemedText>
+          </View>
+
           {section.items.map((item, itemIdx) => (
-            <Card key={itemIdx} style={styles.settingItem}>
-              <View style={styles.settingContent}>
-                <View style={styles.settingLeft}>
-                  <Feather name={item.icon as any} size={20} color={theme.primary} />
-                  <View style={{ marginLeft: Spacing.md }}>
-                    <ThemedText style={styles.settingLabel}>{item.label}</ThemedText>
-                    {item.subtitle && (
-                      <ThemedText style={[styles.settingSubtitle, { color: theme.textSecondary }]}>
-                        {item.subtitle}
-                      </ThemedText>
-                    )}
-                  </View>
+            <Card key={itemIdx} style={[styles.settingItem, { ...Shadows.sm }]}>
+              <View style={styles.itemContent}>
+                <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
+                  <Feather name={item.icon as any} size={18} color={theme.primary} />
                 </View>
-                {item.value !== undefined && (
+                <View style={{ flex: 1 }}>
+                  <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
+                  {item.subtitle && (
+                    <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
+                      {item.subtitle}
+                    </ThemedText>
+                  )}
+                </View>
+                {item.hasToggle ? (
                   <Switch
                     value={item.value}
-                    trackColor={{ false: theme.border, true: theme.primary }}
-                    thumbColor="#fff"
+                    onValueChange={item.onChange}
+                    trackColor={{ false: theme.border, true: theme.primary + '40' }}
+                    thumbColor={item.value ? theme.primary : theme.textSecondary}
                   />
+                ) : (
+                  <Feather name="chevron-right" size={20} color={theme.textSecondary} />
                 )}
               </View>
             </Card>
@@ -77,10 +97,20 @@ export default function SettingsScreen() {
         </View>
       ))}
 
-      <Pressable style={[styles.logoutBtn, { backgroundColor: '#E76F51' }]}>
-        <Feather name="log-out" size={18} color="#fff" />
-        <ThemedText style={{ color: '#fff', fontWeight: '600', marginLeft: Spacing.md }}>লগ আউট</ThemedText>
+      {/* Logout Button */}
+      <Pressable
+        onPress={handleLogout}
+        style={({ pressed }) => [
+          styles.logoutBtn,
+          { backgroundColor: '#ef5350' },
+          pressed && { opacity: 0.8 }
+        ]}
+      >
+        <Feather name="log-out" size={20} color="#fff" />
+        <ThemedText style={styles.logoutText}>লগ আউট</ThemedText>
       </Pressable>
+
+      <View style={{ height: 30 }} />
     </ScreenScrollView>
   );
 }
@@ -91,36 +121,53 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     marginHorizontal: -Spacing.lg,
     marginTop: -Spacing.lg,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderBottomRightRadius: BorderRadius.lg,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#fff',
   },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#fff',
+    opacity: 0.9,
+    marginTop: 4,
+  },
   sectionHeader: {
-    fontSize: 14,
-    fontWeight: '600',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.xl,
     marginBottom: Spacing.md,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   settingItem: {
     marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
-  settingContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  settingLeft: {
+  itemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    gap: Spacing.md,
   },
-  settingLabel: {
+  itemIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemLabel: {
+    fontSize: 15,
     fontWeight: '600',
-    fontSize: 14,
   },
-  settingSubtitle: {
+  itemSubtitle: {
     fontSize: 12,
     marginTop: 2,
   },
@@ -132,5 +179,11 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     marginTop: Spacing.xl,
     marginBottom: Spacing.xl,
+    gap: Spacing.md,
+  },
+  logoutText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

@@ -1,20 +1,17 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Pressable, FlatList } from "react-native";
+import { View, StyleSheet, Pressable, FlatList, TextInput } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, Typography, BorderRadius } from "@/constants/theme";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
 import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
 
 export default function QuranScreen() {
   const { theme } = useTheme();
   const [selectedTab, setSelectedTab] = useState<"surah" | "para">("surah");
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
+  const [search, setSearch] = useState("");
 
   const renderSurahItem = ({ item }: { item: typeof QURAN_SURAHS[0] }) => (
     <Card style={styles.surahCard}>
@@ -70,9 +67,13 @@ export default function QuranScreen() {
     </Card>
   );
 
+  const filteredSurahs = selectedTab === "surah" 
+    ? QURAN_SURAHS.filter(s => s.nameBengali.includes(search))
+    : QURAN_PARA.filter(p => p.nameBengali.includes(search));
+
   return (
-    <ThemedView style={[styles.container, { paddingBottom: tabBarHeight + Spacing.xl }]}>
-      <View style={styles.header}>
+    <ScreenScrollView>
+      <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <View style={styles.tabContainer}>
           <Pressable
             onPress={() => setSelectedTab("surah")}
