@@ -29,18 +29,18 @@ export default function HomeScreen() {
   }, []);
 
   const QUICK_ACTIONS = [
-    { icon: 'book-open', label: 'কুরআন' },
-    { icon: 'volume-2', label: 'আজান' },
-    { icon: 'users', label: 'নামাজ শিক্ষা' },
-    { icon: 'heart', label: 'দুয়া' },
-    { icon: 'compass', label: 'কিবলা' },
-    { icon: 'home', label: 'মসজিদ' },
-    { icon: 'clock', label: 'নামাজ' },
-    { icon: 'bookmarks', label: 'কিতাব' },
-    { icon: 'calendar', label: 'রোজা' },
-    { icon: 'award', label: 'হজ্জ' },
-    { icon: 'gift', label: 'যাকাত' },
-    { icon: 'moon', label: 'রমজান' },
+    { icon: 'book-open', label: 'কুরআন', color: '#40916C' },
+    { icon: 'volume-2', label: 'আজান', color: '#F4A261' },
+    { icon: 'users', label: 'নামাজ', color: '#2D6A4F' },
+    { icon: 'heart', label: 'দুয়া', color: '#40916C' },
+    { icon: 'compass', label: 'কিবলা', color: '#2D936C' },
+    { icon: 'home', label: 'মসজিদ', color: '#1a5e63' },
+    { icon: 'clock', label: 'সময়', color: '#f9a826' },
+    { icon: 'bookmarks', label: 'কিতাব', color: '#2D6A4F' },
+    { icon: 'calendar', label: 'রোজা', color: '#52b788' },
+    { icon: 'award', label: 'হজ্জ', color: '#1a5e63' },
+    { icon: 'gift', label: 'যাকাত', color: '#f9a826' },
+    { icon: 'moon', label: 'রমজান', color: '#2d936c' },
   ];
 
   const prayers = prayerTimes ? [
@@ -53,71 +53,86 @@ export default function HomeScreen() {
 
   return (
     <ScreenScrollView>
-      {/* Header */}
+      {/* Header with Gradient */}
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <Feather name="home" size={24} color={theme.buttonText} />
-        <ThemedText style={styles.headerTitle}>Smart Muslim</ThemedText>
-        <Pressable><Feather name="search" size={20} color={theme.buttonText} /></Pressable>
+        <View style={styles.headerLeft}>
+          <Feather name="mosque" size={28} color="#fff" />
+          <ThemedText style={styles.headerTitle}>Smart Muslim</ThemedText>
+        </View>
+        <View style={styles.headerRight}>
+          <Pressable><Feather name="search" size={22} color="#fff" /></Pressable>
+          <Pressable style={{ marginLeft: 16 }}><Feather name="bell" size={22} color="#fff" /></Pressable>
+        </View>
       </View>
 
-      {/* Location */}
-      <Card style={styles.locationCard}>
-        <View style={styles.locationRow}>
-          <Feather name="map-pin" size={18} color={theme.primary} />
-          <View style={{ flex: 1, marginLeft: Spacing.md }}>
-            <ThemedText style={styles.locationTitle}>ঢাকা, বাংলাদেশ</ThemedText>
-            <ThemedText style={[styles.locationText, { color: theme.textSecondary }]}>আপনার লোকেশন</ThemedText>
+      {/* Location Selector */}
+      <Card style={[styles.locationCard, { borderRadius: BorderRadius.md }]}>
+        <View style={styles.locationContent}>
+          <View style={styles.locationInfo}>
+            <Feather name="map-pin" size={20} color={theme.primary} />
+            <View style={{ marginLeft: 10 }}>
+              <ThemedText style={styles.locationTitle}>ঢাকা, বাংলাদেশ</ThemedText>
+              <ThemedText style={[styles.locationSubtitle, { color: theme.textSecondary }]}>আপনার বর্তমান লোকেশন</ThemedText>
+            </View>
           </View>
-          <Pressable><Feather name="edit" size={16} color={theme.primary} /></Pressable>
+          <Pressable style={[styles.changeBtn, { borderRadius: BorderRadius.full }]}>
+            <Feather name="edit" size={14} color="#fff" />
+            <ThemedText style={{ color: '#fff', marginLeft: 4, fontSize: 12, fontWeight: '600' }}>পরিবর্তন</ThemedText>
+          </Pressable>
         </View>
       </Card>
 
-      {/* Date Info */}
-      <View style={styles.dateGrid}>
-        <Card style={{ flex: 1 }}>
-          <ThemedText style={[styles.label, { color: theme.textSecondary }]}>হিজরি</ThemedText>
-          <ThemedText style={[styles.value, { color: theme.primary }]}>১৫ রমজান</ThemedText>
+      {/* Date & Next Prayer */}
+      <View style={styles.dateContainer}>
+        <Card style={[styles.dateCard, { borderRadius: BorderRadius.md }]}>
+          <ThemedText style={[styles.cardLabel, { color: theme.textSecondary }]}>হিজরি তারিখ</ThemedText>
+          <ThemedText style={[styles.dateValue, { color: theme.primary }]}>১৫ রমজান ১৪৪৬</ThemedText>
+          <ThemedText style={styles.gregorianDate}>২৪ নভেম্বর ২০২৪</ThemedText>
         </Card>
-        <Card style={[{ flex: 1, borderColor: theme.primary, borderWidth: 2 }]}>
-          <ThemedText style={[styles.label, { color: theme.primary }]}>পরবর্তী নামাজ</ThemedText>
-          <ThemedText style={[styles.value, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
-          <ThemedText style={[styles.countdown, { color: '#f9a826' }]}>
-            {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
-          </ThemedText>
+        <Card style={[styles.nextPrayerCard, { borderColor: theme.primary, borderWidth: 2, borderRadius: BorderRadius.md }]}>
+          <ThemedText style={[styles.cardLabel, { color: theme.primary }]}>পরবর্তী নামাজ</ThemedText>
+          <ThemedText style={[styles.prayerName, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
+          {nextPrayerInfo && (
+            <ThemedText style={[styles.countdown, { color: '#f9a826' }]}>
+              {String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:{String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:{String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}
+            </ThemedText>
+          )}
         </Card>
       </View>
 
       {/* Quick Actions */}
-      <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>দ্রুত এক্সেস</ThemedText>
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>দ্রুত এক্সেস</ThemedText>
       <FlatList
         scrollEnabled={false}
         data={QUICK_ACTIONS}
-        numColumns={4}
+        numColumns={5}
         renderItem={({ item }) => (
-          <View style={styles.actionCard}>
-            <View style={[styles.actionIcon, { backgroundColor: theme.primary }]}>
-              <Feather name={item.icon as any} size={16} color={theme.buttonText} />
+          <Pressable style={[styles.actionCard, { borderRadius: BorderRadius.md }]}>
+            <View style={[styles.actionIcon, { backgroundColor: item.color, borderRadius: BorderRadius.full }]}>
+              <Feather name={item.icon as any} size={18} color="#fff" />
             </View>
-            <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
-          </View>
+            <ThemedText style={styles.actionName}>{item.label}</ThemedText>
+          </Pressable>
         )}
         keyExtractor={(_, i) => i.toString()}
+        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
       />
 
       {/* Prayer Times */}
-      <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>নামাজের সময়</ThemedText>
-      <Card>
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>আজকের নামাজের সময়সূচী</ThemedText>
+      <Card style={{ borderRadius: BorderRadius.lg, marginBottom: Spacing.xl }}>
         <FlatList
           scrollEnabled={false}
           data={prayers}
           numColumns={3}
-          renderItem={({ item }) => (
-            <View style={styles.prayerItem}>
-              <ThemedText style={styles.prayerName}>{item.name}</ThemedText>
-              <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{item.time}</ThemedText>
+          renderItem={({ item, index }) => (
+            <View style={[styles.prayerCard, { flex: 1, marginRight: index % 3 !== 2 ? 8 : 0 }]}>
+              <ThemedText style={[styles.prayerCardName, { color: theme.text }]}>{item.name}</ThemedText>
+              <ThemedText style={[styles.prayerCardTime, { color: theme.primary }]}>{item.time}</ThemedText>
             </View>
           )}
-          keyExtractor={item => item.key}
+          keyExtractor={(item) => item.key}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
         />
       </Card>
     </ScreenScrollView>
@@ -125,21 +140,125 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg, marginHorizontal: -Spacing.lg, marginTop: -Spacing.lg, marginBottom: Spacing.lg, gap: Spacing.md },
-  headerTitle: { flex: 1, fontSize: 20, fontWeight: '700' },
-  locationCard: { marginBottom: Spacing.lg },
-  locationRow: { flexDirection: 'row', alignItems: 'center' },
-  locationTitle: { fontWeight: '600', fontSize: 14 },
-  locationText: { fontSize: 12, marginTop: 2 },
-  dateGrid: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.lg },
-  label: { fontSize: 12, marginBottom: 4 },
-  value: { fontWeight: '700', fontSize: 14 },
-  countdown: { fontWeight: '700', fontSize: 12, marginTop: 2 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md, marginTop: Spacing.lg },
-  actionCard: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md },
-  actionIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.sm },
-  actionLabel: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
-  prayerItem: { flex: 1, paddingVertical: Spacing.md, alignItems: 'center' },
-  prayerName: { fontWeight: '600', fontSize: 12 },
-  prayerTime: { fontWeight: '700', fontSize: 13, marginTop: 4 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    marginHorizontal: -Spacing.lg,
+    marginTop: -Spacing.lg,
+    marginBottom: Spacing.lg,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  headerTitle: {
+    fontSize: Typography.h1.fontSize,
+    fontWeight: Typography.h1.fontWeight,
+    color: '#fff',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    gap: Spacing.lg,
+  },
+  locationCard: {
+    marginBottom: Spacing.lg,
+  },
+  locationContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  locationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  locationTitle: {
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  locationSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  changeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a5e63',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    marginLeft: Spacing.md,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  dateCard: {
+    flex: 1,
+  },
+  nextPrayerCard: {
+    flex: 1,
+  },
+  cardLabel: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  dateValue: {
+    fontWeight: '700',
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  gregorianDate: {
+    fontSize: 12,
+  },
+  prayerName: {
+    fontWeight: '700',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  countdown: {
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  sectionTitle: {
+    fontSize: Typography.h2.fontSize,
+    fontWeight: '700',
+    marginBottom: Spacing.md,
+  },
+  actionCard: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  actionIcon: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  actionName: {
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  prayerCard: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.md,
+  },
+  prayerCardName: {
+    fontWeight: '600',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  prayerCardTime: {
+    fontWeight: '700',
+    fontSize: 13,
+  },
 });
