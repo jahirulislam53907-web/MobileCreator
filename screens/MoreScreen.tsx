@@ -1,364 +1,213 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Pressable, Modal, TextInput } from "react-native";
+import { View, StyleSheet, Pressable, TextInput, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, Typography, BorderRadius } from "@/constants/theme";
+import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
-const MORE_OPTIONS = [
-  { icon: "calendar", title: "ইসলামিক ক্যালেন্ডার", subtitle: "হিজরি তারিখ ও বিশেষ দিন", color: "#2D6A4F" },
-  { icon: "dollar-sign", title: "যাকাত ক্যালকুলেটর", subtitle: "যাকাত হিসাব করুন", color: "#D4A574" },
-  { icon: "moon", title: "রমজান ট্র্যাকার", subtitle: "রোজা ও ইবাদত ট্র্যাকিং", color: "#B8860B" },
-  { icon: "map-pin", title: "নিকটবর্তী মসজিদ", subtitle: "আশেপাশের মসজিদ খুঁজুন", color: "#40916C" },
-  { icon: "book", title: "হাদিস সংগ্রহ", subtitle: "সহিহ হাদিস পড়ুন", color: "#52B788" },
-  { icon: "help-circle", title: "প্রশ্নোত্তর", subtitle: "ইসলামিক প্রশ্নের উত্তর", color: "#F4A261" },
+const MORE_FEATURES = [
+  { icon: 'calendar', title: 'ইসলামিক ক্যালেন্ডার', subtitle: 'হিজরি তারিখ ট্র্যাক করুন', color: '#1a5e63' },
+  { icon: 'gift', title: 'যাকাত ক্যালকুলেটর', subtitle: 'যাকাত হিসাব করুন', color: '#f9a826' },
+  { icon: 'moon', title: 'রমজান ট্র্যাকার', subtitle: 'রোজা এবং ইবাদত ট্র্যাক করুন', color: '#2d936c' },
+  { icon: 'map-pin', title: 'কাছের মসজিদ', subtitle: 'আশেপাশের মসজিদ খুঁজুন', color: '#4CAF50' },
+  { icon: 'book', title: 'হাদিস সংগ্রহ', subtitle: 'সহিহ হাদিস পড়ুন', color: '#1a5e63' },
+  { icon: 'help-circle', title: 'প্রশ্নোত্তর', subtitle: 'ইসলামিক প্রশ্নের উত্তর', color: '#f9a826' },
 ];
 
 export default function MoreScreen() {
   const { theme } = useTheme();
-  const [zakatModalVisible, setZakatModalVisible] = useState(false);
   const [zakatAmount, setZakatAmount] = useState("");
-  const [calculatedZakat, setCalculatedZakat] = useState<number | null>(null);
+  const [zakatResult, setZakatResult] = useState<number | null>(null);
 
   const calculateZakat = () => {
     const amount = parseFloat(zakatAmount);
     if (!isNaN(amount) && amount > 0) {
-      setCalculatedZakat(amount * 0.025);
+      setZakatResult(amount * 0.025);
+      Alert.alert('যাকাত গণনা', `আপনার যাকাত: ${(amount * 0.025).toFixed(2)} টাকা`);
     }
   };
 
   return (
-    <>
-      <ScreenScrollView>
-        <Card style={styles.profileCard}>
-          <View style={styles.profileHeader}>
-            <View style={[styles.avatar, { backgroundColor: theme.primary + "20" }]}>
-              <Feather name="user" size={32} color={theme.primary} />
-            </View>
-            <View style={styles.profileInfo}>
-              <ThemedText style={styles.profileName}>ব্যবহারকারী</ThemedText>
-              <ThemedText style={[styles.profileEmail, { color: theme.textSecondary }]}>
-                user@islamicapp.com
-              </ThemedText>
-            </View>
-            <Pressable>
-              <Feather name="settings" size={20} color={theme.primary} />
-            </Pressable>
+    <ScreenScrollView>
+      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+        <ThemedText style={styles.headerTitle}>আরও বৈশিষ্ট্য</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>সমস্ত সরঞ্জাম এবং বৈশিষ্ট্য</ThemedText>
+      </View>
+
+      <Card style={[styles.profileCard, { ...Shadows.md }]}>
+        <View style={styles.profileRow}>
+          <View style={[styles.avatar, { backgroundColor: theme.primary + '20' }]}>
+            <Feather name="user" size={32} color={theme.primary} />
           </View>
-        </Card>
-
-        <ThemedText style={styles.sectionTitle}>ফিচার সমূহ</ThemedText>
-
-        {MORE_OPTIONS.map((option) => (
-          <Pressable
-            key={option.title}
-            onPress={() => {
-              if (option.title === "যাকাত ক্যালকুলেটর") {
-                setZakatModalVisible(true);
-              }
-            }}
-            style={({ pressed }) => [pressed && { opacity: 0.7 }]}
-          >
-            <Card style={styles.optionCard}>
-              <View style={[styles.optionIcon, { backgroundColor: option.color + "15" }]}>
-                <Feather name={option.icon as any} size={24} color={option.color} />
-              </View>
-              <View style={styles.optionInfo}>
-                <ThemedText style={styles.optionTitle}>{option.title}</ThemedText>
-                <ThemedText style={[styles.optionSubtitle, { color: theme.textSecondary }]}>
-                  {option.subtitle}
-                </ThemedText>
-              </View>
-              <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-            </Card>
+          <View style={{ flex: 1 }}>
+            <ThemedText style={[styles.profileName, { color: theme.text }]}>ব্যবহারকারী প্রোফাইল</ThemedText>
+            <ThemedText style={[styles.profileEmail, { color: theme.textSecondary }]}>user@smartmuslim.app</ThemedText>
+          </View>
+          <Pressable>
+            <Feather name="edit-2" size={20} color={theme.primary} />
           </Pressable>
-        ))}
-
-        <ThemedText style={styles.sectionTitle}>সেটিংস</ThemedText>
-
-        <Card style={styles.settingsCard}>
-          <Pressable style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Feather name="bell" size={20} color={theme.primary} />
-              <ThemedText style={styles.settingText}>নোটিফিকেশন</ThemedText>
-            </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-          </Pressable>
-
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-          <Pressable style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Feather name="globe" size={20} color={theme.primary} />
-              <ThemedText style={styles.settingText}>ভাষা</ThemedText>
-            </View>
-            <View style={styles.settingRight}>
-              <ThemedText style={[styles.settingValue, { color: theme.textSecondary }]}>
-                বাংলা
-              </ThemedText>
-              <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-            </View>
-          </Pressable>
-
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-          <Pressable style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Feather name="moon" size={20} color={theme.primary} />
-              <ThemedText style={styles.settingText}>ডার্ক মোড</ThemedText>
-            </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-          </Pressable>
-        </Card>
-
-        <Card style={styles.aboutCard}>
-          <ThemedText style={styles.aboutTitle}>ইসলামিক সুপার অ্যাপ</ThemedText>
-          <ThemedText style={[styles.aboutVersion, { color: theme.textSecondary }]}>
-            সংস্করণ ১.০.০
-          </ThemedText>
-          <ThemedText style={[styles.aboutText, { color: theme.textSecondary }]}>
-            আপনার দৈনন্দিন ইসলামিক জীবনযাপনের সহায়ক
-          </ThemedText>
-        </Card>
-      </ScreenScrollView>
-
-      <Modal
-        visible={zakatModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setZakatModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <ThemedView style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <ThemedText style={styles.modalTitle}>যাকাত ক্যালকুলেটর</ThemedText>
-              <Pressable onPress={() => {
-                setZakatModalVisible(false);
-                setCalculatedZakat(null);
-                setZakatAmount("");
-              }}>
-                <Feather name="x" size={24} color={theme.text} />
-              </Pressable>
-            </View>
-
-            <ThemedText style={[styles.modalDescription, { color: theme.textSecondary }]}>
-              আপনার মোট সম্পদের পরিমাণ লিখুন (টাকায়)
-            </ThemedText>
-
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme.backgroundSecondary,
-                  color: theme.text,
-                  borderColor: theme.border,
-                },
-              ]}
-              placeholder="উদাহরণ: ১০০০০০"
-              placeholderTextColor={theme.textSecondary}
-              keyboardType="numeric"
-              value={zakatAmount}
-              onChangeText={setZakatAmount}
-            />
-
-            <Pressable
-              onPress={calculateZakat}
-              style={({ pressed }) => [
-                styles.calculateButton,
-                { backgroundColor: theme.primary },
-                pressed && { opacity: 0.8 },
-              ]}
-            >
-              <ThemedText style={styles.calculateButtonText}>হিসাব করুন</ThemedText>
-            </Pressable>
-
-            {calculatedZakat !== null && (
-              <Card style={styles.resultCard}>
-                <ThemedText style={[styles.resultLabel, { color: theme.textSecondary }]}>
-                  প্রদেয় যাকাত
-                </ThemedText>
-                <ThemedText style={[styles.resultValue, { color: theme.success }]}>
-                  ৳ {calculatedZakat.toLocaleString("bn-BD")}
-                </ThemedText>
-                <ThemedText style={[styles.resultInfo, { color: theme.textSecondary }]}>
-                  (সম্পদের ২.৫%)
-                </ThemedText>
-              </Card>
-            )}
-
-            <ThemedText style={[styles.zakatInfo, { color: theme.textSecondary }]}>
-              * নিসাব পরিমাণ: ৫২.৫ তোলা রূপা বা ৭.৫ তোলা স্বর্ণের মূল্য
-            </ThemedText>
-          </ThemedView>
         </View>
-      </Modal>
-    </>
+      </Card>
+
+      <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>প্রধান বৈশিষ্ট্য</ThemedText>
+      {MORE_FEATURES.map((feature, idx) => (
+        <Pressable key={idx}>
+          <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+            <View style={styles.featureRow}>
+              <View style={[styles.featureIcon, { backgroundColor: feature.color + '15' }]}>
+                <Feather name={feature.icon as any} size={20} color={feature.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <ThemedText style={[styles.featureTitle, { color: theme.text }]}>{feature.title}</ThemedText>
+                <ThemedText style={[styles.featureSubtitle, { color: theme.textSecondary }]}>{feature.subtitle}</ThemedText>
+              </View>
+              <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+            </View>
+          </Card>
+        </Pressable>
+      ))}
+
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>যাকাত ক্যালকুলেটর</ThemedText>
+      <Card style={[styles.toolCard, { ...Shadows.sm }]}>
+        <ThemedText style={[styles.toolLabel, { color: theme.text }]}>মোট সম্পদ (টাকা)</ThemedText>
+        <TextInput
+          style={[styles.toolInput, { backgroundColor: theme.backgroundSecondary, color: theme.text, borderColor: theme.border, borderWidth: 1 }]}
+          placeholder="পরিমাণ লিখুন"
+          placeholderTextColor={theme.textSecondary}
+          keyboardType="decimal-pad"
+          value={zakatAmount}
+          onChangeText={setZakatAmount}
+        />
+        <Pressable style={[styles.calculateBtn, { backgroundColor: theme.primary }]} onPress={calculateZakat}>
+          <ThemedText style={styles.calculateBtnText}>গণনা করুন</ThemedText>
+        </Pressable>
+        {zakatResult !== null && (
+          <View style={[styles.result, { backgroundColor: theme.secondary + '15', borderColor: theme.secondary, borderWidth: 1 }]}>
+            <ThemedText style={[styles.resultLabel, { color: theme.textSecondary }]}>আপনার যাকাত</ThemedText>
+            <ThemedText style={[styles.resultValue, { color: theme.secondary }]}>{zakatResult.toFixed(2)} টাকা</ThemedText>
+          </View>
+        )}
+      </Card>
+
+      <View style={{ height: 30 }} />
+    </ScreenScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  profileCard: {
-    marginBottom: Spacing.lg,
+  header: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    marginHorizontal: -Spacing.lg,
+    marginTop: -Spacing.lg,
+    marginBottom: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderBottomRightRadius: BorderRadius.lg,
   },
-  profileHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#fff',
+    opacity: 0.9,
+    marginTop: 4,
+  },
+  profileCard: {
+    marginBottom: Spacing.xl,
+    borderRadius: BorderRadius.md,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.md,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  profileInfo: {
-    flex: 1,
+    width: 56,
+    height: 56,
+    borderRadius: BorderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileName: {
-    ...Typography.h3,
-    marginBottom: Spacing.xs,
+    fontSize: 15,
+    fontWeight: '600',
   },
   profileEmail: {
-    ...Typography.bodySmall,
+    fontSize: 12,
+    marginTop: 2,
   },
   sectionTitle: {
-    ...Typography.h2,
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: Spacing.md,
-    marginTop: Spacing.lg,
   },
-  optionCard: {
-    flexDirection: "row",
-    alignItems: "center",
+  featureCard: {
     marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.md,
   },
-  optionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
+  featureIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  optionInfo: {
-    flex: 1,
+  featureTitle: {
+    fontSize: 15,
+    fontWeight: '600',
   },
-  optionTitle: {
-    ...Typography.body,
-    fontWeight: "600",
-    marginBottom: Spacing.xs,
+  featureSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
   },
-  optionSubtitle: {
-    ...Typography.caption,
+  toolCard: {
+    borderRadius: BorderRadius.md,
   },
-  settingsCard: {
-    marginBottom: Spacing.lg,
+  toolLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: Spacing.md,
   },
-  settingItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  toolInput: {
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    fontSize: 14,
+    marginBottom: Spacing.md,
   },
-  settingLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.md,
+  calculateBtn: {
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    marginBottom: Spacing.md,
   },
-  settingText: {
-    ...Typography.body,
+  calculateBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
   },
-  settingRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-  },
-  settingValue: {
-    ...Typography.body,
-  },
-  divider: {
-    height: 1,
-  },
-  aboutCard: {
-    alignItems: "center",
-    marginBottom: Spacing["3xl"],
-  },
-  aboutTitle: {
-    ...Typography.h2,
-    marginBottom: Spacing.xs,
-  },
-  aboutVersion: {
-    ...Typography.caption,
-    marginBottom: Spacing.sm,
-  },
-  aboutText: {
-    ...Typography.bodySmall,
-    textAlign: "center",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    borderTopLeftRadius: BorderRadius.lg,
-    borderTopRightRadius: BorderRadius.lg,
-    padding: Spacing["2xl"],
-    paddingBottom: Spacing["4xl"],
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.lg,
-  },
-  modalTitle: {
-    ...Typography.h1,
-  },
-  modalDescription: {
-    ...Typography.body,
-    marginBottom: Spacing.lg,
-  },
-  input: {
-    ...Typography.body,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
-    marginBottom: Spacing.lg,
-  },
-  calculateButton: {
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.sm,
-    alignItems: "center",
-    marginBottom: Spacing.lg,
-  },
-  calculateButtonText: {
-    ...Typography.body,
-    color: "#FFFFFF",
-    fontWeight: "700",
-  },
-  resultCard: {
-    alignItems: "center",
-    marginBottom: Spacing.lg,
+  result: {
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
   },
   resultLabel: {
-    ...Typography.bodySmall,
-    marginBottom: Spacing.xs,
+    fontSize: 12,
+    marginBottom: 4,
   },
   resultValue: {
-    ...Typography.display,
-    fontSize: 36,
-    fontWeight: "700",
-    marginBottom: Spacing.xs,
-  },
-  resultInfo: {
-    ...Typography.caption,
-  },
-  zakatInfo: {
-    ...Typography.caption,
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: '700',
   },
 });

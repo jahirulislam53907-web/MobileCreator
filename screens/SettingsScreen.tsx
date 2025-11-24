@@ -7,6 +7,16 @@ import { Card } from '@/components/Card';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
 
+interface SettingItem {
+  icon: string;
+  label: string;
+  subtitle?: string;
+  hasToggle?: boolean;
+  value?: boolean;
+  onChange?: (val: boolean) => void;
+  action?: () => void;
+}
+
 export default function SettingsScreen() {
   const { theme } = useTheme();
   const [notifications, setNotifications] = useState(true);
@@ -24,37 +34,36 @@ export default function SettingsScreen() {
   const SETTINGS_SECTIONS = [
     {
       title: 'প্রদর্শন',
-      icon: 'monitor',
+      icon: 'monitor' as const,
       items: [
-        { icon: 'moon', label: 'ডার্ক মোড', action: () => {}, hasToggle: true, value: false },
-        { icon: 'type', label: 'ফন্ট সাইজ', subtitle: 'মাঝারি' },
+        { icon: 'moon', label: 'ডার্ক মোড', hasToggle: true, value: false } as SettingItem,
+        { icon: 'type', label: 'ফন্ট সাইজ', subtitle: 'মাঝারি' } as SettingItem,
       ]
     },
     {
       title: 'নোটিফিকেশন',
-      icon: 'bell',
+      icon: 'bell' as const,
       items: [
-        { icon: 'bell', label: 'সমস্ত নোটিফিকেশন', hasToggle: true, value: notifications, onChange: setNotifications },
-        { icon: 'clock', label: 'নামাজের রিমাইন্ডার', hasToggle: true, value: prayerReminder, onChange: setPrayerReminder },
-        { icon: 'volume-2', label: 'নোটিফিকেশন শব্দ', hasToggle: true, value: soundEnabled, onChange: setSoundEnabled },
-        { icon: 'zap', label: 'কম্পন', hasToggle: true, value: vibration, onChange: setVibration },
+        { icon: 'bell', label: 'সমস্ত নোটিফিকেশন', hasToggle: true, value: notifications, onChange: setNotifications } as SettingItem,
+        { icon: 'clock', label: 'নামাজের রিমাইন্ডার', hasToggle: true, value: prayerReminder, onChange: setPrayerReminder } as SettingItem,
+        { icon: 'volume-2', label: 'নোটিফিকেশন শব্দ', hasToggle: true, value: soundEnabled, onChange: setSoundEnabled } as SettingItem,
+        { icon: 'zap', label: 'কম্পন', hasToggle: true, value: vibration, onChange: setVibration } as SettingItem,
       ]
     },
     {
       title: 'অ্যাপ তথ্য',
-      icon: 'info',
+      icon: 'info' as const,
       items: [
-        { icon: 'package', label: 'সংস্করণ', subtitle: '1.0.0' },
-        { icon: 'help-circle', label: 'সাহায্য ও সহায়তা', action: () => {} },
-        { icon: 'lock', label: 'গোপনীয়তা নীতি', action: () => {} },
-        { icon: 'file-text', label: 'শর্তাবলী', action: () => {} },
+        { icon: 'package', label: 'সংস্করণ', subtitle: '1.0.0' } as SettingItem,
+        { icon: 'help-circle', label: 'সাহায্য ও সহায়তা' } as SettingItem,
+        { icon: 'lock', label: 'গোপনীয়তা নীতি' } as SettingItem,
+        { icon: 'file-text', label: 'শর্তাবলী' } as SettingItem,
       ]
     }
   ];
 
   return (
     <ScreenScrollView>
-      {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
         <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
@@ -83,8 +92,8 @@ export default function SettingsScreen() {
                 </View>
                 {item.hasToggle ? (
                   <Switch
-                    value={item.value}
-                    onValueChange={item.onChange}
+                    value={item.value || false}
+                    onValueChange={item.onChange || (() => {})}
                     trackColor={{ false: theme.border, true: theme.primary + '40' }}
                     thumbColor={item.value ? theme.primary : theme.textSecondary}
                   />
@@ -97,7 +106,6 @@ export default function SettingsScreen() {
         </View>
       ))}
 
-      {/* Logout Button */}
       <Pressable
         onPress={handleLogout}
         style={({ pressed }) => [

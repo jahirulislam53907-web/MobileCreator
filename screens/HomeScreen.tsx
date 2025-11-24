@@ -57,7 +57,7 @@ export default function HomeScreen() {
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Feather name="mosque" size={32} color="#fff" />
+            <Feather name="home" size={32} color="#fff" />
             <View>
               <ThemedText style={styles.appName}>Smart Muslim</ThemedText>
               <ThemedText style={styles.tagline}>ইসলামিক সহায়ক</ThemedText>

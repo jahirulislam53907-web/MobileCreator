@@ -13,245 +13,152 @@ export default function QuranScreen() {
   const [selectedTab, setSelectedTab] = useState<"surah" | "para">("surah");
   const [search, setSearch] = useState("");
 
-  const renderSurahItem = ({ item }: { item: typeof QURAN_SURAHS[0] }) => (
-    <Card style={styles.surahCard}>
-      <View style={styles.surahRow}>
-        <View
-          style={[styles.surahNumber, { borderColor: theme.primary, backgroundColor: theme.primary + "15" }]}
-        >
-          <ThemedText style={[styles.surahNumberText, { color: theme.primary }]}>
-            {item.number}
-          </ThemedText>
-        </View>
-
-        <View style={styles.surahInfo}>
-          <ThemedText style={styles.surahName}>{item.nameBengali}</ThemedText>
-          <View style={styles.surahMeta}>
-            <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-              {item.revelationTypeBengali}
-            </ThemedText>
-            <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-              {" • "}
-            </ThemedText>
-            <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-              {item.numberOfAyahs} আয়াত
-            </ThemedText>
-          </View>
-        </View>
-
-        <ThemedText style={styles.surahNameAr}>{item.nameArabic}</ThemedText>
-      </View>
-    </Card>
-  );
-  
-  const renderParaItem = ({ item }: { item: typeof QURAN_PARA[0] }) => (
-    <Card style={styles.surahCard}>
-      <View style={styles.surahRow}>
-        <View
-          style={[styles.surahNumber, { borderColor: theme.secondary, backgroundColor: theme.secondary + "15" }]}
-        >
-          <ThemedText style={[styles.surahNumberText, { color: theme.secondary }]}>
-            {item.number}
-          </ThemedText>
-        </View>
-
-        <View style={styles.surahInfo}>
-          <ThemedText style={styles.surahName}>{item.nameBengali}</ThemedText>
-          <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-            সূরা {item.startSurah} থেকে {item.endSurah}
-          </ThemedText>
-        </View>
-
-        <ThemedText style={styles.surahNameAr}>{item.nameArabic}</ThemedText>
-      </View>
-    </Card>
-  );
-
-  const filteredSurahs = selectedTab === "surah" 
-    ? QURAN_SURAHS.filter(s => s.nameBengali.includes(search))
-    : QURAN_PARA.filter(p => p.nameBengali.includes(search));
+  const filteredData = selectedTab === "surah" 
+    ? QURAN_SURAHS.filter(s => s.nameBengali.toLowerCase().includes(search.toLowerCase()))
+    : QURAN_PARA.filter(p => p.nameBengali.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <ScreenScrollView>
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <View style={styles.tabContainer}>
-          <Pressable
-            onPress={() => setSelectedTab("surah")}
-            style={[
-              styles.tab,
-              selectedTab === "surah" && { backgroundColor: theme.primary },
-            ]}
-          >
-            <ThemedText
-              style={[
-                styles.tabText,
-                selectedTab === "surah" && { color: "#FFFFFF" },
-              ]}
-            >
-              সূরা
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            onPress={() => setSelectedTab("para")}
-            style={[
-              styles.tab,
-              selectedTab === "para" && { backgroundColor: theme.primary },
-            ]}
-          >
-            <ThemedText
-              style={[
-                styles.tabText,
-                selectedTab === "para" && { color: "#FFFFFF" },
-              ]}
-            >
-              পারা
-            </ThemedText>
-          </Pressable>
-        </View>
+        <ThemedText style={styles.headerTitle}>কুরআন</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>সম্পূর্ণ কুরআন শরীফ</ThemedText>
+      </View>
 
-        <Pressable style={styles.searchButton}>
-          <Feather name="search" size={20} color={theme.primary} />
+      <View style={styles.tabContainer}>
+        <Pressable 
+          style={[styles.tab, selectedTab === "surah" && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
+          onPress={() => setSelectedTab("surah")}
+        >
+          <ThemedText style={[styles.tabText, selectedTab === "surah" && { color: theme.primary, fontWeight: '700' }]}>সূরা</ThemedText>
+        </Pressable>
+        <Pressable 
+          style={[styles.tab, selectedTab === "para" && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
+          onPress={() => setSelectedTab("para")}
+        >
+          <ThemedText style={[styles.tabText, selectedTab === "para" && { color: theme.primary, fontWeight: '700' }]}>পারা</ThemedText>
         </Pressable>
       </View>
 
-      <Card style={styles.lastReadCard}>
-        <View style={styles.lastReadHeader}>
-          <Feather name="bookmark" size={20} color={theme.secondary} />
-          <ThemedText style={[styles.lastReadTitle, { color: theme.secondary }]}>
-            সর্বশেষ পড়া
-          </ThemedText>
-        </View>
-        <ThemedText style={styles.lastReadSurah}>সূরা আল-বাকারা</ThemedText>
-        <ThemedText style={[styles.lastReadVerse, { color: theme.textSecondary }]}>
-          আয়াত ২৫৫ - আয়াতুল কুরসি
-        </ThemedText>
-        <Pressable
-          style={({ pressed }) => [
-            styles.continueButton,
-            { backgroundColor: theme.primary },
-            pressed && { opacity: 0.8 },
-          ]}
-        >
-          <ThemedText style={styles.continueButtonText}>পড়া চালিয়ে যান</ThemedText>
-          <Feather name="arrow-right" size={16} color="#FFFFFF" />
-        </Pressable>
-      </Card>
+      <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }]}>
+        <Feather name="search" size={18} color={theme.textSecondary} />
+        <TextInput
+          style={[styles.searchInput, { color: theme.text }]}
+          placeholder={selectedTab === "surah" ? "সূরা খুঁজুন..." : "পারা খুঁজুন..."}
+          placeholderTextColor={theme.textSecondary}
+          value={search}
+          onChangeText={setSearch}
+        />
+        {search !== "" && (
+          <Pressable onPress={() => setSearch("")}>
+            <Feather name="x" size={18} color={theme.textSecondary} />
+          </Pressable>
+        )}
+      </View>
 
       <FlatList
-        data={selectedTab === "surah" ? QURAN_SURAHS : QURAN_PARA}
-        renderItem={selectedTab === "surah" ? renderSurahItem : renderParaItem}
-        keyExtractor={(item) => item.number.toString()}
-        contentContainerStyle={{ paddingBottom: Spacing.lg }}
+        scrollEnabled={false}
+        data={filteredData as any}
+        renderItem={({ item }: any) => (
+          <Pressable>
+            <Card style={[styles.itemCard, { ...Shadows.sm, borderLeftColor: theme.primary, borderLeftWidth: 4 }]}>
+              <View style={styles.itemRow}>
+                <View style={[styles.numberBox, { backgroundColor: theme.primary + "15" }]}>
+                  <ThemedText style={[styles.number, { color: theme.primary }]}>{item.number}</ThemedText>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText style={[styles.itemTitle, { color: theme.text }]}>{item.nameBengali}</ThemedText>
+                  <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
+                    {selectedTab === "surah" && item.numberOfAyahs ? `${item.numberOfAyahs} আয়াত` : selectedTab === "para" && item.startSurah ? `সূরা ${item.startSurah} - ${item.endSurah}` : ''}
+                  </ThemedText>
+                </View>
+                <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+              </View>
+            </Card>
+          </Pressable>
+        )}
+        keyExtractor={(item: any) => item.number.toString()}
       />
-    </ThemedView>
+
+      <View style={{ height: 30 }} />
+    </ScreenScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xl,
-  },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    marginHorizontal: -Spacing.lg,
+    marginTop: -Spacing.lg,
     marginBottom: Spacing.lg,
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderBottomRightRadius: BorderRadius.lg,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#fff',
+    opacity: 0.9,
+    marginTop: 4,
   },
   tabContainer: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#E9ECEF",
-    borderRadius: BorderRadius.sm,
-    padding: 4,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    marginBottom: Spacing.lg,
   },
   tab: {
     flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.xs,
-    alignItems: "center",
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
   },
   tabText: {
-    ...Typography.body,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: '600',
   },
-  searchButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  lastReadCard: {
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
     marginBottom: Spacing.lg,
-  },
-  lastReadHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-    marginBottom: Spacing.md,
-  },
-  lastReadTitle: {
-    ...Typography.bodySmall,
-    fontWeight: "600",
-  },
-  lastReadSurah: {
-    ...Typography.h2,
-    marginBottom: Spacing.xs,
-  },
-  lastReadVerse: {
-    ...Typography.bodySmall,
-    marginBottom: Spacing.md,
-  },
-  continueButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: Spacing.md,
-    borderRadius: BorderRadius.xs,
     gap: Spacing.sm,
   },
-  continueButtonText: {
-    ...Typography.body,
-    color: "#FFFFFF",
-    fontWeight: "600",
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    fontSize: 14,
   },
-  surahCard: {
+  itemCard: {
     marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
-  surahRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.md,
   },
-  surahNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
+  numberBox: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  surahNumberText: {
-    ...Typography.body,
-    fontWeight: "700",
+  number: {
+    fontWeight: '700',
+    fontSize: 14,
   },
-  surahInfo: {
-    flex: 1,
+  itemTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
   },
-  surahName: {
-    ...Typography.body,
-    fontWeight: "600",
-    marginBottom: Spacing.xs,
-  },
-  surahMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  surahMetaText: {
-    ...Typography.caption,
-  },
-  surahNameAr: {
-    ...Typography.h3,
+  itemSubtitle: {
+    fontSize: 12,
   },
 });

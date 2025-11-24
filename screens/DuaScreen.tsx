@@ -1,247 +1,181 @@
-import React from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Pressable, FlatList, TextInput } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, Typography, BorderRadius } from "@/constants/theme";
+import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
 const DUA_CATEGORIES = [
-  { icon: "sunrise", title: "সকালের দুয়া", count: 8, color: "#F4A261" },
-  { icon: "sunset", title: "সন্ধ্যার দুয়া", count: 8, color: "#D4A574" },
-  { icon: "clock", title: "নামাজের পরে", count: 12, color: "#2D6A4F" },
-  { icon: "coffee", title: "খাওয়া-দাওয়া", count: 6, color: "#40916C" },
-  { icon: "home", title: "ঘরে প্রবেশ/বের হওয়া", count: 4, color: "#52B788" },
-  { icon: "moon", title: "ঘুমানোর সময়", count: 7, color: "#B8860B" },
+  { title: "সকালের দুয়া", count: 8, icon: 'sunrise', color: '#f9a826' },
+  { title: "সন্ধ্যার দুয়া", count: 8, icon: 'sunset', color: '#2d936c' },
+  { title: "নামাজের পরে", count: 12, icon: 'clock', color: '#1a5e63' },
+  { title: "খাওয়া-দাওয়া", count: 6, icon: 'utensils', color: '#4CAF50' },
 ];
 
 const FEATURED_DUAS = [
-  {
-    title: "আয়াতুল কুরসি",
-    arabic: "اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ",
-    translation: "আল্লাহ, তিনি ছাড়া কোনো ইলাহ নেই। তিনি চিরঞ্জীব ও সর্বসত্তার ধারক।",
-  },
-  {
-    title: "তাসবিহে ফাতিমা",
-    arabic: "سُبْحَانَ اللَّهِ - الْحَمْدُ لِلَّهِ - اللَّهُ أَكْبَرُ",
-    translation: "সুবহানাল্লাহ (৩৩) - আলহামদুলিল্লাহ (৩৩) - আল্লাহু আকবার (৩৪)",
-  },
+  { title: "আয়াতুল কুরসি", arabic: "اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ", category: "সুরক্ষা" },
+  { title: "দুরুদ শরীফ", arabic: "صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ", category: "মহান" },
+  { title: "তাসবিহে ফাতিমা", arabic: "سُبْحَانَ اللَّهِ", category: "প্রশংসা" },
 ];
 
 export default function DuaScreen() {
   const { theme } = useTheme();
+  const [search, setSearch] = useState("");
 
   return (
     <ScreenScrollView>
-      <View style={styles.searchContainer}>
-        <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary }]}>
-          <Feather name="search" size={18} color={theme.textSecondary} />
-          <ThemedText style={[styles.searchPlaceholder, { color: theme.textSecondary }]}>
-            দুয়া খুঁজুন...
-          </ThemedText>
-        </View>
+      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+        <ThemedText style={styles.headerTitle}>দুয়া সংগ্রহ</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>২০০+ দুয়া সংরক্ষিত</ThemedText>
       </View>
 
-      <ThemedText style={styles.sectionTitle}>বিষয়ভিত্তিক দুয়া</ThemedText>
+      <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }]}>
+        <Feather name="search" size={18} color={theme.textSecondary} />
+        <TextInput
+          style={[styles.searchInput, { color: theme.text }]}
+          placeholder="দুয়া খুঁজুন..."
+          placeholderTextColor={theme.textSecondary}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
 
-      <View style={styles.categoriesGrid}>
-        {DUA_CATEGORIES.map((category) => (
-          <Pressable
-            key={category.title}
-            style={({ pressed }) => [
-              styles.categoryCard,
-              { backgroundColor: theme.backgroundDefault },
-              pressed && { opacity: 0.7 },
-            ]}
-          >
-            <View style={[styles.categoryIcon, { backgroundColor: category.color + "15" }]}>
-              <Feather name={category.icon as any} size={24} color={category.color} />
-            </View>
-            <ThemedText style={styles.categoryTitle}>{category.title}</ThemedText>
-            <ThemedText style={[styles.categoryCount, { color: theme.textSecondary }]}>
-              {category.count} টি দুয়া
-            </ThemedText>
+      <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>বিষয়ভিত্তিক দুয়া</ThemedText>
+      <View style={styles.categoryGrid}>
+        {DUA_CATEGORIES.map((cat, idx) => (
+          <Pressable key={idx} style={styles.categoryCardWrapper}>
+            <Card style={[styles.categoryCard, { ...Shadows.sm }]}>
+              <View style={[styles.categoryIcon, { backgroundColor: cat.color + '15' }]}>
+                <Feather name={cat.icon as any} size={24} color={cat.color} />
+              </View>
+              <ThemedText style={[styles.categoryTitle, { color: theme.text }]}>{cat.title}</ThemedText>
+              <ThemedText style={[styles.categoryCount, { color: theme.textSecondary }]}>{cat.count} টি</ThemedText>
+            </Card>
           </Pressable>
         ))}
       </View>
 
-      <ThemedText style={styles.sectionTitle}>গুরুত্বপূর্ণ দুয়া</ThemedText>
-
-      {FEATURED_DUAS.map((dua, index) => (
-        <Card key={index} style={styles.duaCard}>
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>গুরুত্বপূর্ণ দুয়া</ThemedText>
+      {FEATURED_DUAS.map((dua, idx) => (
+        <Card key={idx} style={[styles.duaCard, { ...Shadows.sm, borderLeftColor: theme.secondary, borderLeftWidth: 4 }]}>
           <View style={styles.duaHeader}>
-            <Feather name="star" size={18} color={theme.secondary} />
-            <ThemedText style={[styles.duaTitle, { color: theme.secondary }]}>
-              {dua.title}
-            </ThemedText>
+            <Feather name="star" size={18} color={theme.accent} />
+            <ThemedText style={[styles.duaTitle, { color: theme.secondary }]}>{dua.title}</ThemedText>
           </View>
-
-          <ThemedText style={styles.arabicText}>{dua.arabic}</ThemedText>
-
-          <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
-
-          <View style={styles.duaActions}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <Feather name="heart" size={18} color={theme.primary} />
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <Feather name="share-2" size={18} color={theme.primary} />
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <Feather name="copy" size={18} color={theme.primary} />
-            </Pressable>
-          </View>
+          <ThemedText style={[styles.duaArabic, { color: theme.text }]}>{dua.arabic}</ThemedText>
+          <ThemedText style={[styles.duaCategory, { color: theme.textSecondary }]}>{dua.category}</ThemedText>
+          <Pressable style={[styles.duaBtn, { backgroundColor: theme.primary + '15' }]}>
+            <Feather name="heart" size={16} color={theme.primary} />
+            <ThemedText style={[{ color: theme.primary, fontWeight: '600', marginLeft: Spacing.sm }]}>সংরক্ষণ করুন</ThemedText>
+          </Pressable>
         </Card>
       ))}
 
-      <Card style={styles.reminderCard}>
-        <View style={styles.reminderHeader}>
-          <Feather name="bell" size={20} color={theme.warning} />
-          <ThemedText style={[styles.reminderTitle, { color: theme.warning }]}>
-            দুয়া স্মরণিকা
-          </ThemedText>
-        </View>
-        <ThemedText style={[styles.reminderText, { color: theme.textSecondary }]}>
-          দৈনিক দুয়া পড়ার জন্য রিমাইন্ডার সেট করুন
-        </ThemedText>
-        <Pressable
-          style={({ pressed }) => [
-            styles.reminderButton,
-            { backgroundColor: theme.warning },
-            pressed && { opacity: 0.8 },
-          ]}
-        >
-          <ThemedText style={styles.reminderButtonText}>রিমাইন্ডার সেট করুন</ThemedText>
-        </Pressable>
-      </Card>
+      <View style={{ height: 30 }} />
     </ScreenScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  searchContainer: {
+  header: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    marginHorizontal: -Spacing.lg,
+    marginTop: -Spacing.lg,
     marginBottom: Spacing.lg,
+    borderBottomLeftRadius: BorderRadius.lg,
+    borderBottomRightRadius: BorderRadius.lg,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#fff',
+    opacity: 0.9,
+    marginTop: 4,
   },
   searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: Spacing.md,
-    borderRadius: BorderRadius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
     gap: Spacing.sm,
   },
-  searchPlaceholder: {
-    ...Typography.body,
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    fontSize: 14,
   },
   sectionTitle: {
-    ...Typography.h2,
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: Spacing.md,
-    marginTop: Spacing.lg,
   },
-  categoriesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  categoryGrid: {
+    flexDirection: 'row',
     gap: Spacing.md,
+    flexWrap: 'wrap',
     marginBottom: Spacing.lg,
   },
+  categoryCardWrapper: {
+    width: '48%',
+  },
   categoryCard: {
-    width: "47.5%",
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.sm,
-    alignItems: "center",
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
   },
   categoryIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 50,
+    height: 50,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.md,
   },
   categoryTitle: {
-    ...Typography.body,
-    fontWeight: "600",
-    textAlign: "center",
-    marginBottom: Spacing.xs,
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+    textAlign: 'center',
   },
   categoryCount: {
-    ...Typography.caption,
+    fontSize: 12,
   },
   duaCard: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
   duaHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.sm,
     marginBottom: Spacing.md,
   },
   duaTitle: {
-    ...Typography.h3,
+    fontSize: 15,
+    fontWeight: '600',
   },
-  arabicText: {
-    ...Typography.arabicLarge,
-    textAlign: "center",
+  duaArabic: {
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: Spacing.md,
   },
-  translationText: {
-    ...Typography.body,
-    textAlign: "center",
+  duaCategory: {
+    fontSize: 12,
     marginBottom: Spacing.md,
   },
-  duaActions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: Spacing.lg,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: "#E9ECEF",
-  },
-  actionButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  reminderCard: {
-    marginBottom: Spacing.lg,
-  },
-  reminderHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-    marginBottom: Spacing.sm,
-  },
-  reminderTitle: {
-    ...Typography.h3,
-  },
-  reminderText: {
-    ...Typography.body,
-    marginBottom: Spacing.md,
-  },
-  reminderButton: {
-    padding: Spacing.md,
-    borderRadius: BorderRadius.xs,
-    alignItems: "center",
-  },
-  reminderButtonText: {
-    ...Typography.body,
-    color: "#FFFFFF",
-    fontWeight: "600",
+  duaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
 });
