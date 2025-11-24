@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, ViewStyle, StyleProp, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -7,13 +7,14 @@ import Animated, {
   WithSpringConfig,
 } from "react-native-reanimated";
 
-import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius } from "@/constants/theme";
 
 interface CardProps {
-  elevation: number;
+  elevation?: number;
   onPress?: () => void;
+  children?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
 const springConfig: WithSpringConfig = {
@@ -41,8 +42,9 @@ const getBackgroundColorForElevation = (
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function Card({ elevation, onPress }: CardProps) {
+export function Card({ elevation = 1, onPress, children, style }: CardProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
 
@@ -60,26 +62,24 @@ export function Card({ elevation, onPress }: CardProps) {
     scale.value = withSpring(1, springConfig);
   };
 
+  const Component = onPress ? AnimatedPressable : AnimatedView;
+
   return (
-    <AnimatedPressable
+    <Component
       onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
+      onPressIn={onPress ? handlePressIn : undefined}
+      onPressOut={onPress ? handlePressOut : undefined}
       style={[
         styles.card,
         {
           backgroundColor: cardBackgroundColor,
         },
-        animatedStyle,
+        onPress ? animatedStyle : undefined,
+        style,
       ]}
     >
-      <ThemedText type="h4" style={styles.cardTitle}>
-        Card - Elevation {elevation}
-      </ThemedText>
-      <ThemedText type="small" style={styles.cardDescription}>
-        This card has an elevation of {elevation}
-      </ThemedText>
-    </AnimatedPressable>
+      {children}
+    </Component>
   );
 }
 

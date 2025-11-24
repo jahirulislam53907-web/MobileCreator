@@ -16,7 +16,7 @@ export function HeaderTitle({ title }: HeaderTitleProps) {
         style={styles.icon}
         resizeMode="contain"
       />
-      <ThemedText style={styles.title}>{title}</ThemedText>
+      <ThemedText style={styles.title}>ইসলামিক সুপার অ্যাপ</ThemedText>
     </View>
   );
 }

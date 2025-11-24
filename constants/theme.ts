@@ -1,30 +1,52 @@
 import { Platform } from "react-native";
 
-const tintColorLight = "#007AFF";
-const tintColorDark = "#0A84FF";
+const primaryLight = "#2D6A4F";
+const primaryDark = "#52B788";
 
 export const Colors = {
   light: {
-    text: "#11181C",
+    text: "#212529",
+    textSecondary: "#6C757D",
     buttonText: "#FFFFFF",
-    tabIconDefault: "#687076",
-    tabIconSelected: tintColorLight,
-    link: "#007AFF",
-    backgroundRoot: "#FFFFFF", // Elevation 0
-    backgroundDefault: "#F2F2F2", // Elevation 1
-    backgroundSecondary: "#E6E6E6", // Elevation 2
-    backgroundTertiary: "#D9D9D9", // Elevation 3
+    tabIconDefault: "#6C757D",
+    tabIconSelected: primaryLight,
+    link: "#2D6A4F",
+    primary: "#2D6A4F",
+    primaryLight: "#52B788",
+    primaryDark: "#1B4332",
+    secondary: "#D4A574",
+    secondaryLight: "#E9C992",
+    secondaryDark: "#B8860B",
+    success: "#40916C",
+    warning: "#F4A261",
+    error: "#E76F51",
+    backgroundRoot: "#F8F9FA",
+    backgroundDefault: "#FFFFFF",
+    backgroundSecondary: "#F8F9FA",
+    backgroundTertiary: "#E9ECEF",
+    border: "#DEE2E6",
   },
   dark: {
-    text: "#ECEDEE",
+    text: "#F8F9FA",
+    textSecondary: "#ADB5BD",
     buttonText: "#FFFFFF",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
-    link: "#0A84FF",
-    backgroundRoot: "#1F2123", // Elevation 0
-    backgroundDefault: "#2A2C2E", // Elevation 1
-    backgroundSecondary: "#353739", // Elevation 2
-    backgroundTertiary: "#404244", // Elevation 3
+    tabIconDefault: "#ADB5BD",
+    tabIconSelected: primaryDark,
+    link: "#52B788",
+    primary: "#52B788",
+    primaryLight: "#74C69D",
+    primaryDark: "#2D6A4F",
+    secondary: "#E9C992",
+    secondaryLight: "#F0D9AA",
+    secondaryDark: "#D4A574",
+    success: "#52B788",
+    warning: "#F4A261",
+    error: "#E76F51",
+    backgroundRoot: "#1A1A1A",
+    backgroundDefault: "#2A2A2A",
+    backgroundSecondary: "#1A1A1A",
+    backgroundTertiary: "#3A3A3A",
+    border: "#4A4A4A",
   },
 };
 
@@ -54,39 +76,44 @@ export const BorderRadius = {
 };
 
 export const Typography = {
-  h1: {
+  display: {
     fontSize: 32,
-    lineHeight: 40,
     fontWeight: "700" as const,
+  },
+  h1: {
+    fontSize: 24,
+    fontWeight: "600" as const,
   },
   h2: {
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: "700" as const,
+    fontSize: 20,
+    fontWeight: "600" as const,
   },
   h3: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "600" as const,
-  },
-  h4: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: "600" as const,
+    fontSize: 18,
+    fontWeight: "500" as const,
   },
   body: {
     fontSize: 16,
-    lineHeight: 24,
+    fontWeight: "400" as const,
+  },
+  bodySmall: {
+    fontSize: 14,
+    fontWeight: "400" as const,
+  },
+  caption: {
+    fontSize: 12,
+    fontWeight: "400" as const,
+  },
+  arabicLarge: {
+    fontSize: 28,
     fontWeight: "400" as const,
   },
   small: {
     fontSize: 14,
-    lineHeight: 20,
     fontWeight: "400" as const,
   },
   link: {
     fontSize: 16,
-    lineHeight: 24,
     fontWeight: "400" as const,
   },
 };
