@@ -98,24 +98,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
-            <Feather name="navigation" size={28} color="#fff" />
-            <ThemedText style={styles.appName}>smart Muslim</ThemedText>
-          </View>
-          <View style={styles.headerRight}>
-            <Pressable style={styles.headerIcon}>
-              <Feather name="search" size={20} color="#fff" />
-            </Pressable>
-            <Pressable style={styles.headerIcon}>
-              <Feather name="bell" size={20} color="#fff" />
-            </Pressable>
-          </View>
-        </View>
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
         <View style={styles.locationCard}>
@@ -279,43 +261,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-  },
-  header: {
-    backgroundColor: '#1a5e63',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  appName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  tagline: {
-    fontSize: 11,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  headerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   content: {
     flex: 1,
