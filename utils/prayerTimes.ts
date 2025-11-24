@@ -67,7 +67,6 @@ export const getNextPrayer = (
   const params = CalculationMethod.Karachi();
   const prayerTimes = new PrayerTimes(coordinates, new Date(), params);
 
-  const currentPrayer = prayerTimes.currentPrayer();
   const nextPrayer = prayerTimes.nextPrayer();
   
   if (!nextPrayer) return null;
@@ -82,12 +81,13 @@ export const getNextPrayer = (
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const prayerName = Prayer[nextPrayer];
+  const prayerNameStr = Prayer[nextPrayer] as string;
+  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['Fajr'];
   
   return {
-    name: PRAYER_NAMES[prayerName].en,
-    nameAr: PRAYER_NAMES[prayerName].ar,
-    nameBn: PRAYER_NAMES[prayerName].bn,
+    name: prayerData.en,
+    nameAr: prayerData.ar,
+    nameBn: prayerData.bn,
     time: nextPrayerTime,
     timeRemaining: {
       hours: Math.max(0, hours),
