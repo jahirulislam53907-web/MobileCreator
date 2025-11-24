@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Pressable, ScrollView, SafeAreaView } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
 
@@ -23,7 +23,7 @@ const QURAN_VERSES: QuranVerse[] = [
 ];
 
 export default function HomeScreen() {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
