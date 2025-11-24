@@ -77,12 +77,6 @@ export default function SettingsScreen() {
     <View style={{ flex: 1 }}>
       <HeaderNav />
       <ScreenScrollView>
-        {/* Header - HomeScreen Style */}
-        <View style={[styles.header, { backgroundColor: theme.primary }]}>
-          <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
-          <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
-        </View>
-
       {/* Content Container */}
       <View style={styles.contentContainer}>
         {/* Settings Sections */}

@@ -34,11 +34,6 @@ export default function MoreScreen() {
     <View style={{ flex: 1 }}>
       <HeaderNav />
       <ScreenScrollView>
-        <View style={[styles.header, { backgroundColor: theme.primary }]}>
-          <ThemedText style={styles.headerTitle}>আরও বৈশিষ্ট্য</ThemedText>
-          <ThemedText style={styles.headerSubtitle}>সমস্ত সরঞ্জাম এবং বৈশিষ্ট্য</ThemedText>
-        </View>
-
       <Card style={styles.profileCard}>
         <View style={styles.profileRow}>
           <View style={[styles.avatar, { backgroundColor: theme.primary + '20' }]}>

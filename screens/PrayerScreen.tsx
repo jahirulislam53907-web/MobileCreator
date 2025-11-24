@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
+import { HeaderNav } from "@/components/HeaderNav";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
@@ -26,13 +27,10 @@ export default function PrayerScreen() {
   };
 
   return (
-    <ScreenScrollView>
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.headerTitle}>নামাজের সময়সূচী</ThemedText>
-        <ThemedText style={styles.headerSubtitle}>আজকের পাঁচ ওয়াক্তের নামাজ</ThemedText>
-      </View>
-
-      <View style={styles.prayerGrid}>
+    <View style={{ flex: 1 }}>
+      <HeaderNav />
+      <ScreenScrollView>
+      <View style={[styles.container, { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }]}>
         {PRAYER_TIMES.map((prayer, idx) => (
           <Card 
             key={idx}
