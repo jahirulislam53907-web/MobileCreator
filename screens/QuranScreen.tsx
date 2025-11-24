@@ -8,19 +8,7 @@ import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, Typography, BorderRadius } from "@/constants/theme";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-
-const SURAHS = [
-  { number: 1, name: "আল-ফাতিহা", nameAr: "الفاتحة", verses: 7, revelation: "মক্কা" },
-  { number: 2, name: "আল-বাকারা", nameAr: "البقرة", verses: 286, revelation: "মদিনা" },
-  { number: 3, name: "আল-ইমরান", nameAr: "آل عمران", verses: 200, revelation: "মদিনা" },
-  { number: 4, name: "আন-নিসা", nameAr: "النساء", verses: 176, revelation: "মদিনা" },
-  { number: 5, name: "আল-মায়িদা", nameAr: "المائدة", verses: 120, revelation: "মদিনা" },
-  { number: 6, name: "আল-আনআম", nameAr: "الأنعام", verses: 165, revelation: "মক্কা" },
-  { number: 7, name: "আল-আরাফ", nameAr: "الأعراف", verses: 206, revelation: "মক্কা" },
-  { number: 8, name: "আল-আনফাল", nameAr: "الأنفال", verses: 75, revelation: "মদিনা" },
-  { number: 9, name: "আত-তাওবা", nameAr: "التوبة", verses: 129, revelation: "মদিনা" },
-  { number: 10, name: "ইউনুস", nameAr: "يونس", verses: 109, revelation: "মক্কা" },
-];
+import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
 
 export default function QuranScreen() {
   const { theme } = useTheme();
@@ -28,7 +16,7 @@ export default function QuranScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
-  const renderSurahItem = ({ item }: { item: typeof SURAHS[0] }) => (
+  const renderSurahItem = ({ item }: { item: typeof QURAN_SURAHS[0] }) => (
     <Card style={styles.surahCard}>
       <View style={styles.surahRow}>
         <View
@@ -40,21 +28,44 @@ export default function QuranScreen() {
         </View>
 
         <View style={styles.surahInfo}>
-          <ThemedText style={styles.surahName}>{item.name}</ThemedText>
+          <ThemedText style={styles.surahName}>{item.nameBengali}</ThemedText>
           <View style={styles.surahMeta}>
             <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-              {item.revelation}
+              {item.revelationTypeBengali}
             </ThemedText>
             <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
               {" • "}
             </ThemedText>
             <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
-              {item.verses} আয়াত
+              {item.numberOfAyahs} আয়াত
             </ThemedText>
           </View>
         </View>
 
-        <ThemedText style={styles.surahNameAr}>{item.nameAr}</ThemedText>
+        <ThemedText style={styles.surahNameAr}>{item.nameArabic}</ThemedText>
+      </View>
+    </Card>
+  );
+  
+  const renderParaItem = ({ item }: { item: typeof QURAN_PARA[0] }) => (
+    <Card style={styles.surahCard}>
+      <View style={styles.surahRow}>
+        <View
+          style={[styles.surahNumber, { borderColor: theme.secondary, backgroundColor: theme.secondary + "15" }]}
+        >
+          <ThemedText style={[styles.surahNumberText, { color: theme.secondary }]}>
+            {item.number}
+          </ThemedText>
+        </View>
+
+        <View style={styles.surahInfo}>
+          <ThemedText style={styles.surahName}>{item.nameBengali}</ThemedText>
+          <ThemedText style={[styles.surahMetaText, { color: theme.textSecondary }]}>
+            সূরা {item.startSurah} থেকে {item.endSurah}
+          </ThemedText>
+        </View>
+
+        <ThemedText style={styles.surahNameAr}>{item.nameArabic}</ThemedText>
       </View>
     </Card>
   );
@@ -126,8 +137,8 @@ export default function QuranScreen() {
       </Card>
 
       <FlatList
-        data={SURAHS}
-        renderItem={renderSurahItem}
+        data={selectedTab === "surah" ? QURAN_SURAHS : QURAN_PARA}
+        renderItem={selectedTab === "surah" ? renderSurahItem : renderParaItem}
         keyExtractor={(item) => item.number.toString()}
         contentContainerStyle={{ paddingBottom: Spacing.lg }}
       />

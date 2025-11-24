@@ -6,14 +6,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, Typography, BorderRadius } from "@/constants/theme";
-
-const PRAYER_TIMES = [
-  { name: "ফজর", time: "05:15", completed: true },
-  { name: "জোহর", time: "12:30", completed: true },
-  { name: "আসর", time: "15:45", completed: false },
-  { name: "মাগরিব", time: "18:10", completed: false },
-  { name: "এশা", time: "19:30", completed: false },
-];
+import { 
+  calculatePrayerTimes, 
+  getNextPrayer, 
+  DHAKA_COORDINATES,
+  type PrayerTimesData,
+  type NextPrayerInfo
+} from "@/utils/prayerTimes";
 
 const QUICK_ACTIONS = [
   { icon: "compass", label: "ক্বিবলা", color: "#2D6A4F" },
@@ -26,32 +25,39 @@ const QUICK_ACTIONS = [
 
 export default function HomeScreen() {
   const { theme } = useTheme();
-  const [timeLeft, setTimeLeft] = useState({ hours: 3, minutes: 25, seconds: 15 });
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
+  const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
+  const [completedPrayers, setCompletedPrayers] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { hours, minutes, seconds } = prev;
-        if (seconds > 0) {
-          seconds--;
-        } else {
-          seconds = 59;
-          if (minutes > 0) {
-            minutes--;
-          } else {
-            minutes = 59;
-            if (hours > 0) {
-              hours--;
-            }
-          }
-        }
-        return { hours, minutes, seconds };
-      });
-    }, 1000);
+    const times = calculatePrayerTimes(
+      DHAKA_COORDINATES.latitude,
+      DHAKA_COORDINATES.longitude
+    );
+    setPrayerTimes(times);
+  }, []);
+
+  useEffect(() => {
+    const updateNextPrayer = () => {
+      const next = getNextPrayer(
+        DHAKA_COORDINATES.latitude,
+        DHAKA_COORDINATES.longitude
+      );
+      setNextPrayerInfo(next);
+    };
+
+    updateNextPrayer();
+    const interval = setInterval(updateNextPrayer, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const nextPrayer = PRAYER_TIMES.find((p) => !p.completed);
+  const prayers = prayerTimes ? [
+    { name: "ফজর", time: prayerTimes.fajr, key: "fajr" },
+    { name: "যোহর", time: prayerTimes.dhuhr, key: "dhuhr" },
+    { name: "আসর", time: prayerTimes.asr, key: "asr" },
+    { name: "মাগরিব", time: prayerTimes.maghrib, key: "maghrib" },
+    { name: "এশা", time: prayerTimes.isha, key: "isha" },
+  ] : [];
 
   return (
     <ScreenScrollView>
@@ -84,30 +90,32 @@ export default function HomeScreen() {
           পরবর্তী নামাজ
         </ThemedText>
         <ThemedText style={[styles.prayerName, { color: theme.primary }]}>
-          {nextPrayer?.name}
+          {nextPrayerInfo?.nameBn || "লোড হচ্ছে..."}
         </ThemedText>
-        <View style={styles.timerContainer}>
-          <View style={styles.timeBlock}>
-            <ThemedText style={styles.timeValue}>
-              {String(timeLeft.hours).padStart(2, "0")}
-            </ThemedText>
-            <ThemedText style={styles.timeUnit}>ঘন্টা</ThemedText>
+        {nextPrayerInfo ? (
+          <View style={styles.timerContainer}>
+            <View style={styles.timeBlock}>
+              <ThemedText style={styles.timeValue}>
+                {String(nextPrayerInfo.timeRemaining.hours).padStart(2, "0")}
+              </ThemedText>
+              <ThemedText style={styles.timeUnit}>ঘন্টা</ThemedText>
+            </View>
+            <ThemedText style={styles.timeSeparator}>:</ThemedText>
+            <View style={styles.timeBlock}>
+              <ThemedText style={styles.timeValue}>
+                {String(nextPrayerInfo.timeRemaining.minutes).padStart(2, "0")}
+              </ThemedText>
+              <ThemedText style={styles.timeUnit}>মিনিট</ThemedText>
+            </View>
+            <ThemedText style={styles.timeSeparator}>:</ThemedText>
+            <View style={styles.timeBlock}>
+              <ThemedText style={styles.timeValue}>
+                {String(nextPrayerInfo.timeRemaining.seconds).padStart(2, "0")}
+              </ThemedText>
+              <ThemedText style={styles.timeUnit}>সেকেন্ড</ThemedText>
+            </View>
           </View>
-          <ThemedText style={styles.timeSeparator}>:</ThemedText>
-          <View style={styles.timeBlock}>
-            <ThemedText style={styles.timeValue}>
-              {String(timeLeft.minutes).padStart(2, "0")}
-            </ThemedText>
-            <ThemedText style={styles.timeUnit}>মিনিট</ThemedText>
-          </View>
-          <ThemedText style={styles.timeSeparator}>:</ThemedText>
-          <View style={styles.timeBlock}>
-            <ThemedText style={styles.timeValue}>
-              {String(timeLeft.seconds).padStart(2, "0")}
-            </ThemedText>
-            <ThemedText style={styles.timeUnit}>সেকেন্ড</ThemedText>
-          </View>
-        </View>
+        ) : null}
       </Card>
 
       <Card style={styles.verseCard}>
@@ -130,41 +138,44 @@ export default function HomeScreen() {
 
       <ThemedText style={styles.sectionTitle}>নামাজের সময়সূচী</ThemedText>
       <Card style={styles.prayerTimesCard}>
-        {PRAYER_TIMES.map((prayer, index) => (
-          <View key={prayer.name}>
-            <View style={styles.prayerRow}>
-              <View style={styles.prayerLeft}>
-                <View
-                  style={[
-                    styles.prayerDot,
-                    {
-                      backgroundColor: prayer.completed ? theme.success : theme.textSecondary,
-                    },
-                  ]}
-                />
+        {prayers.map((prayer, index) => {
+          const isCompleted = completedPrayers[prayer.key] || false;
+          return (
+            <View key={prayer.name}>
+              <View style={styles.prayerRow}>
+                <View style={styles.prayerLeft}>
+                  <View
+                    style={[
+                      styles.prayerDot,
+                      {
+                        backgroundColor: isCompleted ? theme.success : theme.textSecondary,
+                      },
+                    ]}
+                  />
+                  <ThemedText
+                    style={[
+                      styles.prayerNameText,
+                      isCompleted && { color: theme.success },
+                    ]}
+                  >
+                    {prayer.name}
+                  </ThemedText>
+                </View>
                 <ThemedText
                   style={[
-                    styles.prayerNameText,
-                    prayer.completed && { color: theme.success },
+                    styles.prayerTime,
+                    isCompleted && { color: theme.success },
                   ]}
                 >
-                  {prayer.name}
+                  {prayer.time}
                 </ThemedText>
               </View>
-              <ThemedText
-                style={[
-                  styles.prayerTime,
-                  prayer.completed && { color: theme.success },
-                ]}
-              >
-                {prayer.time}
-              </ThemedText>
+              {index < prayers.length - 1 && (
+                <View style={[styles.prayerDivider, { backgroundColor: theme.border }]} />
+              )}
             </View>
-            {index < PRAYER_TIMES.length - 1 && (
-              <View style={[styles.prayerDivider, { backgroundColor: theme.border }]} />
-            )}
-          </View>
-        ))}
+          );
+        })}
       </Card>
 
       <ThemedText style={styles.sectionTitle}>দ্রুত এক্সেস</ThemedText>
