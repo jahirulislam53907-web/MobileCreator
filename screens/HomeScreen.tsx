@@ -111,50 +111,40 @@ export default function HomeScreen() {
 
       {/* Quick Actions Section */}
       <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>দ্রুত অ্যাক্সেস</ThemedText>
-      <FlatList
-        scrollEnabled={false}
-        data={QUICK_ACTIONS}
-        numColumns={4}
-        renderItem={({ item }) => (
-          <Pressable style={[styles.actionCard, { ...Shadows.sm }]}>
+      <View style={styles.actionsGrid}>
+        {QUICK_ACTIONS.map((item, idx) => (
+          <Pressable key={idx} style={styles.actionCard}>
             <View style={[styles.actionIcon, { backgroundColor: item.color + "20", borderRadius: BorderRadius.lg }]}>
               <Feather name={item.icon as any} size={20} color={item.color} />
             </View>
             <ThemedText style={[styles.actionLabel, { color: theme.text }]}>{item.label}</ThemedText>
           </Pressable>
-        )}
-        keyExtractor={(_, i) => i.toString()}
-        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: Spacing.md }}
-      />
+        ))}
+      </View>
 
       {/* Prayer Times Section */}
       <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>আজকের নামাজের সময়সূচী</ThemedText>
-      <Card style={{ ...Shadows.md }}>
-        <FlatList
-          scrollEnabled={false}
-          data={prayers}
-          numColumns={5}
-          renderItem={({ item }) => (
-            <View style={styles.prayerTimeItem}>
+      <Card style={styles.prayerTimesCard}>
+        <View style={styles.prayerTimesGrid}>
+          {prayers.map((item) => (
+            <View key={item.key} style={styles.prayerTimeItem}>
               <ThemedText style={[styles.prayerTimeName, { color: theme.text }]}>{item.name}</ThemedText>
               <ThemedText style={[styles.prayerTimeHour, { color: theme.primary }]}>{item.time}</ThemedText>
             </View>
-          )}
-          keyExtractor={(item) => item.key}
-          columnWrapperStyle={{ flex: 1 }}
-        />
+          ))}
+        </View>
       </Card>
 
       {/* Features Grid */}
       <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>প্রধান বৈশিষ্ট্য</ThemedText>
       <View style={styles.featureGrid}>
-        <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+        <Card style={styles.featureCard}>
           <Feather name="book-open" size={28} color={theme.primary} />
           <ThemedText style={[styles.featureTitle, { color: theme.text }]}>সম্পূর্ণ কুরআন</ThemedText>
           <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>বাংলা অনুবাদ সহ</ThemedText>
         </Card>
 
-        <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+        <Card style={styles.featureCard}>
           <Feather name="calendar" size={28} color={theme.secondary} />
           <ThemedText style={[styles.featureTitle, { color: theme.text }]}>ইসলামিক ক্যালেন্ডার</ThemedText>
           <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>হিজরি তারিখ ট্র্যাক করুন</ThemedText>
@@ -162,13 +152,13 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.featureGrid}>
-        <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+        <Card style={styles.featureCard}>
           <Feather name="compass" size={28} color={theme.accent} />
           <ThemedText style={[styles.featureTitle, { color: theme.text }]}>কিবলা দিক</ThemedText>
           <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>রিয়েল-টাইম কম্পাস</ThemedText>
         </Card>
 
-        <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+        <Card style={styles.featureCard}>
           <Feather name="heart" size={28} color="#4CAF50" />
           <ThemedText style={[styles.featureTitle, { color: theme.text }]}>দুয়া সংগ্রহ</ThemedText>
           <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>২০০+ দুয়া সংরক্ষিত</ThemedText>

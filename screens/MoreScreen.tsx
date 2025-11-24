@@ -12,7 +12,7 @@ const MORE_FEATURES = [
   { icon: 'gift', title: 'যাকাত ক্যালকুলেটর', subtitle: 'যাকাত হিসাব করুন', color: '#f9a826' },
   { icon: 'moon', title: 'রমজান ট্র্যাকার', subtitle: 'রোজা এবং ইবাদত ট্র্যাক করুন', color: '#2d936c' },
   { icon: 'map-pin', title: 'কাছের মসজিদ', subtitle: 'আশেপাশের মসজিদ খুঁজুন', color: '#4CAF50' },
-  { icon: 'book', title: 'হাদিস সংগ্রহ', subtitle: 'সহিহ হাদিস পড়ুন', color: '#1a5e63' },
+  { icon: 'file-text', title: 'হাদিস সংগ্রহ', subtitle: 'সহিহ হাদিস পড়ুন', color: '#1a5e63' },
   { icon: 'help-circle', title: 'প্রশ্নোত্তর', subtitle: 'ইসলামিক প্রশ্নের উত্তর', color: '#f9a826' },
 ];
 
@@ -36,7 +36,7 @@ export default function MoreScreen() {
         <ThemedText style={styles.headerSubtitle}>সমস্ত সরঞ্জাম এবং বৈশিষ্ট্য</ThemedText>
       </View>
 
-      <Card style={[styles.profileCard, { ...Shadows.md }]}>
+      <Card style={styles.profileCard}>
         <View style={styles.profileRow}>
           <View style={[styles.avatar, { backgroundColor: theme.primary + '20' }]}>
             <Feather name="user" size={32} color={theme.primary} />
@@ -54,7 +54,7 @@ export default function MoreScreen() {
       <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>প্রধান বৈশিষ্ট্য</ThemedText>
       {MORE_FEATURES.map((feature, idx) => (
         <Pressable key={idx}>
-          <Card style={[styles.featureCard, { ...Shadows.sm }]}>
+          <Card style={styles.featureCard}>
             <View style={styles.featureRow}>
               <View style={[styles.featureIcon, { backgroundColor: feature.color + '15' }]}>
                 <Feather name={feature.icon as any} size={20} color={feature.color} />
@@ -70,7 +70,7 @@ export default function MoreScreen() {
       ))}
 
       <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>যাকাত ক্যালকুলেটর</ThemedText>
-      <Card style={[styles.toolCard, { ...Shadows.sm }]}>
+      <Card style={styles.toolCard}>
         <ThemedText style={[styles.toolLabel, { color: theme.text }]}>মোট সম্পদ (টাকা)</ThemedText>
         <TextInput
           style={[styles.toolInput, { backgroundColor: theme.backgroundSecondary, color: theme.text, borderColor: theme.border, borderWidth: 1 }]}
