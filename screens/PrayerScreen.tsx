@@ -30,7 +30,7 @@ export default function PrayerScreen() {
     <View style={{ flex: 1 }}>
       <HeaderNav />
       <ScreenScrollView>
-      <View style={[styles.container, { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }]}>
+      <View style={{ paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }}>
         {PRAYER_TIMES.map((prayer, idx) => (
           <Card 
             key={idx}
