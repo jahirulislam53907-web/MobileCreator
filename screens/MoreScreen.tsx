@@ -89,7 +89,7 @@ export default function MoreScreen() {
         )}
       </Card>
 
-      <View style={{ height: 30 }} />
+        <View style={{ height: 30 }} />
       </ScreenScrollView>
     </View>
   );

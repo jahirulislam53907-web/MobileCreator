@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
+import { HeaderNav } from "@/components/HeaderNav";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
 import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
@@ -18,11 +19,9 @@ export default function QuranScreen() {
     : QURAN_PARA.filter(p => p.nameBengali.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <ScreenScrollView>
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.headerTitle}>কুরআন</ThemedText>
-        <ThemedText style={styles.headerSubtitle}>সম্পূর্ণ কুরআন শরীফ</ThemedText>
-      </View>
+    <View style={{ flex: 1 }}>
+      <HeaderNav />
+      <ScreenScrollView>
 
       <View style={styles.tabContainer}>
         <Pressable 

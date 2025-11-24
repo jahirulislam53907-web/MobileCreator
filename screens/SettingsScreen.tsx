@@ -172,7 +172,7 @@ export default function SettingsScreen() {
 
         <View style={{ height: 30 }} />
       </View>
-    </ScreenScrollView>
+      </ScreenScrollView>
     </View>
   );
 }

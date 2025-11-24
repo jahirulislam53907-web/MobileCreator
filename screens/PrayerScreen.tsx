@@ -84,7 +84,8 @@ export default function PrayerScreen() {
       </Card>
 
       <View style={{ height: 30 }} />
-    </ScreenScrollView>
+      </ScreenScrollView>
+    </View>
   );
 }
 

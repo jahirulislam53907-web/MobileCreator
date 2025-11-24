@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
+import { HeaderNav } from "@/components/HeaderNav";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
@@ -25,11 +26,9 @@ export default function DuaScreen() {
   const [search, setSearch] = useState("");
 
   return (
-    <ScreenScrollView>
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.headerTitle}>দুয়া সংগ্রহ</ThemedText>
-        <ThemedText style={styles.headerSubtitle}>২০০+ দুয়া সংরক্ষিত</ThemedText>
-      </View>
+    <View style={{ flex: 1 }}>
+      <HeaderNav />
+      <ScreenScrollView>
 
       <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }]}>
         <Feather name="search" size={18} color={theme.textSecondary} />
