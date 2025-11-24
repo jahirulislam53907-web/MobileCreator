@@ -16,6 +16,13 @@ export default function HomeStackNavigator() {
   const { theme, isDark } = useTheme();
   const navigation = useNavigation();
 
+  const handleSettingsPress = () => {
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.navigate("MoreTab" as any);
+    }
+  };
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -26,12 +33,7 @@ export default function HomeStackNavigator() {
             onProfilePress={() => {
               // Profile action
             }}
-            onSettingsPress={() => {
-              // Navigate to settings tab
-              if (navigation.getParent()) {
-                navigation.getParent()?.navigate("Settings" as any);
-              }
-            }}
+            onSettingsPress={handleSettingsPress}
           />
         ),
       }}
