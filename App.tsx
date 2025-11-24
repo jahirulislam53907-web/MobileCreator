@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -8,17 +8,11 @@ import { StatusBar } from "expo-status-bar";
 
 import MainTabNavigator from "@/navigation/MainTabNavigator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AppThemeProvider } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
-export default function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const systemTheme = useColorScheme();
-
-  useEffect(() => {
-    if (systemTheme) {
-      setTheme(systemTheme);
-    }
-  }, [systemTheme]);
+function AppContent() {
+  const colorScheme = useColorScheme();
 
   return (
     <ErrorBoundary>
@@ -28,11 +22,19 @@ export default function App() {
             <NavigationContainer>
               <MainTabNavigator />
             </NavigationContainer>
-            <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           </KeyboardProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
+    <AppThemeProvider>
+      <AppContent />
+    </AppThemeProvider>
   );
 }
 

@@ -8,7 +8,7 @@ import PrayerScreen from "@/screens/PrayerScreen";
 import QuranScreen from "@/screens/QuranScreen";
 import DuaScreen from "@/screens/DuaScreen";
 import MoreScreen from "@/screens/MoreScreen";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 export type MainTabParamList = {
   HomeTab: undefined;
@@ -21,7 +21,7 @@ export type MainTabParamList = {
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabNavigator() {
-  const { theme, isDark } = useTheme();
+  const { theme, isDark } = useAppTheme();
 
   return (
     <Tab.Navigator
