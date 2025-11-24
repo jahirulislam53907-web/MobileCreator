@@ -79,8 +79,9 @@ export default function SettingsScreen() {
         <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
       </View>
 
-      {SETTINGS_SECTIONS.map((section, sectionIdx) => (
-        <View key={sectionIdx}>
+      <View style={styles.contentWrapper}>
+        {SETTINGS_SECTIONS.map((section, sectionIdx) => (
+          <View key={sectionIdx}>
           <View style={styles.sectionHeader}>
             <Feather name={section.icon as any} size={16} color={theme.primary} />
             <ThemedText style={[styles.sectionTitle, { color: theme.primary }]}>{section.title}</ThemedText>
@@ -146,24 +147,29 @@ export default function SettingsScreen() {
         </View>
       ))}
 
-      <Pressable
-        onPress={handleLogout}
-        style={({ pressed }) => [
-          styles.logoutBtn,
-          { backgroundColor: '#ef5350' },
-          pressed && { opacity: 0.8 }
-        ]}
-      >
-        <Feather name="log-out" size={20} color="#fff" />
-        <ThemedText style={styles.logoutText}>লগ আউট</ThemedText>
-      </Pressable>
+        <Pressable
+          onPress={handleLogout}
+          style={({ pressed }) => [
+            styles.logoutBtn,
+            { backgroundColor: '#ef5350' },
+            pressed && { opacity: 0.8 }
+          ]}
+        >
+          <Feather name="log-out" size={20} color="#fff" />
+          <ThemedText style={styles.logoutText}>লগ আউট</ThemedText>
+        </Pressable>
 
-      <View style={{ height: 30 }} />
+        <View style={{ height: 30 }} />
+      </View>
     </ScreenScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  contentWrapper: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+  },
   header: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -198,6 +204,8 @@ const styles = StyleSheet.create({
   settingItem: {
     marginBottom: Spacing.md,
     borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
   },
   itemContent: {
     flexDirection: 'row',
