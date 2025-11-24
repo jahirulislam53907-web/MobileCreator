@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Switch, Alert, FlatList } from 'react-native';
+import { View, StyleSheet, Pressable, Switch, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -74,79 +74,93 @@ export default function SettingsScreen() {
 
   return (
     <ScreenScrollView>
+      {/* Header - HomeScreen Style */}
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.headerTitle}>সেটিংস</ThemedText>
         <ThemedText style={styles.headerSubtitle}>আপনার পছন্দ কাস্টমাইজ করুন</ThemedText>
       </View>
 
-      <View style={styles.contentWrapper}>
+      {/* Content Container */}
+      <View style={styles.contentContainer}>
+        {/* Settings Sections */}
         {SETTINGS_SECTIONS.map((section, sectionIdx) => (
-          <View key={sectionIdx}>
-          <View style={styles.sectionHeader}>
-            <Feather name={section.icon as any} size={16} color={theme.primary} />
-            <ThemedText style={[styles.sectionTitle, { color: theme.primary }]}>{section.title}</ThemedText>
-          </View>
+          <View key={sectionIdx} style={styles.sectionWrapper}>
+            {/* Section Header */}
+            <View style={styles.sectionHeader}>
+              <View style={[styles.sectionIconBg, { backgroundColor: theme.primary + '20' }]}>
+                <Feather name={section.icon as any} size={16} color={theme.primary} />
+              </View>
+              <ThemedText style={[styles.sectionTitle, { color: theme.primary }]}>{section.title}</ThemedText>
+            </View>
 
-          {section.items.map((item, itemIdx) => (
-            <Pressable 
-              key={itemIdx}
-              onPress={() => item.icon === 'palette' && setShowThemes(!showThemes)}
-            >
-              <Card style={[styles.settingItem, { ...Shadows.sm }]}>
-                <View style={styles.itemContent}>
-                  <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
-                    <Feather name={item.icon as any} size={18} color={theme.primary} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
-                    {item.subtitle && (
-                      <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
-                        {item.subtitle}
-                      </ThemedText>
+            {/* Section Items */}
+            {section.items.map((item, itemIdx) => (
+              <Pressable
+                key={itemIdx}
+                onPress={() => item.icon === 'palette' && setShowThemes(!showThemes)}
+                style={{ marginBottom: Spacing.md }}
+              >
+                <Card style={[styles.settingCard, { backgroundColor: theme.backgroundSecondary, ...Shadows.sm }]}>
+                  <View style={styles.itemContent}>
+                    <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
+                      <Feather name={item.icon as any} size={18} color={theme.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
+                      {item.subtitle && (
+                        <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
+                          {item.subtitle}
+                        </ThemedText>
+                      )}
+                    </View>
+                    {item.hasToggle ? (
+                      <Switch
+                        value={item.value || false}
+                        onValueChange={item.onChange || (() => {})}
+                        trackColor={{ false: theme.border, true: theme.primary + '40' }}
+                        thumbColor={item.value ? theme.primary : theme.textSecondary}
+                      />
+                    ) : (
+                      <Feather
+                        name={item.icon === 'palette' ? (showThemes ? 'chevron-up' : 'chevron-down') : 'chevron-right'}
+                        size={20}
+                        color={theme.textSecondary}
+                      />
                     )}
                   </View>
-                  {item.hasToggle ? (
-                    <Switch
-                      value={item.value || false}
-                      onValueChange={item.onChange || (() => {})}
-                      trackColor={{ false: theme.border, true: theme.primary + '40' }}
-                      thumbColor={item.value ? theme.primary : theme.textSecondary}
-                    />
-                  ) : (
-                    <Feather name={item.icon === 'palette' ? (showThemes ? 'chevron-up' : 'chevron-down') : 'chevron-right'} size={20} color={theme.textSecondary} />
-                  )}
-                </View>
-              </Card>
-            </Pressable>
-          ))}
+                </Card>
+              </Pressable>
+            ))}
 
-          {section.title === 'প্রদর্শন' && showThemes && (
-            <View style={styles.themeGrid}>
-              {THEME_OPTIONS.map((themeOpt) => (
-                <Pressable
-                  key={themeOpt.name}
-                  onPress={() => {
-                    setThemeName(themeOpt.name);
-                    setShowThemes(false);
-                  }}
-                  style={[
-                    styles.themeOption,
-                    {
-                      borderColor: themeName === themeOpt.name ? themeOpt.color : theme.border,
-                      borderWidth: themeName === themeOpt.name ? 3 : 1,
-                      backgroundColor: themeOpt.color + '15',
-                    }
-                  ]}
-                >
-                  <View style={[styles.themeDot, { backgroundColor: themeOpt.color }]} />
-                  <ThemedText style={[styles.themeText, { color: theme.text }]}>{themeOpt.bengali}</ThemedText>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-      ))}
+            {/* Theme Selector */}
+            {section.title === 'প্রদর্শন' && showThemes && (
+              <View style={styles.themeGrid}>
+                {THEME_OPTIONS.map((themeOpt) => (
+                  <Pressable
+                    key={themeOpt.name}
+                    onPress={() => {
+                      setThemeName(themeOpt.name);
+                      setShowThemes(false);
+                    }}
+                    style={[
+                      styles.themeOption,
+                      {
+                        borderColor: themeName === themeOpt.name ? themeOpt.color : theme.border,
+                        borderWidth: themeName === themeOpt.name ? 3 : 1,
+                        backgroundColor: themeOpt.color + '15',
+                      }
+                    ]}
+                  >
+                    <View style={[styles.themeDot, { backgroundColor: themeOpt.color }]} />
+                    <ThemedText style={[styles.themeText, { color: theme.text }]}>{themeOpt.bengali}</ThemedText>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+        ))}
 
+        {/* Logout Button */}
         <Pressable
           onPress={handleLogout}
           style={({ pressed }) => [
@@ -166,10 +180,6 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  contentWrapper: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
   header: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
@@ -190,19 +200,35 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     marginTop: 4,
   },
+  contentContainer: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+  },
+  sectionWrapper: {
+    marginBottom: Spacing.xl,
+  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.xl,
+    gap: Spacing.md,
     marginBottom: Spacing.md,
+    paddingBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  sectionIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
+    flex: 1,
   },
-  settingItem: {
-    marginBottom: Spacing.md,
+  settingCard: {
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
@@ -227,27 +253,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  logoutBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.xl,
-    gap: Spacing.md,
-  },
-  logoutText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
   themeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.md,
     marginVertical: Spacing.md,
-    marginHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
   },
   themeOption: {
     flex: 1,
@@ -269,5 +280,20 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     fontWeight: '500',
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.xl,
+    gap: Spacing.md,
+  },
+  logoutText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

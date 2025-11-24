@@ -18,11 +18,19 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
   const theme = Colors[themeName][isDark ? "dark" : "light"];
 
   const setThemeName = (name: ThemeName) => {
+    console.log('Theme changed to:', name);
     setThemeNameState(name);
   };
 
+  const contextValue = React.useMemo(() => ({
+    themeName,
+    setThemeName,
+    isDark,
+    theme,
+  }), [themeName, isDark, theme]);
+
   return (
-    <AppThemeContext.Provider value={{ themeName, setThemeName, isDark, theme }}>
+    <AppThemeContext.Provider value={contextValue}>
       {children}
     </AppThemeContext.Provider>
   );
