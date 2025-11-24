@@ -1,0 +1,203 @@
+      .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 18px;
+        }
+
+        .action-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        /* Quran Section Styles */
+.verse-section {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.verse-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient);
+}
+
+.verse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.verse-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.verse-meta {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.verse-arabic {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 22px;
+    line-height: 1.8;
+    color: var(--primary);
+    font-weight: 600;
+    direction: rtl;
+    font-family: 'Traditional Arabic', 'Times New Roman', serif;
+}
+
+.verse-translation {
+    font-size: 14px;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    padding: 0 10px;
+}
+
+.verse-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.verse-btn {
+    background: var(--gradient);
+    color: var(--white);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.verse-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.verse-btn.secondary {
+    background: var(--light);
+    color: var(--primary);
+}
+
+.verse-btn.secondary:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+        /* Prayer Times */
+        .prayer-times {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .prayer-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .prayer-card.active {
+            background: var(--gradient);
+            color: var(--white);
+        }
+
+        .prayer-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .prayer-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .prayer-time {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Tracker Section */
+        .tracker-section {
+            margin-bottom: 20px;
+        }
+
+        .tracker-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .tracker-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tracker-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 18px;
+        }
+
+        .tracker-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
