@@ -103,10 +103,7 @@ export default function HomeScreen() {
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
             <Feather name="navigation" size={28} color="#fff" />
-            <View>
-              <ThemedText style={styles.appName}>smart Muslim</ThemedText>
-              <ThemedText style={styles.tagline}>ইসলামিক সহায়ক</ThemedText>
-            </View>
+            <ThemedText style={styles.appName}>smart Muslim</ThemedText>
           </View>
           <View style={styles.headerRight}>
             <Pressable style={styles.headerIcon}>
