@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
 const MORE_FEATURES = [
@@ -17,7 +17,7 @@ const MORE_FEATURES = [
 ];
 
 export default function MoreScreen() {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const [zakatAmount, setZakatAmount] = useState("");
   const [zakatResult, setZakatResult] = useState<number | null>(null);
 

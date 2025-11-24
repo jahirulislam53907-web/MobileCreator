@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
 const DUA_CATEGORIES = [
@@ -21,7 +21,7 @@ const FEATURED_DUAS = [
 ];
 
 export default function DuaScreen() {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const [search, setSearch] = useState("");
 
   return (

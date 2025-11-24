@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Switch, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Switch, Alert, FlatList } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
+import { type ThemeName } from '@/constants/theme';
 
 interface SettingItem {
   icon: string;
@@ -17,12 +18,21 @@ interface SettingItem {
   action?: () => void;
 }
 
+const THEME_OPTIONS: { name: ThemeName; bengali: string; color: string }[] = [
+  { name: 'teal', bengali: 'টিল (ডিফল্ট)', color: '#1a5e63' },
+  { name: 'blue', bengali: 'নীল', color: '#0066cc' },
+  { name: 'purple', bengali: 'বেগুনি', color: '#7c3aed' },
+  { name: 'green', bengali: 'সবুজ', color: '#059669' },
+  { name: 'orange', bengali: 'কমলা', color: '#ea580c' },
+];
+
 export default function SettingsScreen() {
-  const { theme } = useTheme();
+  const { theme, themeName, setThemeName } = useAppTheme();
   const [notifications, setNotifications] = useState(true);
   const [prayerReminder, setPrayerReminder] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [vibration, setVibration] = useState(true);
+  const [showThemes, setShowThemes] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('লগ আউট', 'আপনি নিশ্চিত?', [
@@ -36,7 +46,7 @@ export default function SettingsScreen() {
       title: 'প্রদর্শন',
       icon: 'monitor' as const,
       items: [
-        { icon: 'moon', label: 'ডার্ক মোড', hasToggle: true, value: false } as SettingItem,
+        { icon: 'palette', label: 'অ্যাপ থিম', subtitle: `বর্তমান: ${THEME_OPTIONS.find(t => t.name === themeName)?.bengali || 'টিল'}` } as SettingItem,
         { icon: 'type', label: 'ফন্ট সাইজ', subtitle: 'মাঝারি' } as SettingItem,
       ]
     },
@@ -77,32 +87,62 @@ export default function SettingsScreen() {
           </View>
 
           {section.items.map((item, itemIdx) => (
-            <Card key={itemIdx} style={[styles.settingItem, { ...Shadows.sm }]}>
-              <View style={styles.itemContent}>
-                <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
-                  <Feather name={item.icon as any} size={18} color={theme.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
-                  {item.subtitle && (
-                    <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
-                      {item.subtitle}
-                    </ThemedText>
+            <Pressable 
+              key={itemIdx}
+              onPress={() => item.icon === 'palette' && setShowThemes(!showThemes)}
+            >
+              <Card style={[styles.settingItem, { ...Shadows.sm }]}>
+                <View style={styles.itemContent}>
+                  <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
+                    <Feather name={item.icon as any} size={18} color={theme.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
+                    {item.subtitle && (
+                      <ThemedText style={[styles.itemSubtitle, { color: theme.textSecondary }]}>
+                        {item.subtitle}
+                      </ThemedText>
+                    )}
+                  </View>
+                  {item.hasToggle ? (
+                    <Switch
+                      value={item.value || false}
+                      onValueChange={item.onChange || (() => {})}
+                      trackColor={{ false: theme.border, true: theme.primary + '40' }}
+                      thumbColor={item.value ? theme.primary : theme.textSecondary}
+                    />
+                  ) : (
+                    <Feather name={item.icon === 'palette' ? (showThemes ? 'chevron-up' : 'chevron-down') : 'chevron-right'} size={20} color={theme.textSecondary} />
                   )}
                 </View>
-                {item.hasToggle ? (
-                  <Switch
-                    value={item.value || false}
-                    onValueChange={item.onChange || (() => {})}
-                    trackColor={{ false: theme.border, true: theme.primary + '40' }}
-                    thumbColor={item.value ? theme.primary : theme.textSecondary}
-                  />
-                ) : (
-                  <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-                )}
-              </View>
-            </Card>
+              </Card>
+            </Pressable>
           ))}
+
+          {section.title === 'প্রদর্শন' && showThemes && (
+            <View style={styles.themeGrid}>
+              {THEME_OPTIONS.map((themeOpt) => (
+                <Pressable
+                  key={themeOpt.name}
+                  onPress={() => {
+                    setThemeName(themeOpt.name);
+                    setShowThemes(false);
+                  }}
+                  style={[
+                    styles.themeOption,
+                    {
+                      borderColor: themeName === themeOpt.name ? themeOpt.color : theme.border,
+                      borderWidth: themeName === themeOpt.name ? 3 : 1,
+                      backgroundColor: themeOpt.color + '15',
+                    }
+                  ]}
+                >
+                  <View style={[styles.themeDot, { backgroundColor: themeOpt.color }]} />
+                  <ThemedText style={[styles.themeText, { color: theme.text }]}>{themeOpt.bengali}</ThemedText>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </View>
       ))}
 
@@ -193,5 +233,33 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
+  },
+  themeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginVertical: Spacing.md,
+    marginHorizontal: Spacing.sm,
+  },
+  themeOption: {
+    flex: 1,
+    minWidth: '45%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+  },
+  themeDot: {
+    width: 24,
+    height: 24,
+    borderRadius: BorderRadius.full,
+  },
+  themeText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '500',
   },
 });

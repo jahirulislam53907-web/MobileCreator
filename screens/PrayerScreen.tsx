@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
 const PRAYER_TIMES = [
@@ -16,7 +16,7 @@ const PRAYER_TIMES = [
 ];
 
 export default function PrayerScreen() {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const [prayerCompletions, setPrayerCompletions] = useState<Record<string, boolean>>(
     PRAYER_TIMES.reduce((acc, p) => ({ ...acc, [p.name]: p.completed }), {})
   );

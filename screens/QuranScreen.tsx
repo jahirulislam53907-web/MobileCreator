@@ -4,12 +4,12 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
 import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
 
 export default function QuranScreen() {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const [selectedTab, setSelectedTab] = useState<"surah" | "para">("surah");
   const [search, setSearch] = useState("");
 
