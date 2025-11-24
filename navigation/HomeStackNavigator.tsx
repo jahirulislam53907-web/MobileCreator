@@ -14,16 +14,6 @@ const Stack = createNativeStackNavigator<HomeStackParamList>();
 
 export default function HomeStackNavigator() {
   const { theme, isDark } = useTheme();
-  const navigation = useNavigation();
-
-  const handleSettingsPress = () => {
-    const parent = navigation.getParent();
-    if (parent) {
-      parent.navigate("MoreTab" as any, {
-        screen: "Settings",
-      });
-    }
-  };
 
   return (
     <Stack.Navigator
@@ -35,7 +25,9 @@ export default function HomeStackNavigator() {
             onProfilePress={() => {
               // Profile action
             }}
-            onSettingsPress={handleSettingsPress}
+            onSettingsPress={() => {
+              // Settings action handled in HeaderNav component
+            }}
           />
         ),
       }}

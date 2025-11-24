@@ -2,15 +2,24 @@ import React from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 interface HeaderNavProps {
   onProfilePress?: () => void;
   onSettingsPress?: () => void;
 }
 
+type NavigationType = NativeStackNavigationProp<any>;
+
 export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationType>();
+  const route = useRoute();
+
+  const handleSettingsClick = () => {
+    // Navigate directly to Settings screen
+    (navigation as any).navigate("Settings");
+  };
 
   return (
     <View style={styles.header}>
@@ -31,7 +40,7 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
 
         <Pressable 
           style={styles.settingsButton}
-          onPress={onSettingsPress}
+          onPress={handleSettingsClick}
         >
           <Feather name="settings" size={20} color="#fff" />
         </Pressable>
