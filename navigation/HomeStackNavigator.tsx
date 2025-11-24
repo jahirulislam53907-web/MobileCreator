@@ -19,7 +19,9 @@ export default function HomeStackNavigator() {
   const handleSettingsPress = () => {
     const parent = navigation.getParent();
     if (parent) {
-      parent.navigate("MoreTab" as any);
+      parent.navigate("MoreTab" as any, {
+        screen: "Settings",
+      });
     }
   };
 

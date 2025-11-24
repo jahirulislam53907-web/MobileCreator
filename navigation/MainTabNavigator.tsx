@@ -7,7 +7,7 @@ import HomeStackNavigator from "@/navigation/HomeStackNavigator";
 import PrayerScreen from "@/screens/PrayerScreen";
 import QuranScreen from "@/screens/QuranScreen";
 import DuaScreen from "@/screens/DuaScreen";
-import MoreScreen from "@/screens/MoreScreen";
+import MoreStackNavigator from "@/navigation/MoreStackNavigator";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
 export type MainTabParamList = {
@@ -97,11 +97,10 @@ export default function MainTabNavigator() {
       />
       <Tab.Screen
         name="MoreTab"
-        component={MoreScreen}
+        component={MoreStackNavigator}
         options={{
           title: "আরও",
-          headerShown: true,
-          headerTitle: "আরও",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Feather name="menu" size={size} color={color} />
           ),
