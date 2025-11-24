@@ -1,17 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, FlatList, Text } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
+import { Spacing, Typography, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
+
+interface QuranVerse {
+  surah: string;
+  ayah: string;
+  arabic: string;
+  bengali: string;
+}
+
+const QURAN_VERSES: QuranVerse[] = [
+  {
+    surah: "সূরা আল-বাকারা",
+    ayah: "আয়াত: ১৮৬",
+    arabic: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",
+    bengali: "আর যখন আমার বান্দাগণ আপনার কাছে আমার ব্যাপারে জিজ্ঞেস করে, তখন আমি তো নিকটেই; আহ্বানকারীর আহ্বান কবুল করি, যখন সে আমাকে ডাকে।",
+  },
+];
 
 export default function HomeScreen() {
   const { theme } = useTheme();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
+  const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
 
   useEffect(() => {
     const times = calculatePrayerTimes(DHAKA_COORDINATES.latitude, DHAKA_COORDINATES.longitude);
@@ -31,16 +48,16 @@ export default function HomeScreen() {
   const QUICK_ACTIONS = [
     { icon: 'book-open', label: 'কুরআন', color: '#2d936c' },
     { icon: 'volume-2', label: 'আজান', color: '#f9a826' },
-    { icon: 'users', label: 'নামাজ', color: '#1a5e63' },
+    { icon: 'users', label: 'নামাজ শিক্ষা', color: '#1a5e63' },
     { icon: 'heart', label: 'দুয়া', color: '#4CAF50' },
     { icon: 'compass', label: 'কিবলা', color: '#2d936c' },
     { icon: 'map-pin', label: 'মসজিদ', color: '#1a5e63' },
-    { icon: 'clock', label: 'সময়', color: '#f9a826' },
-    { icon: 'star', label: 'সংরক্ষিত', color: '#2d936c' },
+    { icon: 'clock', label: 'নামাজ', color: '#f9a826' },
+    { icon: 'book', label: 'কিতাব', color: '#2d936c' },
     { icon: 'calendar', label: 'রোজা', color: '#1a5e63' },
-    { icon: 'gift', label: 'যাকাত', color: '#f9a826' },
-    { icon: 'moon', label: 'রমজান', color: '#4CAF50' },
-    { icon: 'settings', label: 'সেটিংস', color: '#2d936c' },
+    { icon: 'star', label: 'হজ্জ ও ওমরা', color: '#f9a826' },
+    { icon: 'gift', label: 'যাকাত', color: '#4CAF50' },
+    { icon: 'moon', label: 'রমজান', color: '#2d936c' },
   ];
 
   const prayers = prayerTimes ? [
@@ -72,49 +89,70 @@ export default function HomeScreen() {
       </View>
 
       {/* Location Card */}
-      <Card style={styles.card}>
+      <Card style={styles.locationCard}>
         <View style={styles.locationRow}>
-          <View style={[styles.iconBox, { backgroundColor: theme.primary + "15" }]}>
+          <View style={[styles.locationIcon, { backgroundColor: theme.primary + "15" }]}>
             <Feather name="map-pin" size={20} color={theme.primary} />
           </View>
           <View style={{ flex: 1 }}>
             <ThemedText style={styles.locationTitle}>ঢাকা, বাংলাদেশ</ThemedText>
-            <ThemedText style={[styles.locationSubtitle, { color: theme.textSecondary }]}>আপনার বর্তমান অবস্থান</ThemedText>
+            <ThemedText style={[styles.locationSubtitle, { color: theme.textSecondary }]}>আপনার বর্তমান লোকেশন</ThemedText>
           </View>
-          <Pressable style={[styles.smallBtn, { backgroundColor: theme.primary }]}>
-            <Feather name="chevron-right" size={18} color="#fff" />
+          <Pressable style={[styles.changeBtn, { backgroundColor: theme.primary }]}>
+            <Feather name="edit-2" size={14} color="#fff" />
+            <ThemedText style={styles.changeBtnText}>পরিবর্তন</ThemedText>
           </Pressable>
         </View>
       </Card>
 
-      {/* Date & Prayer Grid */}
-      <View style={styles.gridContainer}>
-        <Card style={styles.miniCard}>
-          <ThemedText style={[styles.miniLabel, { color: theme.textSecondary }]}>হিজরি তারিখ</ThemedText>
-          <ThemedText style={[styles.miniValue, { color: theme.primary }]}>১৫ রমজান</ThemedText>
-          <ThemedText style={[styles.miniDate, { color: theme.textSecondary }]}>১৪৪৬ হিজরি</ThemedText>
+      {/* Date & Next Prayer Grid */}
+      <View style={styles.datetimeGrid}>
+        <Card style={styles.dateCard}>
+          <ThemedText style={[styles.cardLabel, { color: theme.textSecondary }]}>আজকের তারিখ</ThemedText>
+          <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>২৩ রমজান ১৪৪৫</ThemedText>
+          <ThemedText style={[styles.gregorianDate, { color: theme.textSecondary }]}>শুক্রবার, ৩ মে ২০২৪</ThemedText>
         </Card>
 
-        <Card style={[styles.miniCard, styles.prayerCard, { borderTopColor: theme.primary, borderTopWidth: 3 }]}>
-          <ThemedText style={[styles.miniLabel, { color: theme.primary, fontWeight: '700' }]}>পরবর্তী নামাজ</ThemedText>
-          <ThemedText style={[styles.miniValue, { color: theme.primary, fontSize: 18 }]}>{nextPrayerInfo?.nameBn}</ThemedText>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-            <ThemedText style={[styles.countdown, { color: theme.secondary }]}>
-              {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}`}
-            </ThemedText>
-            <View style={[styles.timeBadge, { backgroundColor: theme.secondary + '20' }]}>
-              <ThemedText style={[{ color: theme.secondary, fontSize: 11, fontWeight: '600' }]}>{nextPrayerInfo?.timeRemaining.minutes}m</ThemedText>
-            </View>
-          </View>
+        <Card style={styles.prayerCard}>
+          <ThemedText style={[styles.cardLabel, { color: theme.textSecondary }]}>পরবর্তী নামাজ</ThemedText>
+          <ThemedText style={[styles.nextPrayerName, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
+          <ThemedText style={[styles.countdownLabel, { color: theme.textSecondary }]}>বাকি আছে:</ThemedText>
+          <ThemedText style={[styles.countdown, { color: theme.accent }]}>
+            {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
+          </ThemedText>
         </Card>
       </View>
 
-      {/* Quick Actions Section */}
-      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>দ্রুত অ্যাক্সেস</ThemedText>
-      <View style={styles.actionsGrid}>
+      {/* Quran Verse of the Day */}
+      <Card style={styles.verseSection}>
+        <View style={styles.verseHeader}>
+          <ThemedText style={styles.verseTitle}>আজকের আয়াত</ThemedText>
+          <ThemedText style={[styles.verseMeta, { color: theme.textSecondary }]}>{verse.surah}, {verse.ayah}</ThemedText>
+        </View>
+        <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{verse.arabic}</ThemedText>
+        <ThemedText style={[styles.verseTranslation, { color: theme.textSecondary }]}>"{verse.bengali}"</ThemedText>
+        <View style={styles.verseActions}>
+          <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
+            <Feather name="play" size={16} color="#fff" />
+            <ThemedText style={styles.verseBtnText}>শুনুন</ThemedText>
+          </Pressable>
+          <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.primary + "15" }]}>
+            <Feather name="share-2" size={16} color={theme.primary} />
+            <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>শেয়ার</ThemedText>
+          </Pressable>
+          <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.primary + "15" }]}>
+            <Feather name="bookmark" size={16} color={theme.primary} />
+            <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>সেভ</ThemedText>
+          </Pressable>
+        </View>
+      </Card>
+
+      {/* Quick Actions */}
+      <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>দ্রুত এক্সেস</ThemedText>
+      <View style={styles.quickActionsGrid}>
         {QUICK_ACTIONS.map((item, idx) => (
           <Pressable key={idx} style={styles.actionCard}>
-            <View style={[styles.actionIcon, { backgroundColor: item.color + "20", borderRadius: BorderRadius.lg }]}>
+            <View style={[styles.actionIcon, { backgroundColor: item.color + "20" }]}>
               <Feather name={item.icon as any} size={20} color={item.color} />
             </View>
             <ThemedText style={[styles.actionLabel, { color: theme.text }]}>{item.label}</ThemedText>
@@ -122,50 +160,21 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* Prayer Times Section */}
-      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>আজকের নামাজের সময়সূচী</ThemedText>
+      {/* Prayer Times */}
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>আজকের নামাজের সময়সূচী</ThemedText>
       <Card style={styles.prayerTimesCard}>
-        <View style={styles.prayerTimesGrid}>
-          {prayers.map((item) => (
-            <View key={item.key} style={styles.prayerTimeItem}>
-              <ThemedText style={[styles.prayerTimeName, { color: theme.text }]}>{item.name}</ThemedText>
-              <ThemedText style={[styles.prayerTimeHour, { color: theme.primary }]}>{item.time}</ThemedText>
+        <View style={styles.prayerGrid}>
+          {prayers.map((prayer) => (
+            <View key={prayer.key} style={styles.prayerTimeItem}>
+              <ThemedText style={[styles.prayerName, { color: theme.text }]}>{prayer.name}</ThemedText>
+              <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
             </View>
           ))}
         </View>
       </Card>
 
-      {/* Features Grid */}
-      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl, marginBottom: Spacing.md }]}>প্রধান বৈশিষ্ট্য</ThemedText>
-      <View style={styles.featureGrid}>
-        <Card style={styles.featureCard}>
-          <Feather name="book-open" size={28} color={theme.primary} />
-          <ThemedText style={[styles.featureTitle, { color: theme.text }]}>সম্পূর্ণ কুরআন</ThemedText>
-          <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>বাংলা অনুবাদ সহ</ThemedText>
-        </Card>
-
-        <Card style={styles.featureCard}>
-          <Feather name="calendar" size={28} color={theme.secondary} />
-          <ThemedText style={[styles.featureTitle, { color: theme.text }]}>ইসলামিক ক্যালেন্ডার</ThemedText>
-          <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>হিজরি তারিখ ট্র্যাক করুন</ThemedText>
-        </Card>
-      </View>
-
-      <View style={styles.featureGrid}>
-        <Card style={styles.featureCard}>
-          <Feather name="compass" size={28} color={theme.accent} />
-          <ThemedText style={[styles.featureTitle, { color: theme.text }]}>কিবলা দিক</ThemedText>
-          <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>রিয়েল-টাইম কম্পাস</ThemedText>
-        </Card>
-
-        <Card style={styles.featureCard}>
-          <Feather name="heart" size={28} color="#4CAF50" />
-          <ThemedText style={[styles.featureTitle, { color: theme.text }]}>দুয়া সংগ্রহ</ThemedText>
-          <ThemedText style={[styles.featureDesc, { color: theme.textSecondary }]}>২০০+ দুয়া সংরক্ষিত</ThemedText>
-        </Card>
-      </View>
-
-      <View style={{ height: 60 }} />
+      {/* Spacer */}
+      <View style={{ height: 100 }} />
     </ScreenScrollView>
   );
 }
@@ -176,7 +185,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     marginHorizontal: -Spacing.lg,
     marginTop: -Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
     borderBottomLeftRadius: BorderRadius.lg,
     borderBottomRightRadius: BorderRadius.lg,
   },
@@ -213,8 +222,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.2)',
   },
-  card: {
-    marginBottom: Spacing.xl,
+  locationCard: {
+    marginBottom: Spacing.lg,
     borderRadius: BorderRadius.md,
   },
   locationRow: {
@@ -222,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
   },
-  iconBox: {
+  locationIcon: {
     width: 48,
     height: 48,
     borderRadius: BorderRadius.md,
@@ -237,55 +246,138 @@ const styles = StyleSheet.create({
   locationSubtitle: {
     fontSize: 13,
   },
-  smallBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: BorderRadius.full,
+  changeBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 5,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
   },
-  gridContainer: {
+  changeBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  datetimeGrid: {
     flexDirection: 'row',
     gap: Spacing.md,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
-  miniCard: {
+  dateCard: {
     flex: 1,
     borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
   },
   prayerCard: {
-    backgroundColor: undefined,
+    flex: 1,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
   },
-  miniLabel: {
+  cardLabel: {
     fontSize: 12,
     marginBottom: 4,
   },
-  miniValue: {
+  hijriDate: {
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 2,
   },
-  miniDate: {
-    fontSize: 11,
+  gregorianDate: {
+    fontSize: 13,
+  },
+  nextPrayerName: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  countdownLabel: {
+    fontSize: 12,
+    marginBottom: 2,
   },
   countdown: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '700',
   },
-  timeBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+  verseSection: {
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.md,
+  },
+  verseHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  verseTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  verseMeta: {
+    fontSize: 12,
+  },
+  verseArabic: {
+    fontSize: 20,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    lineHeight: 28,
+  },
+  verseTranslation: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+    lineHeight: 20,
+  },
+  verseActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  verseBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 10,
     borderRadius: BorderRadius.full,
+  },
+  verseBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  verseBtnSecondary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.full,
+  },
+  verseBtnTextSecondary: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
+    marginBottom: Spacing.md,
+    marginTop: Spacing.xl,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+    justifyContent: 'space-between',
   },
   actionCard: {
-    flex: 1,
+    width: '24%',
     alignItems: 'center',
     paddingVertical: Spacing.md,
-    marginRight: Spacing.sm,
     borderRadius: BorderRadius.md,
   },
   actionIcon: {
@@ -293,6 +385,7 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: BorderRadius.lg,
     marginBottom: Spacing.sm,
   },
   actionLabel: {
@@ -300,41 +393,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
+  prayerTimesCard: {
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
+  },
+  prayerGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   prayerTimeItem: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: Spacing.lg,
-    borderRightWidth: 1,
-    borderRightColor: 'rgba(0,0,0,0.05)',
+    paddingVertical: Spacing.md,
   },
-  prayerTimeName: {
+  prayerName: {
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
-  },
-  prayerTimeHour: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  featureGrid: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.lg,
-  },
-  featureCard: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: Spacing.lg,
-    borderRadius: BorderRadius.md,
-  },
-  featureTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: Spacing.md,
     marginBottom: 4,
   },
-  featureDesc: {
-    fontSize: 11,
-    textAlign: 'center',
+  prayerTime: {
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
