@@ -79,7 +79,8 @@ export default function QuranScreen() {
       />
 
       <View style={{ height: 30 }} />
-    </ScreenScrollView>
+      </ScreenScrollView>
+    </View>
   );
 }
 

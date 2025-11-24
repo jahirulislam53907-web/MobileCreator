@@ -73,7 +73,8 @@ export default function DuaScreen() {
       ))}
 
       <View style={{ height: 30 }} />
-    </ScreenScrollView>
+      </ScreenScrollView>
+    </View>
   );
 }
 
