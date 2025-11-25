@@ -36,6 +36,8 @@ export default function HomeScreen() {
   const [quickActionsFullHeight, setQuickActionsFullHeight] = useState(200);
   const quickActionsHeightAnim = useRef(new Animated.Value(200)).current;
   const prayerTimesMarginAnim = useRef(new Animated.Value(200)).current;
+  const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(false);
+  const quickActionsGridHeightAnim = useRef(new Animated.Value(0)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -90,6 +92,27 @@ export default function HomeScreen() {
     setQuickActionsFullHeight(height);
     quickActionsHeightAnim.setValue(height);
     prayerTimesMarginAnim.setValue(height);
+  };
+
+  const handleQuickActionsGridLayout = (event: LayoutChangeEvent) => {
+    const fullHeight = event.nativeEvent.layout.height;
+    quickActionsGridHeightAnim.setValue(fullHeight);
+    if (!isQuickActionsExpanded) {
+      quickActionsGridHeightAnim.setValue(fullHeight * 0.5);
+    }
+  };
+
+  const toggleQuickActionsExpand = () => {
+    const fullHeight = quickActionsGridHeightAnim.__getValue();
+    const targetHeight = isQuickActionsExpanded ? fullHeight * 0.5 : fullHeight * 2;
+    
+    Animated.timing(quickActionsGridHeightAnim, {
+      toValue: targetHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    
+    setIsQuickActionsExpanded(!isQuickActionsExpanded);
   };
   
   const renderVerseItem = ({ item, index }: { item: QuranVerse; index: number }) => (
@@ -328,11 +351,13 @@ export default function HomeScreen() {
           <View onLayout={handleQuickActionsLayout}>
             <View style={styles.sectionTitleRow}>
               <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
-              <Pressable>
-                <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+              <Pressable onPress={toggleQuickActionsExpand}>
+                <ThemedText style={[styles.seeAll, { color: theme.primary }]}>
+                  {isQuickActionsExpanded ? (t('home.see_less') || 'কম দেখুন') : (t('home.see_all') || 'সব দেখুন')}
+                </ThemedText>
               </Pressable>
             </View>
-            <View style={styles.quickActionsGrid}>
+            <Animated.View style={[styles.quickActionsGrid, { height: quickActionsGridHeightAnim, overflow: 'hidden' }]} onLayout={handleQuickActionsGridLayout}>
           {QUICK_ACTIONS.map((item, idx) => (
             <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.actionIcon]}>
@@ -344,7 +369,7 @@ export default function HomeScreen() {
               <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
             </Pressable>
           ))}
-            </View>
+            </Animated.View>
           </View>
         </Animated.View>
 
