@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "ঠিক আছে",
+    "cancel": "বাতিল",
+    "save": "সংরক্ষণ",
+    "delete": "মুছে ফেলুন",
+    "edit": "সম্পাদনা",
+    "close": "বন্ধ করুন",
+    "back": "ফিরে যান",
+    "next": "পরবর্তী",
+    "prev": "আগের"
+  },
+  "navigation": {
+    "home": "হোম",
+    "prayer": "নামাজ",
+    "quran": "কুরআন",
+    "dua": "দুয়া",
+    "more": "আরও",
+    "search": "খুঁজুন",
+    "notifications": "বিজ্ঞপ্তি",
+    "profile": "প্রোফাইল",
+    "settings": "সেটিংস"
+  },
+  "home": {
+    "title": "স্মার্ট মুসলিম",
+    "subtitle": "আপনার ইসলামিক সঙ্গী",
+    "welcome": "আপনাকে স্বাগতম",
+    "prayer_times": "নামাজের সময়",
+    "next_prayer": "পরবর্তী নামাজ",
+    "qibla_direction": "কিবলার দিক",
+    "quran_reading": "কুরআন পড়ুন",
+    "islamic_calendar": "ইসলামিক ক্যালেন্ডার",
+    "zakat_calculator": "জাকাত ক্যালকুলেটর",
+    "ramadan_tracker": "রমজান ট্র্যাকার"
+  },
+  "language": {
+    "select": "ভাষা নির্বাচন করুন",
+    "bengali": "বাংলা",
+    "english": "English",
+    "urdu": "اردو",
+    "hindi": "हिंदी",
+    "arabic": "العربية",
+    "turkish": "Türkçe",
+    "malay": "Bahasa Melayu",
+    "indonesian": "Bahasa Indonesia",
+    "punjabi": "پنجابی",
+    "persian": "فارسی"
+  }
+}

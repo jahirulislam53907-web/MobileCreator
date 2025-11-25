@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous"
+  },
+  "navigation": {
+    "home": "Home",
+    "prayer": "Prayer",
+    "quran": "Quran",
+    "dua": "Dua",
+    "more": "More",
+    "search": "Search",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Smart Muslim",
+    "subtitle": "Your Islamic Companion",
+    "welcome": "Welcome",
+    "prayer_times": "Prayer Times",
+    "next_prayer": "Next Prayer",
+    "qibla_direction": "Qibla Direction",
+    "quran_reading": "Read Quran",
+    "islamic_calendar": "Islamic Calendar",
+    "zakat_calculator": "Zakat Calculator",
+    "ramadan_tracker": "Ramadan Tracker"
+  },
+  "language": {
+    "select": "Select Language",
+    "bengali": "Bengali",
+    "english": "English",
+    "urdu": "Urdu",
+    "hindi": "Hindi",
+    "arabic": "Arabic",
+    "turkish": "Turkish",
+    "malay": "Malay",
+    "indonesian": "Indonesian",
+    "punjabi": "Punjabi",
+    "persian": "Persian"
+  }
+}

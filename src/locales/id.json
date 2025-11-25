@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "close": "Tutup",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "prev": "Sebelumnya"
+  },
+  "navigation": {
+    "home": "Beranda",
+    "prayer": "Salat",
+    "quran": "Al-Quran",
+    "dua": "Doa",
+    "more": "Lainnya",
+    "search": "Cari",
+    "notifications": "Notifikasi",
+    "profile": "Profil",
+    "settings": "Pengaturan"
+  },
+  "home": {
+    "title": "Muslim Cerdas",
+    "subtitle": "Teman Islam Anda",
+    "welcome": "Selamat Datang",
+    "prayer_times": "Waktu Salat",
+    "next_prayer": "Salat Berikutnya",
+    "qibla_direction": "Arah Kiblat",
+    "quran_reading": "Baca Al-Quran",
+    "islamic_calendar": "Kalender Islam",
+    "zakat_calculator": "Kalkulator Zakat",
+    "ramadan_tracker": "Pelacak Ramadan"
+  },
+  "language": {
+    "select": "Pilih Bahasa",
+    "bengali": "Bengali",
+    "english": "English",
+    "urdu": "Urdu",
+    "hindi": "Hindi",
+    "arabic": "Arab",
+    "turkish": "Turki",
+    "malay": "Melayu",
+    "indonesian": "Indonesia",
+    "punjabi": "Punjabi",
+    "persian": "Persia"
+  }
+}

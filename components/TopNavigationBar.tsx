@@ -3,8 +3,11 @@ import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ThemedText } from './ThemedText';
 import { Spacing, BorderRadius } from '@/constants/theme';
+
+type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
 
 export interface TopNavigationBarProps {
   activeTab?: 'Home' | 'Prayer' | 'Quran' | 'Dua' | 'More';
@@ -13,12 +16,20 @@ export interface TopNavigationBarProps {
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
   const { theme, isDark } = useAppTheme();
   const navigation = useNavigation<any>();
-  const [selectedLanguage, setSelectedLanguage] = useState<'bn' | 'en'>('bn');
+  const { language, setLanguage, t } = useTranslation();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
-  const languages = [
-    { id: 'bn', label: 'বাংলা' },
-    { id: 'en', label: 'English' },
+  const languages: { id: LanguageCode; label: string }[] = [
+    { id: 'bn', label: t('language.bengali') },
+    { id: 'en', label: t('language.english') },
+    { id: 'ur', label: t('language.urdu') },
+    { id: 'hi', label: t('language.hindi') },
+    { id: 'ar', label: t('language.arabic') },
+    { id: 'tr', label: t('language.turkish') },
+    { id: 'ms', label: t('language.malay') },
+    { id: 'id', label: t('language.indonesian') },
+    { id: 'pa', label: t('language.punjabi') },
+    { id: 'fa', label: t('language.persian') },
   ];
 
   return (
@@ -33,7 +44,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
 
       {/* Logo */}
       <View style={styles.logoSection}>
-        <ThemedText style={[styles.logo, { color: theme.primary }]}>Smart Muslim</ThemedText>
+        <ThemedText style={[styles.logo, { color: theme.primary }]}>{t('home.title')}</ThemedText>
       </View>
 
       {/* Right: Icons */}
@@ -46,7 +57,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
           >
             <Feather name="globe" size={20} color={theme.text} />
             <ThemedText style={styles.languageLabel}>
-              {selectedLanguage === 'bn' ? 'BN' : 'EN'}
+              {language.toUpperCase()}
             </ThemedText>
           </Pressable>
           
@@ -58,16 +69,16 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                   key={lang.id}
                   style={[
                     styles.languageOption,
-                    selectedLanguage === lang.id && { backgroundColor: theme.primary }
+                    language === lang.id && { backgroundColor: theme.primary }
                   ]}
                   onPress={() => {
-                    setSelectedLanguage(lang.id as 'bn' | 'en');
+                    setLanguage(lang.id);
                     setShowLanguageMenu(false);
                   }}
                 >
                   <ThemedText style={[
                     styles.languageOptionLabel,
-                    { color: selectedLanguage === lang.id ? theme.backgroundDefault : theme.text }
+                    { color: language === lang.id ? theme.backgroundDefault : theme.text }
                   ]}>
                     {lang.label}
                   </ThemedText>

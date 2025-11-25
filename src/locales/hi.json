@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "ठीक है",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "delete": "हटाएँ",
+    "edit": "संपादित करें",
+    "close": "बंद करें",
+    "back": "वापस जाएँ",
+    "next": "अगला",
+    "prev": "पिछला"
+  },
+  "navigation": {
+    "home": "होम",
+    "prayer": "प्रार्थना",
+    "quran": "कुरान",
+    "dua": "दुआ",
+    "more": "अधिक",
+    "search": "खोजें",
+    "notifications": "सूचनाएँ",
+    "profile": "प्रोफ़ाइल",
+    "settings": "सेटिंग्स"
+  },
+  "home": {
+    "title": "स्मार्ट मुस्लिम",
+    "subtitle": "आपका इस्लामिक साथी",
+    "welcome": "स्वागत है",
+    "prayer_times": "प्रार्थना के समय",
+    "next_prayer": "अगली प्रार्थना",
+    "qibla_direction": "किबला की दिशा",
+    "quran_reading": "कुरान पढ़ें",
+    "islamic_calendar": "इस्लामिक कैलेंडर",
+    "zakat_calculator": "ज़कात कैलकुलेटर",
+    "ramadan_tracker": "रमज़ान ट्रैकर"
+  },
+  "language": {
+    "select": "भाषा चुनें",
+    "bengali": "बंगाली",
+    "english": "English",
+    "urdu": "उर्दू",
+    "hindi": "हिंदी",
+    "arabic": "अरबी",
+    "turkish": "तुर्की",
+    "malay": "मलय",
+    "indonesian": "इंडोनेशियाई",
+    "punjabi": "पंजाबी",
+    "persian": "फ़ारसी"
+  }
+}

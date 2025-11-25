@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "Tamam",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "back": "Geri",
+    "next": "İleri",
+    "prev": "Önceki"
+  },
+  "navigation": {
+    "home": "Anasayfa",
+    "prayer": "Namaz",
+    "quran": "Kuran",
+    "dua": "Dua",
+    "more": "Daha Fazla",
+    "search": "Ara",
+    "notifications": "Bildirimler",
+    "profile": "Profil",
+    "settings": "Ayarlar"
+  },
+  "home": {
+    "title": "Akıllı Müslüman",
+    "subtitle": "Senin İslami Yardımcın",
+    "welcome": "Hoşgeldiniz",
+    "prayer_times": "Namaz Saatleri",
+    "next_prayer": "Sonraki Namaz",
+    "qibla_direction": "Kıble Yönü",
+    "quran_reading": "Kuran Oku",
+    "islamic_calendar": "İslami Takvim",
+    "zakat_calculator": "Zekât Hesaplayıcı",
+    "ramadan_tracker": "Ramazan İzleyici"
+  },
+  "language": {
+    "select": "Dil Seçin",
+    "bengali": "Bengalce",
+    "english": "English",
+    "urdu": "Urduca",
+    "hindi": "Hintçe",
+    "arabic": "Arapça",
+    "turkish": "Türkçe",
+    "malay": "Malayca",
+    "indonesian": "Endonezce",
+    "punjabi": "Pencapça",
+    "persian": "Farsça"
+  }
+}

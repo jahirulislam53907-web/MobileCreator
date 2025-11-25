@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "ٹھیک ہے",
+    "cancel": "منسوخ کریں",
+    "save": "محفوظ کریں",
+    "delete": "حذف کریں",
+    "edit": "ترمیم کریں",
+    "close": "بند کریں",
+    "back": "واپس جائیں",
+    "next": "اگلا",
+    "prev": "پچھلا"
+  },
+  "navigation": {
+    "home": "ہوم",
+    "prayer": "نماز",
+    "quran": "قرآن",
+    "dua": "دعا",
+    "more": "ہور",
+    "search": "ڈھونڈو",
+    "notifications": "اطلاع",
+    "profile": "پروفائل",
+    "settings": "سیٹنگز"
+  },
+  "home": {
+    "title": "سمارٹ مسلم",
+    "subtitle": "تہاڈا اسلامی ساتھی",
+    "welcome": "خوش آمدید",
+    "prayer_times": "نماز دا ویلہ",
+    "next_prayer": "اگلی نماز",
+    "qibla_direction": "قبلہ دی سمت",
+    "quran_reading": "قرآن پڑھو",
+    "islamic_calendar": "اسلامی کیلنڈر",
+    "zakat_calculator": "زکوۃ کیلکولیٹر",
+    "ramadan_tracker": "رمضان ٹریکر"
+  },
+  "language": {
+    "select": "بھاشا چنو",
+    "bengali": "بنگالی",
+    "english": "English",
+    "urdu": "اردو",
+    "hindi": "ہندی",
+    "arabic": "عربی",
+    "turkish": "ترکی",
+    "malay": "ملائی",
+    "indonesian": "انڈونیشی",
+    "punjabi": "پنجابی",
+    "persian": "فارسی"
+  }
+}

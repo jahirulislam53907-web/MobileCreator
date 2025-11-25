@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "تایید",
+    "cancel": "لغو",
+    "save": "ذخیره",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "close": "بستن",
+    "back": "بازگشت",
+    "next": "بعدی",
+    "prev": "قبلی"
+  },
+  "navigation": {
+    "home": "خانه",
+    "prayer": "نماز",
+    "quran": "قرآن",
+    "dua": "دعا",
+    "more": "بیشتر",
+    "search": "جستجو",
+    "notifications": "اطلاعات",
+    "profile": "نمایه",
+    "settings": "تنظیمات"
+  },
+  "home": {
+    "title": "مسلمان هوشمند",
+    "subtitle": "یار اسلامی شما",
+    "welcome": "خوش آمدید",
+    "prayer_times": "اوقات نماز",
+    "next_prayer": "نماز بعدی",
+    "qibla_direction": "جهت قبله",
+    "quran_reading": "قرآن را بخوانید",
+    "islamic_calendar": "تقویم اسلامی",
+    "zakat_calculator": "ماشین حساب زکات",
+    "ramadan_tracker": "ردیاب رمضان"
+  },
+  "language": {
+    "select": "زبان را انتخاب کنید",
+    "bengali": "بنگالی",
+    "english": "English",
+    "urdu": "اردو",
+    "hindi": "هندی",
+    "arabic": "عربی",
+    "turkish": "ترکی",
+    "malay": "مالائی",
+    "indonesian": "اندونزیایی",
+    "punjabi": "پنجابی",
+    "persian": "فارسی"
+  }
+}

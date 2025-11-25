@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Padam",
+    "edit": "Edit",
+    "close": "Tutup",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "prev": "Sebelumnya"
+  },
+  "navigation": {
+    "home": "Rumah",
+    "prayer": "Solat",
+    "quran": "Al-Quran",
+    "dua": "Doa",
+    "more": "Lebih Lanjut",
+    "search": "Cari",
+    "notifications": "Pemberitahuan",
+    "profile": "Profil",
+    "settings": "Tetapan"
+  },
+  "home": {
+    "title": "Muslim Pintar",
+    "subtitle": "Sahabat Islam Anda",
+    "welcome": "Selamat Datang",
+    "prayer_times": "Waktu Solat",
+    "next_prayer": "Solat Seterusnya",
+    "qibla_direction": "Arah Kiblat",
+    "quran_reading": "Baca Al-Quran",
+    "islamic_calendar": "Kalender Islam",
+    "zakat_calculator": "Kalkulator Zakat",
+    "ramadan_tracker": "Penjejak Ramadhan"
+  },
+  "language": {
+    "select": "Pilih Bahasa",
+    "bengali": "Bengali",
+    "english": "English",
+    "urdu": "Urdu",
+    "hindi": "Hindi",
+    "arabic": "Arab",
+    "turkish": "Turki",
+    "malay": "Melayu",
+    "indonesian": "Indonesia",
+    "punjabi": "Punjabi",
+    "persian": "Parsi"
+  }
+}

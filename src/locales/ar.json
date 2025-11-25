@@ -1,0 +1,49 @@
+{
+  "common": {
+    "ok": "حسناً",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "prev": "السابق"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "prayer": "الصلاة",
+    "quran": "القرآن",
+    "dua": "الدعاء",
+    "more": "المزيد",
+    "search": "بحث",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات"
+  },
+  "home": {
+    "title": "مسلم ذكي",
+    "subtitle": "رفيقك الإسلامي",
+    "welcome": "أهلا وسهلا",
+    "prayer_times": "أوقات الصلاة",
+    "next_prayer": "الصلاة القادمة",
+    "qibla_direction": "اتجاه القبلة",
+    "quran_reading": "اقرأ القرآن",
+    "islamic_calendar": "التقويم الإسلامي",
+    "zakat_calculator": "حاسبة الزكاة",
+    "ramadan_tracker": "متتبع رمضان"
+  },
+  "language": {
+    "select": "اختر اللغة",
+    "bengali": "البنغالية",
+    "english": "English",
+    "urdu": "الأردية",
+    "hindi": "الهندية",
+    "arabic": "العربية",
+    "turkish": "التركية",
+    "malay": "الملايو",
+    "indonesian": "الإندونيسية",
+    "punjabi": "البنجابية",
+    "persian": "الفارسية"
+  }
+}
