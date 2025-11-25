@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
@@ -10,22 +11,7 @@ import { Spacing, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
-
-interface QuranVerse {
-  surah: string;
-  ayah: string;
-  arabic: string;
-  bengali: string;
-}
-
-const QURAN_VERSES: QuranVerse[] = [
-  {
-    surah: "সূরা আল-বাকারা",
-    ayah: "আয়াত: ১৮৬",
-    arabic: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",
-    bengali: "আর যখন আমার বান্দাগণ আপনার কাছে আমার ব্যাপারে জিজ্ঞেস করে, তখন আমি তো নিকটেই; আহ্বানকারীর আহ্বান কবুল করি, যখন সে আমাকে ডাকে।",
-  },
-];
+import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
@@ -39,8 +25,62 @@ export default function HomeScreen() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(() => calculatePrayerTimes(defaultLat, defaultLon));
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo>(() => getNextPrayer(defaultLat, defaultLon));
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
-  const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
   const [formattedDate, setFormattedDate] = useState(formatDate());
+  
+  const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
+  const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const screenWidth = Dimensions.get('window').width;
+  
+  // Initialize Quran data in AsyncStorage
+  useEffect(() => {
+    const initQuranData = async () => {
+      try {
+        const savedQuran = await AsyncStorage.getItem('quranData');
+        if (!savedQuran) {
+          await AsyncStorage.setItem('quranData', JSON.stringify(quranVerses));
+        }
+      } catch (error) {
+        console.log('Error saving Quran data:', error);
+      }
+    };
+    initQuranData();
+  }, []);
+  
+  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const currentIndex = Math.round(contentOffsetX / screenWidth);
+    setCurrentVerseIndex(currentIndex);
+  };
+  
+  const renderVerseItem = ({ item }: { item: QuranVerse }) => (
+    <View style={[styles.verseCarouselItem, { width: screenWidth - 30 }]}>
+      <View style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
+        <View style={styles.verseHeader}>
+          <ThemedText style={styles.verseTitle}>{item.surah}</ThemedText>
+          <ThemedText style={styles.verseMeta}>আয়াত: {item.ayah}</ThemedText>
+        </View>
+        <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
+          <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{item.arabic}</ThemedText>
+        </View>
+        <ThemedText style={styles.verseTranslation}>"{item.bengali}"</ThemedText>
+        <View style={styles.verseActions}>
+          <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
+            <MaterialIcons name="play-arrow" size={14} color={theme.buttonText} />
+            <ThemedText style={[styles.verseBtnText, { color: theme.buttonText }]}>শুনুন</ThemedText>
+          </Pressable>
+          <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
+            <MaterialIcons name="share" size={14} color={theme.primary} />
+            <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>শেয়ার</ThemedText>
+          </Pressable>
+          <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
+            <MaterialIcons name="bookmark" size={14} color={theme.primary} />
+            <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>সেভ</ThemedText>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
 
   const handleLocationPress = async () => {
     const success = await requestLocationPermission();
@@ -208,29 +248,36 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Quran Verse of the Day */}
-        <View style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
-          <View style={styles.verseHeader}>
-            <ThemedText style={styles.verseTitle}>{t('home.verse_of_day') || 'আজকের আয়াত'}</ThemedText>
-            <ThemedText style={styles.verseMeta}>{verse.surah}, {verse.ayah}</ThemedText>
-          </View>
-          <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
-            <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{verse.arabic}</ThemedText>
-          </View>
-          <ThemedText style={styles.verseTranslation}>"{verse.bengali}"</ThemedText>
-          <View style={styles.verseActions}>
-            <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
-              <MaterialIcons name="play-arrow" size={14} color={theme.buttonText} />
-              <ThemedText style={[styles.verseBtnText, { color: theme.buttonText }]}>{t('home.listen') || 'শুনুন'}</ThemedText>
-            </Pressable>
-            <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <MaterialIcons name="share" size={14} color={theme.primary} />
-              <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.share') || 'শেয়ার'}</ThemedText>
-            </Pressable>
-            <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <MaterialIcons name="bookmark" size={14} color={theme.primary} />
-              <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.save') || 'সেভ'}</ThemedText>
-            </Pressable>
+        {/* Quran Carousel */}
+        <View style={styles.carouselContainer}>
+          <ThemedText style={styles.carouselTitle}>{t('home.verse_of_day') || 'কোরআন শরীফ'}</ThemedText>
+          
+          <FlatList
+            ref={flatListRef}
+            data={quranVerses}
+            renderItem={renderVerseItem}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal
+            pagingEnabled
+            scrollEventThrottle={16}
+            onMomentumScrollEnd={handleScrollEnd}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselContent}
+          />
+          
+          {/* Dots Indicator */}
+          <View style={styles.dotsContainer}>
+            {quranVerses.slice(0, 7).map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  {
+                    backgroundColor: currentVerseIndex === index ? theme.secondary : theme.backgroundSecondary,
+                  }
+                ]}
+              />
+            ))}
           </View>
         </View>
 
@@ -510,6 +557,35 @@ const styles = StyleSheet.create({
   verseMeta: {
     fontSize: 11,
     color: '#ffffff',
+  },
+  carouselContainer: {
+    marginBottom: 12,
+  },
+  carouselTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 12,
+    paddingHorizontal: 15,
+  },
+  carouselContent: {
+    paddingHorizontal: 15,
+  },
+  verseCarouselItem: {
+    marginRight: 0,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+    paddingHorizontal: 15,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   verseBg: {
     borderRadius: 10,
