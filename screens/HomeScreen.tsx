@@ -33,7 +33,7 @@ export default function HomeScreen() {
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
-  const quickActionsPositionAnim = useRef(new Animated.Value(0)).current;
+  const quickActionsHeightAnim = useRef(new Animated.Value(100)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -57,16 +57,16 @@ export default function HomeScreen() {
     
     // Trigger animation based on current verse height
     const currentHeight = verseHeights[currentIndex] || 0;
-    const targetMargin = Math.max(0, currentHeight - 180);
+    const shouldCollapse = currentHeight > 200; // threshold for collapse
     
     Animated.parallel([
       Animated.timing(dotsPositionAnim, {
-        toValue: -targetMargin,
+        toValue: shouldCollapse ? -50 : 0, // ডটস উপরে/নিচে যাবে
         duration: 300,
         useNativeDriver: false,
       }),
-      Animated.timing(quickActionsPositionAnim, {
-        toValue: -targetMargin,
+      Animated.timing(quickActionsHeightAnim, {
+        toValue: shouldCollapse ? 0 : 100, // Quick Actions collapse/expand
         duration: 300,
         useNativeDriver: false,
       }),
@@ -310,7 +310,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Quick Actions */}
-        <Animated.View style={{ marginTop: quickActionsPositionAnim }}>
+        <Animated.View style={{ height: quickActionsHeightAnim, overflow: 'hidden' }}>
           <View style={styles.sectionTitleRow}>
             <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
             <Pressable>
