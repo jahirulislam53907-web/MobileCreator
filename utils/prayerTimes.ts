@@ -81,8 +81,8 @@ export const getNextPrayer = (
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const prayerNameStr = Prayer[nextPrayer] as string;
-  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['Fajr'];
+  const prayerKey = Object.keys(Prayer).find(key => Prayer[key as keyof typeof Prayer] === nextPrayer) as string;
+  const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   
   return {
     name: prayerData.en,
@@ -108,8 +108,8 @@ export const getCurrentPrayer = (
   const currentPrayer = prayerTimes.currentPrayer();
   if (!currentPrayer) return null;
 
-  const prayerNameStr = Prayer[currentPrayer] as string;
-  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['Fajr'];
+  const prayerKey = Object.keys(Prayer).find(key => Prayer[key as keyof typeof Prayer] === currentPrayer) as string;
+  const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   return prayerData.bn;
 };
 
