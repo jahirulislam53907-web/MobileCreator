@@ -37,8 +37,6 @@ export default function HomeScreen() {
   const quickActionsHeightAnim = useRef(new Animated.Value(200)).current;
   const prayerTimesMarginAnim = useRef(new Animated.Value(200)).current;
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(false);
-  const [quickActionsGridFullHeight, setQuickActionsGridFullHeight] = useState(0);
-  const quickActionsGridHeightAnim = useRef(new Animated.Value(0)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -95,26 +93,8 @@ export default function HomeScreen() {
     prayerTimesMarginAnim.setValue(height);
   };
 
-  const handleQuickActionsGridLayout = (event: LayoutChangeEvent) => {
-    const fullHeight = event.nativeEvent.layout.height;
-    setQuickActionsGridFullHeight(fullHeight);
-    
-    // Set initial height to 50% (2 rows) for collapsed state
-    const initialHeight = fullHeight * 0.5;
-    quickActionsGridHeightAnim.setValue(initialHeight);
-  };
-
   const toggleQuickActionsExpand = () => {
-    const newExpanded = !isQuickActionsExpanded;
-    const targetHeight = newExpanded ? quickActionsGridFullHeight : quickActionsGridFullHeight * 0.5;
-    
-    Animated.timing(quickActionsGridHeightAnim, {
-      toValue: targetHeight,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-    
-    setIsQuickActionsExpanded(newExpanded);
+    setIsQuickActionsExpanded(!isQuickActionsExpanded);
   };
   
   const renderVerseItem = ({ item, index }: { item: QuranVerse; index: number }) => (
@@ -359,8 +339,8 @@ export default function HomeScreen() {
                 </ThemedText>
               </Pressable>
             </View>
-            <Animated.View style={[styles.quickActionsGrid, { height: quickActionsGridHeightAnim, overflow: 'hidden' }]} onLayout={handleQuickActionsGridLayout}>
-              {QUICK_ACTIONS.map((item, idx) => (
+            <View style={styles.quickActionsGrid}>
+              {(isQuickActionsExpanded ? QUICK_ACTIONS : QUICK_ACTIONS.slice(0, 4)).map((item, idx) => (
                 <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
                   <View style={[styles.actionIcon]}>
                     <Image 
@@ -371,7 +351,7 @@ export default function HomeScreen() {
                   <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
                 </Pressable>
               ))}
-            </Animated.View>
+            </View>
           </View>
         </Animated.View>
 
