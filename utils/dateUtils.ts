@@ -29,32 +29,34 @@ const DAY_NAMES = [
   'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'
 ];
 
-// Accurate Gregorian to Hijri conversion using standard algorithm
+// Accurate Gregorian to Hijri conversion using Kuwaiti algorithm
 export const gregorianToHijri = (date: Date): HijriDate => {
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+  const D = date.getDate();
+  const M = date.getMonth() + 1;
+  const Y = date.getFullYear();
 
-  // Julian day number calculation
-  let jd = Math.floor((1461 * (year + 4800 + Math.floor((month - 14) / 12))) / 4) + 
-           Math.floor((367 * (month - 2 - 12 * Math.floor((month - 14) / 12))) / 12) - 
-           Math.floor((3 * Math.floor((year + 4900 + Math.floor((month - 14) / 12)) / 100)) / 4) + 
-           day - 32045;
+  // Kuwaiti algorithm (most accurate for Islamic calendar)
+  let N = D + Math.floor(306 * (M + 1) / 11) + (Y % 100) * 365 + Math.floor(Y / 400) * 97 + Math.floor(Y / 100) * 3 - Math.floor((Y - 1) / 4) + Math.floor(Y / 4) - 1948440 + 386;
 
-  // Convert JD to Hijri
-  const l = jd + 1;
-  const n = Math.floor((l - 1) / 10631);
-  const j = ((l - 1) % 10631) + 1;
+  let Q = Math.floor(N / 10631);
+  N = N % 10631;
+
+  let A = Math.floor((N + 1) / 354.36667);
+  if (A > 11) A = 11;
+
+  let B = Math.floor(((N % 354.36667) + 1) / 29.5001);
+  if (B > 11) B = 11;
+
+  let hijriYear = 30 * Q + 354 * A + B + 1;
+  let hijriMonth = B + 1;
   
-  const r = Math.floor((j - 1) / 354.36667);
-  const jj = ((j - 1) % 354.36667) + 1;
-  
-  const m = Math.floor((jj + 30.5001) / 29.5001);
-  const dd = Math.floor((jj % 29.5001) + 1);
-  
-  const hijriYear = 30 * n + 354 * r + Math.floor(m) + 1;
-  const hijriMonth = m > 12 ? 1 : Math.floor(m);
-  const hijriDay = dd < 1 ? 30 : Math.ceil(dd);
+  if (hijriMonth > 12) {
+    hijriMonth = hijriMonth - 12;
+    hijriYear = hijriYear + 1;
+  }
+
+  N = N % 29.5001;
+  let hijriDay = Math.floor(N) + 1;
 
   return {
     day: hijriDay,
