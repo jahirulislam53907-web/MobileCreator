@@ -116,10 +116,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   spinnerRing: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 4,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 5,
   },
   centerButton: {
     position: "absolute",
