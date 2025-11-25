@@ -340,7 +340,7 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             <View style={styles.quickActionsGrid}>
-              {(isQuickActionsExpanded ? QUICK_ACTIONS : QUICK_ACTIONS.slice(0, 4)).map((item, idx) => (
+              {(isQuickActionsExpanded ? QUICK_ACTIONS : QUICK_ACTIONS.slice(0, 6)).map((item, idx) => (
                 <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
                   <View style={[styles.actionIcon]}>
                     <Image 
@@ -356,7 +356,7 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Prayer Times */}
-        <Animated.View style={{ marginTop: prayerTimesMarginAnim }}>
+        <View style={{ marginTop: Spacing.lg }}>
           <View style={styles.sectionTitleRow}>
             <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
             <Pressable>
@@ -373,7 +373,7 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Tracker Section */}
         <View style={styles.sectionTitleRow}>
