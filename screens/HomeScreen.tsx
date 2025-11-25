@@ -79,7 +79,7 @@ export default function HomeScreen() {
     { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
   ];
 
-  const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as Record<string, string>) : {};
+  const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as unknown as Record<string, string>) : {};
   const prayers = prayerTimes ? [
     { name: prayerNamesObj.fajr || 'ফজর', time: prayerTimes.fajr, key: 'fajr' },
     { name: prayerNamesObj.dhuhr || 'যোহর', time: prayerTimes.dhuhr, key: 'dhuhr' },
@@ -101,9 +101,9 @@ export default function HomeScreen() {
     {
       title: t('home.quran_recitation') || 'কুরআন তিলাওয়াত',
       icon: 'book',
-      stat1: '२' + (t('home.pages') || 'পৃষ্ঠা'),
+      stat1: '2' + (t('home.pages') || 'পৃষ্ঠা'),
       label1: t('home.today') || 'আজ',
-      stat2: '१५%',
+      stat2: '15%',
       label2: t('home.complete') || 'সম্পূর্ণ',
       progress: 15,
     },
