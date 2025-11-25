@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -11,6 +11,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppThemeProvider } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider } from "./src/contexts/LanguageContext";
+import { DraggableFAB } from "@/components/DraggableFAB";
 
 function AppContent() {
   const colorScheme = useColorScheme();
@@ -22,6 +23,7 @@ function AppContent() {
           <KeyboardProvider>
             <NavigationContainer>
               <DrawerNavigator />
+              <DraggableFAB />
             </NavigationContainer>
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           </KeyboardProvider>
