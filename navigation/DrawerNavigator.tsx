@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, StyleSheet, Pressable, ScrollView, Image } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -6,11 +6,8 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle,
   withSpring,
-  useEffect,
   withRepeat,
   withSequence,
-  interpolate,
-  Extrapolate,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
