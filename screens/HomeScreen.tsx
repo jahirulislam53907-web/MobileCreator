@@ -4,7 +4,6 @@ import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { useTranslation } from "@/contexts/LanguageContext";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
 
@@ -26,7 +25,6 @@ const QURAN_VERSES: QuranVerse[] = [
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
-  const { t } = useTranslation();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);

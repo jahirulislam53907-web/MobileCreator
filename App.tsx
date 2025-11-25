@@ -10,7 +10,6 @@ import DrawerNavigator from "@/navigation/DrawerNavigator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppThemeProvider } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { LanguageProvider } from "@/contexts/LanguageContext";
 
 function AppContent() {
   const colorScheme = useColorScheme();
@@ -33,11 +32,9 @@ function AppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AppThemeProvider>
-        <AppContent />
-      </AppThemeProvider>
-    </LanguageProvider>
+    <AppThemeProvider>
+      <AppContent />
+    </AppThemeProvider>
   );
 }
 
