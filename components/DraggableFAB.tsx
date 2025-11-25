@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
   Easing,
+  interpolate,
+  Extrapolate,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
@@ -67,30 +69,46 @@ export function DraggableFAB() {
 
   // Lighter color for the button (increase brightness)
   const lighterPrimaryColor = theme.primaryLight || "#a8a5db";
+  const primaryColor = theme.primary;
+
+  // Create gradient effect by layering colors at different opacities
+  const borderColors = [
+    { color: primaryColor, opacity: 1.0 },
+    { color: primaryColor, opacity: 0.8 },
+    { color: lighterPrimaryColor, opacity: 0.6 },
+    { color: lighterPrimaryColor, opacity: 0.4 },
+    { color: lighterPrimaryColor, opacity: 0.2 },
+  ];
 
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
-        <Animated.View
-          style={[
-            styles.rotatingBorder,
-            {
-              borderColor: theme.primary,
-            },
-            rotatingBorderStyle,
-          ]}
-        >
-          <Animated.View
-            style={[
-              styles.fabContainer,
-              {
-                backgroundColor: lighterPrimaryColor,
-              },
-            ]}
-          >
-            <Feather name="plus" size={20} color="#ffffff" />
-          </Animated.View>
+        <Animated.View style={[styles.rotatingBorderContainer, rotatingBorderStyle]}>
+          {/* Gradient border using layered views */}
+          {borderColors.map((item, index) => {
+            const totalLayers = borderColors.length;
+            const anglePerLayer = 360 / totalLayers;
+            const angle = anglePerLayer * index;
+
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.borderSegment,
+                  {
+                    borderColor: item.color,
+                    opacity: item.opacity,
+                    transform: [{ rotate: `${angle}deg` }],
+                  },
+                ]}
+              />
+            );
+          })}
         </Animated.View>
+
+        <View style={[styles.fabContainer, { backgroundColor: lighterPrimaryColor }]}>
+          <Feather name="plus" size={20} color="#ffffff" />
+        </View>
       </Animated.View>
     </GestureDetector>
   );
@@ -99,21 +117,29 @@ export function DraggableFAB() {
 const styles = StyleSheet.create({
   fab: {
     position: "absolute",
-    width: 50,
-    height: 50,
-  },
-  rotatingBorder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 4,
+    width: 60,
+    height: 60,
     alignItems: "center",
     justifyContent: "center",
   },
+  rotatingBorderContainer: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    overflow: "hidden",
+  },
+  borderSegment: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 10,
+  },
   fabContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
