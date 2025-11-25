@@ -1,6 +1,7 @@
-import React, { useContext, createContext, ReactNode, useState } from "react";
+import React, { useContext, createContext, ReactNode, useState, useEffect } from "react";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors, ThemeName } from "@/constants/theme";
+import { useTranslation } from "@/src/contexts/LanguageContext";
 
 interface AppThemeContextType {
   themeName: ThemeName;
@@ -12,10 +13,17 @@ interface AppThemeContextType {
 export const AppThemeContext = createContext<AppThemeContextType | undefined>(undefined);
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
-  const [themeName, setThemeNameState] = useState<ThemeName>("teal");
+  const [themeName, setThemeNameState] = useState<ThemeName>("bn");
+  const { language, getThemeForLanguage } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const theme = Colors[themeName][isDark ? "dark" : "light"];
+
+  // ভাষা পরিবর্তন হলে থিম auto-update হবে
+  useEffect(() => {
+    const newTheme = getThemeForLanguage(language);
+    setThemeNameState(newTheme);
+  }, [language, getThemeForLanguage]);
 
   const setThemeName = (name: ThemeName) => {
     console.log('Theme changed to:', name);
