@@ -9,7 +9,6 @@ import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
-import { LocationPicker } from "@/components/LocationPicker";
 
 interface QuranVerse {
   surah: string;
@@ -34,7 +33,6 @@ export default function HomeScreen() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
-  const [locationPickerVisible, setLocationPickerVisible] = useState(false);
   const [formattedDate, setFormattedDate] = useState(formatDate());
 
   useEffect(() => {
@@ -133,11 +131,8 @@ export default function HomeScreen() {
     <View style={[{ flex: 1, backgroundColor: theme.backgroundRoot }]}>
       <TopNavigationBar activeTab="Home" />
       <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
-        {/* Location Selector */}
-        <Pressable
-          onPress={() => setLocationPickerVisible(true)}
-          style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}
-        >
+        {/* Location Display */}
+        <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.locationInfo}>
             <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
               <Feather name="map-pin" size={18} color={theme.primary} />
@@ -149,13 +144,7 @@ export default function HomeScreen() {
               <ThemedText style={styles.locationSubtitle}>{t('home.location_current') || 'আপনার বর্তমান লোকেশন'}</ThemedText>
             </View>
           </View>
-          <View style={[styles.changeBtn, { backgroundColor: theme.primary }]}>
-            <Feather name="edit-2" size={12} color={theme.buttonText} />
-            <ThemedText style={[styles.changeBtnText, { color: theme.buttonText }]}>{t('home.location_change') || 'পরিবর্তন'}</ThemedText>
-          </View>
-        </Pressable>
-
-        <LocationPicker visible={locationPickerVisible} onClose={() => setLocationPickerVisible(false)} />
+        </View>
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
