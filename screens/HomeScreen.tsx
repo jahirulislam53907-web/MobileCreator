@@ -37,6 +37,7 @@ export default function HomeScreen() {
   const quickActionsHeightAnim = useRef(new Animated.Value(200)).current;
   const prayerTimesMarginAnim = useRef(new Animated.Value(200)).current;
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(false);
+  const [quickActionsGridFullHeight, setQuickActionsGridFullHeight] = useState(0);
   const quickActionsGridHeightAnim = useRef(new Animated.Value(0)).current;
   
   // Initialize Quran data in AsyncStorage
@@ -96,15 +97,16 @@ export default function HomeScreen() {
 
   const handleQuickActionsGridLayout = (event: LayoutChangeEvent) => {
     const fullHeight = event.nativeEvent.layout.height;
-    quickActionsGridHeightAnim.setValue(fullHeight);
-    if (!isQuickActionsExpanded) {
-      quickActionsGridHeightAnim.setValue(fullHeight * 0.5);
-    }
+    setQuickActionsGridFullHeight(fullHeight);
+    
+    // Set initial height to 50% (2 rows) for collapsed state
+    const initialHeight = fullHeight * 0.5;
+    quickActionsGridHeightAnim.setValue(initialHeight);
   };
 
   const toggleQuickActionsExpand = () => {
-    const fullHeight = quickActionsGridHeightAnim.__getValue();
-    const targetHeight = isQuickActionsExpanded ? fullHeight * 0.5 : fullHeight * 2;
+    const newExpanded = !isQuickActionsExpanded;
+    const targetHeight = newExpanded ? quickActionsGridFullHeight : quickActionsGridFullHeight * 0.5;
     
     Animated.timing(quickActionsGridHeightAnim, {
       toValue: targetHeight,
@@ -112,7 +114,7 @@ export default function HomeScreen() {
       useNativeDriver: false,
     }).start();
     
-    setIsQuickActionsExpanded(!isQuickActionsExpanded);
+    setIsQuickActionsExpanded(newExpanded);
   };
   
   const renderVerseItem = ({ item, index }: { item: QuranVerse; index: number }) => (
