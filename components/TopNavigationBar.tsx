@@ -149,7 +149,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                     </ThemedText>
                   </View>
                   {language === lang.id && (
-                    <Feather name="check" size={20} color={theme.backgroundDefault} />
+                    <MaterialIcons name="check" size={20} color={theme.backgroundDefault} />
                   )}
                 </Pressable>
               ))}
