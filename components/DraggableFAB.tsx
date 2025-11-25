@@ -13,12 +13,7 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 
 const { width, height } = Dimensions.get("window");
 
-export function DraggableFAB() {
-  // Skip on web to avoid gesture handler issues
-  if (Platform.OS === "web") {
-    return null;
-  }
-
+function DraggableFABContent() {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [initialPosition] = useState({
@@ -105,6 +100,15 @@ export function DraggableFAB() {
       </Animated.View>
     </GestureDetector>
   );
+}
+
+export function DraggableFAB() {
+  // Skip on web to avoid gesture handler issues
+  if (Platform.OS === "web") {
+    return null;
+  }
+
+  return <DraggableFABContent />;
 }
 
 const styles = StyleSheet.create({
