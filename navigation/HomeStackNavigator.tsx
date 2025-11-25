@@ -19,17 +19,7 @@ export default function HomeStackNavigator() {
     <Stack.Navigator
       screenOptions={{
         ...getCommonScreenOptions({ theme, isDark }),
-        headerTransparent: false,
-        header: () => (
-          <HeaderNav
-            onProfilePress={() => {
-              // Profile action
-            }}
-            onSettingsPress={() => {
-              // Settings action handled in HeaderNav component
-            }}
-          />
-        ),
+        headerShown: false,
       }}
     >
       <Stack.Screen
