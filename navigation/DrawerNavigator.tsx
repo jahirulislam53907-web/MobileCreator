@@ -180,8 +180,14 @@ const DrawerContent = ({ navigation }: { navigation: any }) => {
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundSecondary }]}>
       <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
-        <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
-        <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
+        <Image 
+          source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
+          style={styles.headerIcon}
+        />
+        <View style={styles.headerTextContainer}>
+          <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
+          <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
+        </View>
       </View>
 
       <ScrollView 
@@ -241,9 +247,21 @@ const styles = StyleSheet.create({
   drawerHeader: {
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     height: 68,
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  headerIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+    tintColor: '#fff',
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   drawerTitle: {
     fontSize: 16,
