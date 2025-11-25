@@ -33,6 +33,7 @@ export default function HomeScreen() {
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
+  const quickActionsPositionAnim = useRef(new Animated.Value(0)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -60,11 +61,19 @@ export default function HomeScreen() {
     setVerseHeight(height);
     
     const targetMargin = Math.max(0, height - 180);
-    Animated.timing(dotsPositionAnim, {
-      toValue: -targetMargin,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
+    
+    Animated.parallel([
+      Animated.timing(dotsPositionAnim, {
+        toValue: -targetMargin,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(quickActionsPositionAnim, {
+        toValue: -targetMargin,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+    ]).start();
   };
   
   const renderVerseItem = ({ item }: { item: QuranVerse }) => (
@@ -299,13 +308,14 @@ export default function HomeScreen() {
         </View>
 
         {/* Quick Actions */}
-        <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
-          <Pressable>
-            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
-          </Pressable>
-        </View>
-        <View style={styles.quickActionsGrid}>
+        <Animated.View style={{ marginTop: quickActionsPositionAnim }}>
+          <View style={styles.sectionTitleRow}>
+            <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
+            <Pressable>
+              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+            </Pressable>
+          </View>
+          <View style={styles.quickActionsGrid}>
           {QUICK_ACTIONS.map((item, idx) => (
             <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.actionIcon]}>
@@ -317,7 +327,8 @@ export default function HomeScreen() {
               <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
             </Pressable>
           ))}
-        </View>
+          </View>
+        </Animated.View>
 
         {/* Prayer Times */}
         <View style={styles.sectionTitleRow}>
