@@ -23,8 +23,8 @@ function AppContent() {
           <KeyboardProvider>
             <NavigationContainer>
               <DrawerNavigator />
-              <DraggableFAB />
             </NavigationContainer>
+            <DraggableFAB />
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           </KeyboardProvider>
         </GestureHandlerRootView>
