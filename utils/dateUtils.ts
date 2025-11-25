@@ -96,8 +96,8 @@ export const formatDate = (date: Date = new Date()): FormattedDate => {
   const hijri = gregorianToHijri(date);
   
   const monthName = HIJRI_MONTHS[Math.max(0, Math.min(11, hijri.month - 1))] || 'অজানা';
-  // Line 2: বুধবার 5 জমাদিউল আখির 1447
-  const hijriDateString = `${dayName} ${hijri.date} ${monthName} ${hijri.year}`;
+  // Line 2: 5 জমাদিউল আখির 1447
+  const hijriDateString = `${hijri.date} ${monthName} ${hijri.year}`;
 
   return {
     hijri: hijriDateString,
