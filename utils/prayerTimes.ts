@@ -23,12 +23,12 @@ export interface NextPrayerInfo {
 }
 
 const PRAYER_NAMES: Record<string, { ar: string; bn: string; en: string }> = {
-  Fajr: { ar: 'الفجر', bn: 'ফজর', en: 'Fajr' },
-  Sunrise: { ar: 'الشروق', bn: 'সূর্যোদয়', en: 'Sunrise' },
-  Dhuhr: { ar: 'الظهر', bn: 'যোহর', en: 'Dhuhr' },
-  Asr: { ar: 'العصر', bn: 'আসর', en: 'Asr' },
-  Maghrib: { ar: 'المغرب', bn: 'মাগরিব', en: 'Maghrib' },
-  Isha: { ar: 'العشاء', bn: 'এশা', en: 'Isha' },
+  fajr: { ar: 'الفجر', bn: 'ফজর', en: 'Fajr' },
+  sunrise: { ar: 'الشروق', bn: 'সূর্যোদয়', en: 'Sunrise' },
+  dhuhr: { ar: 'الظهر', bn: 'যোহর', en: 'Dhuhr' },
+  asr: { ar: 'العصر', bn: 'আসর', en: 'Asr' },
+  maghrib: { ar: 'المغرب', bn: 'মাগরিب', en: 'Maghrib' },
+  isha: { ar: 'العشاء', bn: 'এশা', en: 'Isha' },
 };
 
 export const formatTime = (date: Date): string => {
@@ -82,7 +82,7 @@ export const getNextPrayer = (
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
   const prayerNameStr = Prayer[nextPrayer] as string;
-  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['Fajr'];
+  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['fajr'];
   
   return {
     name: prayerData.en,
@@ -109,7 +109,7 @@ export const getCurrentPrayer = (
   if (!currentPrayer) return null;
 
   const prayerName = Prayer[currentPrayer];
-  return PRAYER_NAMES[prayerName].bn;
+  return (PRAYER_NAMES[prayerName as string] || PRAYER_NAMES['fajr']).bn;
 };
 
 export const getTimeUntilNextPrayer = (

@@ -78,5 +78,5 @@ name = "expo-sfv-version"
 value = "0"
 
 [[ports]]
-localPort = 45075
+localPort = 35685
 externalPort = 80
