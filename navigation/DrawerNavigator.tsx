@@ -73,6 +73,7 @@ const DraggableMenuItem = ({
   };
 
   const handleDragGesture = Gesture.Pan()
+    .enabled(isZoomed)
     .onStart(() => {
       setIsDragging(true);
     })
