@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Alert, Image } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
@@ -171,12 +171,12 @@ export default function HomeScreen() {
               </ThemedText>
             </View>
             <View style={styles.sunriseSunsetBox}>
-              <ThemedText style={styles.sunriseSunsetLabel}>
-                {sunriseSunset.label}
-              </ThemedText>
-              <ThemedText style={[styles.sunriseSunsetTime, { color: '#FFD700' }]}>
-                {sunriseSunset.timeString}
-              </ThemedText>
+              <Text style={styles.sunriseSunsetText}>
+                <Text style={styles.sunriseSunsetLabel}>{sunriseSunset.label} </Text>
+                <Text style={[styles.sunriseSunsetTime, { color: '#FFD700' }]}>
+                  {sunriseSunset.timeString}
+                </Text>
+              </Text>
             </View>
           </View>
         </View>
@@ -374,18 +374,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sunriseSunsetBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 10,
-    gap: 6,
+  },
+  sunriseSunsetText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   sunriseSunsetLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#ffffff',
     fontWeight: '600',
   },
   sunriseSunsetTime: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   locationTitle: {
