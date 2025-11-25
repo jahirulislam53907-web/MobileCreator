@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
 import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -16,15 +20,20 @@ export type DrawerParamList = {
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
-interface DrawerContentProps {
-  navigation: any;
-}
-
 interface MenuItem {
   id: string;
   icon: string;
   label: string;
   action: string;
+}
+
+interface DraggableMenuItemProps {
+  item: MenuItem;
+  index: number;
+  menuItems: MenuItem[];
+  onReorder: (from: number, to: number) => void;
+  onPress: () => void;
+  theme: any;
 }
 
 const DraggableMenuItem = ({ 
@@ -34,54 +43,74 @@ const DraggableMenuItem = ({
   onReorder,
   onPress,
   theme 
-}: {
-  item: MenuItem;
-  index: number;
-  menuItems: MenuItem[];
-  onReorder: (from: number, to: number) => void;
-  onPress: () => void;
-  theme: any;
-}) => {
-  const [isDragging, setIsDragging] = useState(false);
+}: DraggableMenuItemProps) => {
   const translateY = useSharedValue(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    zIndex: isDragging ? 1000 : 0,
+    elevation: isDragging ? 10 : 0,
   }));
 
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    translateY.value = 0;
-  };
+  const handleDragGesture = Gesture.Pan()
+    .onStart(() => {
+      setIsDragging(true);
+    })
+    .onChange((e) => {
+      translateY.value = e.translationY;
+    })
+    .onEnd((e) => {
+      const itemHeight = 60;
+      const displacement = Math.round(e.translationY / itemHeight);
+      
+      if (displacement !== 0) {
+        let newIndex = index + displacement;
+        newIndex = Math.max(0, Math.min(newIndex, menuItems.length - 1));
+        
+        if (newIndex !== index) {
+          onReorder(index, newIndex);
+        }
+      }
+      
+      translateY.value = withSpring(0, {
+        damping: 10,
+        mass: 1,
+        stiffness: 100,
+      });
+      setIsDragging(false);
+    });
 
   return (
-    <Animated.View style={[animatedStyle]}>
-      <Pressable
-        style={[
-          styles.menuItem,
-          { borderBottomColor: theme.border },
-          isDragging && { backgroundColor: theme.primary, opacity: 0.2 }
-        ]}
-        onPress={onPress}
-        onLongPress={handleDragStart}
-      >
-        <View style={styles.dragHandle}>
-          <Feather name="menu" size={16} color={theme.primary} />
-        </View>
-        <Feather name={item.icon as any} size={18} color={theme.primary} />
-        <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>
-          {item.label}
-        </ThemedText>
-      </Pressable>
-    </Animated.View>
+    <GestureDetector gesture={handleDragGesture}>
+      <Animated.View style={[animatedStyle]}>
+        <Pressable
+          style={[
+            styles.menuItem,
+            { borderBottomColor: theme.border },
+            isDragging && { 
+              backgroundColor: theme.primary, 
+              opacity: 0.15,
+              borderRadius: BorderRadius.md,
+              marginHorizontal: Spacing.md,
+            }
+          ]}
+          onPress={onPress}
+        >
+          <Feather name={item.icon as any} size={18} color={theme.primary} />
+          <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>
+            {item.label}
+          </ThemedText>
+          <View style={styles.dragHandle}>
+            <Feather name="circle" size={8} color={theme.primary} />
+          </View>
+        </Pressable>
+      </Animated.View>
+    </GestureDetector>
   );
 };
 
-const DrawerContent = ({ navigation }: DrawerContentProps) => {
+const DrawerContent = ({ navigation }: { navigation: any }) => {
   const { theme } = useAppTheme();
   const { menuItems, reorderMenu } = useMenuOrder();
 
@@ -188,9 +217,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
+    minHeight: 60,
   },
   dragHandle: {
-    marginRight: Spacing.xs,
+    marginLeft: 'auto',
+    paddingLeft: Spacing.md,
   },
   menuItemLabel: {
     fontSize: 15,
