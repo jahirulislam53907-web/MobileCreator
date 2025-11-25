@@ -50,18 +50,18 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
 
   return (
     <>
-      <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
+      <View style={[styles.container, { backgroundColor: theme.primary, borderBottomColor: theme.border }]}>
         {/* Left: Hamburger Menu */}
         <Pressable 
           style={styles.hamburger}
           onPress={() => navigation.toggleDrawer()}
         >
-          <Feather name="menu" size={24} color={theme.text} />
+          <Feather name="menu" size={24} color={theme.buttonText} />
         </Pressable>
 
         {/* Logo */}
         <View style={styles.logoSection}>
-          <ThemedText style={[styles.logo, { color: theme.primary }]}>Smart Muslim</ThemedText>
+          <ThemedText style={[styles.logo, { color: theme.buttonText }]}>Smart Muslim</ThemedText>
         </View>
 
         {/* Right: Icons */}
@@ -71,20 +71,20 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
             style={styles.languageBtn}
             onPress={() => setShowLanguageMenu(true)}
           >
-            <Feather name="globe" size={20} color={theme.text} />
-            <ThemedText style={styles.languageLabel}>
+            <Feather name="globe" size={20} color={theme.buttonText} />
+            <ThemedText style={[styles.languageLabel, { color: theme.buttonText }]}>
               {currentLang?.flag} {language.toUpperCase()}
             </ThemedText>
           </Pressable>
 
           <Pressable style={styles.iconBtn}>
-            <Feather name="bell" size={20} color={theme.text} />
+            <Feather name="bell" size={20} color={theme.buttonText} />
           </Pressable>
           <Pressable 
             style={styles.iconBtn}
             onPress={() => navigation.navigate('MoreTab')}
           >
-            <Feather name="user" size={20} color={theme.text} />
+            <Feather name="user" size={20} color={theme.buttonText} />
           </Pressable>
           <Pressable 
             style={styles.iconBtn}
@@ -94,7 +94,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
               }
             }}
           >
-            <Feather name="settings" size={20} color={theme.text} />
+            <Feather name="settings" size={20} color={theme.buttonText} />
           </Pressable>
         </View>
       </View>
