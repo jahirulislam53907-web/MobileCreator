@@ -239,20 +239,21 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   drawerHeader: {
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     justifyContent: 'center',
   },
   drawerTitle: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: Spacing.sm,
+    marginBottom: 0,
   },
   drawerSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#fff',
-    opacity: 0.85,
+    opacity: 0.75,
+    marginTop: 2,
   },
   menuItemsContainer: {
     flex: 1,
