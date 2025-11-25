@@ -46,57 +46,59 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  const quickActionLabels = typeof t('home.quick_actions') === 'string' ? [] : (t('home.quick_actions') || []);
   const QUICK_ACTIONS = [
-    { icon: 'book-open', label: 'কুরআন', color: '#2d936c' },
-    { icon: 'volume-2', label: 'আজান', color: '#f9a826' },
-    { icon: 'users', label: 'নামাজ শিক্ষা', color: '#1a5e63' },
-    { icon: 'heart', label: 'দুয়া', color: '#4CAF50' },
-    { icon: 'compass', label: 'কিবলা', color: '#2d936c' },
-    { icon: 'map-pin', label: 'মসজিদ', color: '#1a5e63' },
-    { icon: 'clock', label: 'নামাজ', color: '#f9a826' },
-    { icon: 'book', label: 'কিতাব', color: '#2d936c' },
-    { icon: 'calendar', label: 'রোজা', color: '#1a5e63' },
-    { icon: 'star', label: 'হজ্জ ও ওমরা', color: '#f9a826' },
-    { icon: 'gift', label: 'যাকাত', color: '#4CAF50' },
-    { icon: 'moon', label: 'রমজান', color: '#2d936c' },
+    { icon: 'book-open', label: quickActionLabels[0] || 'কুরআন', color: '#2d936c' },
+    { icon: 'volume-2', label: quickActionLabels[1] || 'আজান', color: '#f9a826' },
+    { icon: 'users', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: '#1a5e63' },
+    { icon: 'heart', label: quickActionLabels[3] || 'দুয়া', color: '#4CAF50' },
+    { icon: 'compass', label: quickActionLabels[4] || 'কিবলা', color: '#2d936c' },
+    { icon: 'map-pin', label: quickActionLabels[5] || 'মসজিদ', color: '#1a5e63' },
+    { icon: 'clock', label: quickActionLabels[6] || 'নামাজ', color: '#f9a826' },
+    { icon: 'book', label: quickActionLabels[7] || 'কিতাব', color: '#2d936c' },
+    { icon: 'calendar', label: quickActionLabels[8] || 'রোজা', color: '#1a5e63' },
+    { icon: 'star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: '#f9a826' },
+    { icon: 'gift', label: quickActionLabels[10] || 'যাকাত', color: '#4CAF50' },
+    { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: '#2d936c' },
   ];
 
+  const prayerNames = t('home.prayer_names') || {};
   const prayers = prayerTimes ? [
-    { name: 'ফজর', time: prayerTimes.fajr, key: 'fajr' },
-    { name: 'যোহর', time: prayerTimes.dhuhr, key: 'dhuhr' },
-    { name: 'আসর', time: prayerTimes.asr, key: 'asr' },
-    { name: 'মাগরিব', time: prayerTimes.maghrib, key: 'maghrib' },
-    { name: 'এশা', time: prayerTimes.isha, key: 'isha' },
+    { name: prayerNames.fajr || 'ফজর', time: prayerTimes.fajr, key: 'fajr' },
+    { name: prayerNames.dhuhr || 'যোহর', time: prayerTimes.dhuhr, key: 'dhuhr' },
+    { name: prayerNames.asr || 'আসর', time: prayerTimes.asr, key: 'asr' },
+    { name: prayerNames.maghrib || 'মাগরিব', time: prayerTimes.maghrib, key: 'maghrib' },
+    { name: prayerNames.isha || 'এশা', time: prayerTimes.isha, key: 'isha' },
   ] : [];
 
   const TRACKER_DATA = [
     {
-      title: 'নামাজ ট্র্যাকার',
+      title: t('home.prayer_tracker') || 'নামাজ ট্র্যাকার',
       icon: 'users',
       stat1: '৫/৫',
-      label1: 'আজ',
-      stat2: '৩০/৩০',
-      label2: 'এই মাস',
+      label1: t('home.today') || 'আজ',
+      stat2: '৩০/३०',
+      label2: t('home.this_month') || 'এই মাস',
       progress: 100,
     },
     {
-      title: 'কুরআন তিলাওয়াত',
+      title: t('home.quran_recitation') || 'কুরআন তিলাওয়াত',
       icon: 'book',
-      stat1: '২ পৃষ্ঠা',
-      label1: 'আজ',
-      stat2: '১৫%',
-      label2: 'সম্পূর্ণ',
+      stat1: '२' + (t('home.pages') || 'পৃষ্ঠা'),
+      label1: t('home.today') || 'আজ',
+      stat2: '१५%',
+      label2: t('home.complete') || 'সম্পূর্ণ',
       progress: 15,
     },
   ];
 
   const FEATURES = [
-    { title: 'কুরআন মাজিদ', desc: 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'book-open' },
-    { title: 'নামাজের সময়সূচী', desc: 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'clock' },
-    { title: 'দুয়া ও যিকর', desc: 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'heart' },
-    { title: 'ইসলামিক ক্যালেন্ডার', desc: 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'calendar' },
-    { title: 'কিবলা কম্পাস', desc: 'সঠিক কিবলা দিক নির্দেশনা', icon: 'compass' },
-    { title: 'নামাজ শিক্ষা', desc: 'সঠিকভাবে নামাজ শিখুন', icon: 'users' },
+    { title: t('home.quran_title') || 'কুরআন মাজিদ', desc: t('home.quran_desc') || 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'book-open' },
+    { title: t('home.prayer_schedule_title') || 'নামাজের সময়সূচী', desc: t('home.prayer_schedule_desc') || 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'clock' },
+    { title: t('home.dua_title') || 'দুয়া ও যিকর', desc: t('home.dua_desc') || 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'heart' },
+    { title: t('home.calendar_title') || 'ইসলামিক ক্যালেন্ডার', desc: t('home.calendar_desc') || 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'calendar' },
+    { title: t('home.qibla_title') || 'কিবলা কম্পাস', desc: t('home.qibla_desc') || 'সঠিক কিবলা দিক নির্দেশনা', icon: 'compass' },
+    { title: t('home.prayer_teaching') || 'নামাজ শিক্ষা', desc: t('home.prayer_teaching_desc') || 'সঠিকভাবে নামাজ শিখুন', icon: 'users' },
   ];
 
   return (
@@ -110,28 +112,28 @@ export default function HomeScreen() {
               <Feather name="map-pin" size={18} color="#1a5e63" />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.locationTitle}>ঢাকা, বাংলাদেশ</ThemedText>
-              <ThemedText style={styles.locationSubtitle}>আপনার বর্তমান লোকেশন</ThemedText>
+              <ThemedText style={styles.locationTitle}>{t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}</ThemedText>
+              <ThemedText style={styles.locationSubtitle}>{t('home.location_current') || 'আপনার বর্তমান লোকেশন'}</ThemedText>
             </View>
           </View>
           <Pressable style={styles.changeBtn}>
             <Feather name="edit-2" size={12} color="#fff" />
-            <ThemedText style={styles.changeBtnText}>পরিবর্তন</ThemedText>
+            <ThemedText style={styles.changeBtnText}>{t('home.location_change') || 'পরিবর্তন'}</ThemedText>
           </Pressable>
         </View>
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
           <View style={styles.dateCard}>
-            <ThemedText style={styles.cardLabel}>আজকের তারিখ</ThemedText>
-            <ThemedText style={styles.hijriDate}>২৩ রমজান ১৪৪৫</ThemedText>
-            <ThemedText style={styles.gregorianDate}>শুক্রবার, ৩ মে ২০২৪</ThemedText>
+            <ThemedText style={styles.cardLabel}>{t('home.today_date') || 'আজকের তারিখ'}</ThemedText>
+            <ThemedText style={styles.hijriDate}>{t('home.hijri_date') || '२३ রমজান १४४५'}</ThemedText>
+            <ThemedText style={styles.gregorianDate}>{t('home.gregorian_date') || 'শুক্রবার, ३ মে २०२४'}</ThemedText>
           </View>
 
           <View style={styles.nextPrayerCard}>
-            <ThemedText style={styles.cardLabel}>পরবর্তী নামাজ</ThemedText>
+            <ThemedText style={styles.cardLabel}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
             <ThemedText style={styles.nextPrayerName}>{nextPrayerInfo?.nameBn}</ThemedText>
-            <ThemedText style={styles.countdownLabel}>বাকি আছে:</ThemedText>
+            <ThemedText style={styles.countdownLabel}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
             <ThemedText style={styles.countdown}>
               {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
             </ThemedText>
@@ -141,7 +143,7 @@ export default function HomeScreen() {
         {/* Quran Verse of the Day */}
         <View style={styles.verseSection}>
           <View style={styles.verseHeader}>
-            <ThemedText style={styles.verseTitle}>আজকের আয়াত</ThemedText>
+            <ThemedText style={styles.verseTitle}>{t('home.verse_of_day') || 'আজকের আয়াত'}</ThemedText>
             <ThemedText style={styles.verseMeta}>{verse.surah}, {verse.ayah}</ThemedText>
           </View>
           <View style={styles.verseBg}>
@@ -151,24 +153,24 @@ export default function HomeScreen() {
           <View style={styles.verseActions}>
             <Pressable style={styles.verseBtn}>
               <Feather name="play" size={14} color="#fff" />
-              <ThemedText style={styles.verseBtnText}>শুনুন</ThemedText>
+              <ThemedText style={styles.verseBtnText}>{t('home.listen') || 'শুনুন'}</ThemedText>
             </Pressable>
             <Pressable style={styles.verseBtnSecondary}>
               <Feather name="share-2" size={14} color="#1a5e63" />
-              <ThemedText style={styles.verseBtnTextSecondary}>শেয়ার</ThemedText>
+              <ThemedText style={styles.verseBtnTextSecondary}>{t('home.share') || 'শেয়ার'}</ThemedText>
             </Pressable>
             <Pressable style={styles.verseBtnSecondary}>
               <Feather name="bookmark" size={14} color="#1a5e63" />
-              <ThemedText style={styles.verseBtnTextSecondary}>সেভ</ThemedText>
+              <ThemedText style={styles.verseBtnTextSecondary}>{t('home.save') || 'সেভ'}</ThemedText>
             </Pressable>
           </View>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>দ্রুত এক্সেস</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>সব দেখুন</ThemedText>
+            <ThemedText style={styles.seeAll}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.quickActionsGrid}>
@@ -184,9 +186,9 @@ export default function HomeScreen() {
 
         {/* Prayer Times */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>আজকের নামাজের সময়সূচী</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>সম্পূর্ণ সময়সূচী</ThemedText>
+            <ThemedText style={styles.seeAll}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.prayerTimesCard}>
@@ -202,9 +204,9 @@ export default function HomeScreen() {
 
         {/* Tracker Section */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>আপনার ইবাদত ট্র্যাকার</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('home.worship_tracker') || 'আপনার ইবাদত ট্র্যাকার'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>বিস্তারিত</ThemedText>
+            <ThemedText style={styles.seeAll}>{t('home.view_details') || 'বিস্তারিত'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.trackerGrid}>
@@ -235,9 +237,9 @@ export default function HomeScreen() {
 
         {/* Features Grid */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>বিশেষ ফিচারসমূহ</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('home.features_title') || 'বিশেষ ফিচারসমূহ'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>সব দেখুন</ThemedText>
+            <ThemedText style={styles.seeAll}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.featuresGrid}>
