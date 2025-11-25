@@ -31,8 +31,14 @@ export default function HomeScreen() {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
   const { location, requestLocationPermission, loading: locationLoading } = useLocation();
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
-  const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
+  
+  // Initialize with default location data
+  const defaultLat = DHAKA_COORDINATES.latitude;
+  const defaultLon = DHAKA_COORDINATES.longitude;
+  const defaultNext = getNextPrayer(defaultLat, defaultLon);
+  
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(() => calculatePrayerTimes(defaultLat, defaultLon));
+  const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(defaultNext);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
   const [formattedDate, setFormattedDate] = useState(formatDate());
 
@@ -59,7 +65,9 @@ export default function HomeScreen() {
       const lat = location?.latitude || DHAKA_COORDINATES.latitude;
       const lon = location?.longitude || DHAKA_COORDINATES.longitude;
       const next = getNextPrayer(lat, lon);
-      setNextPrayerInfo(next);
+      if (next) {
+        setNextPrayerInfo(next);
+      }
       setFormattedDate(formatDate());
     };
     updateNextPrayer();
@@ -185,10 +193,15 @@ export default function HomeScreen() {
 
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
             <ThemedText style={styles.cardLabel}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
-            <ThemedText style={[styles.nextPrayerName, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
+            <ThemedText style={[styles.nextPrayerName, { color: theme.primary }]}>
+              {nextPrayerInfo?.nameBn || 'লোডিং...'}
+            </ThemedText>
             <ThemedText style={styles.countdownLabel}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
             <ThemedText style={[styles.countdown, { color: theme.secondary }]}>
-              {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
+              {nextPrayerInfo 
+                ? `${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`
+                : '--:--'
+              }
             </ThemedText>
           </View>
         </View>
