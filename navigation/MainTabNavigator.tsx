@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, Image } from "react-native";
 import HomeStackNavigator from "@/navigation/HomeStackNavigator";
@@ -44,7 +44,7 @@ export default function MainTabNavigator() {
         options={{
           title: "হোম",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <MaterialIcons name="home" size={size} color={color} />
           ),
         }}
       />
@@ -55,7 +55,7 @@ export default function MainTabNavigator() {
           title: "নামাজ",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
+            <MaterialIcons name="access-time" size={size} color={color} />
           ),
         }}
       />
@@ -66,7 +66,7 @@ export default function MainTabNavigator() {
           title: "কুরআন",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Feather name="book-open" size={size + 2} color={color} />
+            <MaterialIcons name="menu-book" size={size + 2} color={color} />
           ),
         }}
       />
@@ -77,7 +77,7 @@ export default function MainTabNavigator() {
           title: "দুয়া",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Feather name="book" size={size} color={color} />
+            <MaterialIcons name="book" size={size} color={color} />
           ),
         }}
       />
@@ -88,7 +88,7 @@ export default function MainTabNavigator() {
           title: "আরও",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Feather name="menu" size={size} color={color} />
+            <MaterialIcons name="menu" size={size} color={color} />
           ),
         }}
       />

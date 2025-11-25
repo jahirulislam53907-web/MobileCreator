@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable, StyleSheet, Modal, ScrollView } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
 import { ThemedText } from './ThemedText';
@@ -56,7 +56,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
           style={styles.hamburger}
           onPress={() => navigation.toggleDrawer()}
         >
-          <Feather name="menu" size={24} color={theme.buttonText} />
+          <MaterialIcons name="menu" size={24} color={theme.buttonText} />
         </Pressable>
 
         {/* Logo */}
@@ -71,20 +71,20 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
             style={styles.languageBtn}
             onPress={() => setShowLanguageMenu(true)}
           >
-            <Feather name="globe" size={20} color={theme.buttonText} />
+            <MaterialIcons name="public" size={20} color={theme.buttonText} />
             <ThemedText style={[styles.languageLabel, { color: theme.buttonText }]}>
               {currentLang?.flag} {language.toUpperCase()}
             </ThemedText>
           </Pressable>
 
           <Pressable style={styles.iconBtn}>
-            <Feather name="bell" size={20} color={theme.buttonText} />
+            <MaterialIcons name="notifications" size={20} color={theme.buttonText} />
           </Pressable>
           <Pressable 
             style={styles.iconBtn}
             onPress={() => navigation.navigate('MoreTab')}
           >
-            <Feather name="user" size={20} color={theme.buttonText} />
+            <MaterialIcons name="person" size={20} color={theme.buttonText} />
           </Pressable>
           <Pressable 
             style={styles.iconBtn}
@@ -94,7 +94,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
               }
             }}
           >
-            <Feather name="settings" size={20} color={theme.buttonText} />
+            <MaterialIcons name="settings" size={20} color={theme.buttonText} />
           </Pressable>
         </View>
       </View>
@@ -114,7 +114,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
             <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
               <ThemedText style={styles.modalTitle}>ভাষা নির্বাচন করুন</ThemedText>
               <Pressable onPress={() => setShowLanguageMenu(false)}>
-                <Feather name="x" size={24} color={theme.text} />
+                <MaterialIcons name="close" size={24} color={theme.text} />
               </Pressable>
             </View>
             
