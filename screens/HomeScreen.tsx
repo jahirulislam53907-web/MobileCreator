@@ -445,6 +445,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  prayerInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  prayerLabelSmall: {
+    fontSize: 10,
+    color: '#ffffff',
+    marginBottom: 2,
+  },
+  prayerNameSmall: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  countdownSmall: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
   verseSection: {
     borderRadius: 12,
     padding: 15,
