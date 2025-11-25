@@ -86,6 +86,8 @@ export default function HomeScreen() {
     setQuickActionsFullHeight(height);
     quickActionsHeightAnim.setValue(height);
   };
+  
+  const [initialMeasurementDone, setInitialMeasurementDone] = useState(false);
 
   const toggleQuickActionsExpand = () => {
     setIsQuickActionsExpanded(!isQuickActionsExpanded);
