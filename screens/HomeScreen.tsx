@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   prayerLabelSmall: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#ffffff',
     marginBottom: 4,
   },
