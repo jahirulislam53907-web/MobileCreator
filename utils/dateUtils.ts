@@ -88,13 +88,16 @@ const gregorianToHijri = (gregorianDate: Date) => {
 
 export const formatDate = (date: Date = new Date()): FormattedDate => {
   const dayName = DAY_NAMES[date.getDay()];
-  const gregorianDate = `${dayName}, ${date.getDate()} ${GREGORIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  
+  // Line 1: আজকের তারিখ ২৫ নভেম্বর ২০२५
+  const gregorianDate = `আজকের তারিখ ${date.getDate()} ${GREGORIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
   
   // Calculate Hijri from Gregorian using algorithm
   const hijri = gregorianToHijri(date);
   
   const monthName = HIJRI_MONTHS[Math.max(0, Math.min(11, hijri.month - 1))] || 'অজানা';
-  const hijriDateString = `${hijri.date} ${monthName} ${hijri.year}`;
+  // Line 2: বুধবার 5 জমাদিউল আখির 1447
+  const hijriDateString = `${dayName} ${hijri.date} ${monthName} ${hijri.year}`;
 
   return {
     hijri: hijriDateString,

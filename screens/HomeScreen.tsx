@@ -179,12 +179,11 @@ export default function HomeScreen() {
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
           <View style={[styles.dateCard, { backgroundColor: theme.backgroundDefault }]}>
-            <ThemedText style={styles.cardLabel}>{t('home.today_date') || 'আজকের তারিখ'}</ThemedText>
-            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>
-              {formattedDate.hijri}
-            </ThemedText>
-            <ThemedText style={styles.gregorianDate}>
+            <ThemedText style={[styles.dateDisplayLine, { color: theme.primary }]}>
               {formattedDate.gregorian}
+            </ThemedText>
+            <ThemedText style={[styles.dateDisplayLine, { color: theme.primary }]}>
+              {formattedDate.hijri}
             </ThemedText>
           </View>
 
@@ -420,15 +419,11 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: 4,
   },
-  hijriDate: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 2,
+  dateDisplayLine: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#ffffff',
-  },
-  gregorianDate: {
-    fontSize: 12,
-    color: '#ffffff',
+    marginBottom: 6,
   },
   nextPrayerName: {
     fontSize: 15,
