@@ -257,7 +257,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     resizeMode: 'contain',
-    tintColor: '#fff',
   },
   headerTextContainer: {
     flex: 1,
