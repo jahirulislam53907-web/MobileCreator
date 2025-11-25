@@ -377,17 +377,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   sunriseSunsetText: {
-    fontSize: 13,
+    fontSize: 26,
     fontWeight: '600',
     color: '#ffffff',
   },
   sunriseSunsetLabel: {
-    fontSize: 13,
+    fontSize: 26,
     color: '#ffffff',
     fontWeight: '600',
   },
   sunriseSunsetTime: {
-    fontSize: 13,
+    fontSize: 26,
     fontWeight: '700',
   },
   locationTitle: {
