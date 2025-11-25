@@ -71,25 +71,28 @@ export function DraggableFAB() {
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
-        {/* Loading Spinner - Full rotating circle */}
+        {/* Rotating Loading Border */}
         <Animated.View
           style={[
-            styles.spinnerContainer,
+            styles.spinningBorder,
             rotatingBorderStyle,
           ]}
         >
           <View
             style={[
-              styles.spinner,
+              styles.spinnerRing,
               {
-                borderColor: primaryColor,
+                borderTopColor: primaryColor,
+                borderRightColor: lighterPrimaryColor,
+                borderBottomColor: primaryColor,
+                borderLeftColor: lighterPrimaryColor,
               },
             ]}
           />
         </Animated.View>
 
-        {/* Inner Button Below */}
-        <View style={[styles.fabContainer, { backgroundColor: lighterPrimaryColor }]}>
+        {/* Center Button */}
+        <View style={[styles.centerButton, { backgroundColor: lighterPrimaryColor }]}>
           <Feather name="plus" size={20} color="#ffffff" />
         </View>
       </Animated.View>
@@ -101,29 +104,30 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     width: 60,
-    height: 75,
+    height: 60,
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
   },
-  spinnerContainer: {
+  spinningBorder: {
+    position: "absolute",
     width: 60,
     height: 60,
     alignItems: "center",
     justifyContent: "center",
   },
-  spinner: {
+  spinnerRing: {
     width: 60,
     height: 60,
     borderRadius: 30,
     borderWidth: 4,
   },
-  fabContainer: {
+  centerButton: {
+    position: "absolute",
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
