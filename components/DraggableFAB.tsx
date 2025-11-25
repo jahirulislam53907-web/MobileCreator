@@ -6,8 +6,6 @@ import Animated, {
   withRepeat,
   withTiming,
   Easing,
-  interpolate,
-  Extrapolate,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
@@ -31,7 +29,7 @@ export function DraggableFAB() {
   useEffect(() => {
     rotation.value = withRepeat(
       withTiming(360, {
-        duration: 4000,
+        duration: 2000,
         easing: Easing.linear,
       }),
       -1,
@@ -67,45 +65,27 @@ export function DraggableFAB() {
     };
   });
 
-  // Lighter color for the button (increase brightness)
   const lighterPrimaryColor = theme.primaryLight || "#a8a5db";
   const primaryColor = theme.primary;
-
-  // Create gradient effect by layering colors at different opacities
-  const borderColors = [
-    { color: primaryColor, opacity: 1.0 },
-    { color: primaryColor, opacity: 0.8 },
-    { color: lighterPrimaryColor, opacity: 0.6 },
-    { color: lighterPrimaryColor, opacity: 0.4 },
-    { color: lighterPrimaryColor, opacity: 0.2 },
-  ];
 
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
-        <Animated.View style={[styles.rotatingBorderContainer, rotatingBorderStyle]}>
-          {/* Gradient border using layered views */}
-          {borderColors.map((item, index) => {
-            const totalLayers = borderColors.length;
-            const anglePerLayer = 360 / totalLayers;
-            const angle = anglePerLayer * index;
+        {/* Loading Spinner - Rotating Border */}
+        <Animated.View
+          style={[
+            styles.spinner,
+            {
+              borderTopColor: primaryColor,
+              borderRightColor: lighterPrimaryColor,
+              borderBottomColor: primaryColor,
+              borderLeftColor: lighterPrimaryColor,
+            },
+            rotatingBorderStyle,
+          ]}
+        />
 
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.borderSegment,
-                  {
-                    borderColor: item.color,
-                    opacity: item.opacity,
-                    transform: [{ rotate: `${angle}deg` }],
-                  },
-                ]}
-              />
-            );
-          })}
-        </Animated.View>
-
+        {/* Inner Button */}
         <View style={[styles.fabContainer, { backgroundColor: lighterPrimaryColor }]}>
           <Feather name="plus" size={20} color="#ffffff" />
         </View>
@@ -122,19 +102,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  rotatingBorderContainer: {
+  spinner: {
     position: "absolute",
     width: 60,
     height: 60,
     borderRadius: 30,
-    overflow: "hidden",
-  },
-  borderSegment: {
-    position: "absolute",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 10,
+    borderWidth: 4,
   },
   fabContainer: {
     width: 40,
