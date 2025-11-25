@@ -119,9 +119,9 @@ export default function HomeScreen() {
   ];
 
   return (
-    <View style={[{ flex: 1 }, { backgroundColor: theme.backgroundRoot }]}>
+    <View style={[{ flex: 1, backgroundColor: theme.backgroundRoot }]}>
       <TopNavigationBar activeTab="Home" />
-      <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
         <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.locationInfo}>
@@ -313,11 +313,11 @@ const styles = StyleSheet.create({
   locationTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff',
   },
   locationSubtitle: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#ffffff',
     marginTop: 2,
   },
   changeBtn: {
@@ -359,26 +359,28 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: 11,
-    color: '#6c757d',
+    color: '#ffffff',
     marginBottom: 4,
   },
   hijriDate: {
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 2,
+    color: '#ffffff',
   },
   gregorianDate: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#ffffff',
   },
   nextPrayerName: {
     fontSize: 15,
     fontWeight: '700',
     marginBottom: 6,
+    color: '#ffffff',
   },
   countdownLabel: {
     fontSize: 10,
-    color: '#6c757d',
+    color: '#ffffff',
     marginBottom: 2,
   },
   countdown: {
@@ -405,11 +407,11 @@ const styles = StyleSheet.create({
   verseTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e2a3a',
+    color: '#ffffff',
   },
   verseMeta: {
     fontSize: 11,
-    color: '#6c757d',
+    color: '#ffffff',
   },
   verseBg: {
     borderRadius: 10,
@@ -426,7 +428,7 @@ const styles = StyleSheet.create({
   verseTranslation: {
     fontSize: 13,
     textAlign: 'center',
-    color: '#6c757d',
+    color: '#ffffff',
     marginBottom: 12,
     lineHeight: 18,
   },
@@ -470,11 +472,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e2a3a',
+    color: '#ffffff',
   },
   seeAll: {
     fontSize: 12,
     fontWeight: '600',
+    color: '#ffffff',
   },
   quickActionsGrid: {
     flexDirection: 'row',
@@ -506,7 +509,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#333',
+    color: '#ffffff',
   },
   prayerTimesCard: {
     borderRadius: 10,
@@ -530,12 +533,13 @@ const styles = StyleSheet.create({
   prayerName: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#333',
+    color: '#ffffff',
     marginBottom: 3,
   },
   prayerTime: {
     fontSize: 13,
     fontWeight: '700',
+    color: '#ffffff',
   },
   trackerGrid: {
     flexDirection: 'row',
@@ -561,7 +565,7 @@ const styles = StyleSheet.create({
   trackerTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#333',
+    color: '#ffffff',
   },
   trackerIconBg: {
     width: 32,
@@ -584,7 +588,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 11,
-    color: '#6c757d',
+    color: '#ffffff',
     marginTop: 2,
   },
   progressBar: {
@@ -617,13 +621,13 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#333',
+    color: '#ffffff',
     marginTop: 8,
     textAlign: 'center',
   },
   featureDesc: {
     fontSize: 11,
-    color: '#6c757d',
+    color: '#ffffff',
     marginTop: 5,
     textAlign: 'center',
   },
