@@ -29,10 +29,9 @@ export const formatDate = (date: Date = new Date()): FormattedDate => {
   
   // Using hijri-date library for accurate Hijri date
   const hijriDate = new HijriDate(date);
-  const hijri = hijriDate.toObject();
   
-  const monthName = HIJRI_MONTHS[hijri.month - 1] || 'অজানা';
-  const hijriDateString = `${hijri.date} ${monthName} ${hijri.year}`;
+  const monthName = HIJRI_MONTHS[(hijriDate as any).month - 1] || 'অজানা';
+  const hijriDateString = `${(hijriDate as any).date} ${monthName} ${(hijriDate as any).year}`;
 
   return {
     hijri: hijriDateString,
