@@ -84,18 +84,18 @@ export default function HomeScreen() {
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'MenuBook', label: quickActionLabels[0] || 'কুরআন', color: actionColors[0] },
-    { icon: 'VolumeUp', label: quickActionLabels[1] || 'আজান', color: actionColors[1] },
-    { icon: 'People', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: actionColors[2] },
-    { icon: 'FavoriteBorder', label: quickActionLabels[3] || 'দুয়া', color: actionColors[3] },
-    { icon: 'Explore', label: quickActionLabels[4] || 'কিবলা', color: actionColors[4] },
-    { icon: 'LocationOn', label: quickActionLabels[5] || 'মসজিদ', color: actionColors[5] },
-    { icon: 'AccessTime', label: quickActionLabels[6] || 'নামাজ', color: actionColors[6] },
-    { icon: 'Book', label: quickActionLabels[7] || 'কিতাব', color: actionColors[7] },
-    { icon: 'CalendarMonth', label: quickActionLabels[8] || 'রোজা', color: actionColors[8] },
-    { icon: 'Star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: actionColors[9] },
-    { icon: 'CardGiftcard', label: quickActionLabels[10] || 'যাকাত', color: actionColors[10] },
-    { icon: 'DarkMode', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
+    { icon: 'menu-book', label: quickActionLabels[0] || 'কুরআন', color: actionColors[0] },
+    { icon: 'volume-up', label: quickActionLabels[1] || 'আজান', color: actionColors[1] },
+    { icon: 'people', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: actionColors[2] },
+    { icon: 'favorite-border', label: quickActionLabels[3] || 'দুয়া', color: actionColors[3] },
+    { icon: 'explore', label: quickActionLabels[4] || 'কিবলা', color: actionColors[4] },
+    { icon: 'location-on', label: quickActionLabels[5] || 'মসজিদ', color: actionColors[5] },
+    { icon: 'access-time', label: quickActionLabels[6] || 'নামাজ', color: actionColors[6] },
+    { icon: 'book', label: quickActionLabels[7] || 'কিতাব', color: actionColors[7] },
+    { icon: 'calendar-month', label: quickActionLabels[8] || 'রোজা', color: actionColors[8] },
+    { icon: 'star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: actionColors[9] },
+    { icon: 'card-giftcard', label: quickActionLabels[10] || 'যাকাত', color: actionColors[10] },
+    { icon: 'dark-mode', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
   ];
 
   const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as unknown as Record<string, string>) : {};
@@ -110,7 +110,7 @@ export default function HomeScreen() {
   const TRACKER_DATA = [
     {
       title: t('home.prayer_tracker') || 'নামাজ ট্র্যাকার',
-      icon: 'People',
+      icon: 'people',
       stat1: '৫/৫',
       label1: t('home.today') || 'আজ',
       stat2: '৩০/३०',
@@ -119,7 +119,7 @@ export default function HomeScreen() {
     },
     {
       title: t('home.quran_recitation') || 'কুরআন তিলাওয়াত',
-      icon: 'MenuBook',
+      icon: 'menu-book',
       stat1: '2' + (t('home.pages') || 'পৃষ্ঠা'),
       label1: t('home.today') || 'আজ',
       stat2: '15%',
@@ -129,12 +129,12 @@ export default function HomeScreen() {
   ];
 
   const FEATURES = [
-    { title: t('home.quran_title') || 'কুরআন মাজিদ', desc: t('home.quran_desc') || 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'MenuBook' },
-    { title: t('home.prayer_schedule_title') || 'নামাজের সময়সূচী', desc: t('home.prayer_schedule_desc') || 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'AccessTime' },
-    { title: t('home.dua_title') || 'দুয়া ও যিকর', desc: t('home.dua_desc') || 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'FavoriteBorder' },
-    { title: t('home.calendar_title') || 'ইসলামিক ক্যালেন্ডার', desc: t('home.calendar_desc') || 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'CalendarMonth' },
-    { title: t('home.qibla_title') || 'কিবলা কম্পাস', desc: t('home.qibla_desc') || 'সঠিক কিবলা দিক নির্দেশনা', icon: 'Explore' },
-    { title: t('home.prayer_teaching') || 'নামাজ শিক্ষা', desc: t('home.prayer_teaching_desc') || 'সঠিকভাবে নামাজ শিখুন', icon: 'People' },
+    { title: t('home.quran_title') || 'কুরআন মাজিদ', desc: t('home.quran_desc') || 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'menu-book' },
+    { title: t('home.prayer_schedule_title') || 'নামাজের সময়সূচী', desc: t('home.prayer_schedule_desc') || 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'access-time' },
+    { title: t('home.dua_title') || 'দুয়া ও যিকর', desc: t('home.dua_desc') || 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'favorite-border' },
+    { title: t('home.calendar_title') || 'ইসলামিক ক্যালেন্ডার', desc: t('home.calendar_desc') || 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'calendar-month' },
+    { title: t('home.qibla_title') || 'কিবলা কম্পাস', desc: t('home.qibla_desc') || 'সঠিক কিবলা দিক নির্দেশনা', icon: 'explore' },
+    { title: t('home.prayer_teaching') || 'নামাজ শিক্ষা', desc: t('home.prayer_teaching_desc') || 'সঠিকভাবে নামাজ শিখুন', icon: 'people' },
   ];
 
   return (
@@ -153,7 +153,7 @@ export default function HomeScreen() {
         >
           <View style={styles.locationInfo}>
             <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
-              <MaterialIcons name="LocationOn" size={18} color={theme.primary} />
+              <MaterialIcons name="location-on" size={18} color={theme.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>
@@ -164,7 +164,7 @@ export default function HomeScreen() {
               </ThemedText>
             </View>
             <View style={[styles.locationRefresh, { opacity: locationLoading ? 0.6 : 1 }]}>
-              <MaterialIcons name={locationLoading ? "Refresh" : "Refresh"} size={16} color={theme.primary} />
+              <MaterialIcons name="refresh" size={16} color={theme.primary} />
             </View>
           </View>
         </Pressable>
@@ -203,15 +203,15 @@ export default function HomeScreen() {
           <ThemedText style={styles.verseTranslation}>"{verse.bengali}"</ThemedText>
           <View style={styles.verseActions}>
             <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
-              <MaterialIcons name="PlayArrow" size={14} color={theme.buttonText} />
+              <MaterialIcons name="play-arrow" size={14} color={theme.buttonText} />
               <ThemedText style={[styles.verseBtnText, { color: theme.buttonText }]}>{t('home.listen') || 'শুনুন'}</ThemedText>
             </Pressable>
             <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <MaterialIcons name="Share" size={14} color={theme.primary} />
+              <MaterialIcons name="share" size={14} color={theme.primary} />
               <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.share') || 'শেয়ার'}</ThemedText>
             </Pressable>
             <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <MaterialIcons name="Bookmark" size={14} color={theme.primary} />
+              <MaterialIcons name="bookmark" size={14} color={theme.primary} />
               <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.save') || 'সেভ'}</ThemedText>
             </Pressable>
           </View>
