@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, ScrollView } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
@@ -29,11 +29,21 @@ const QURAN_VERSES: QuranVerse[] = [
 export default function HomeScreen() {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
-  const { location } = useLocation();
+  const { location, requestLocationPermission, loading: locationLoading } = useLocation();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
   const [formattedDate, setFormattedDate] = useState(formatDate());
+
+  const handleLocationPress = async () => {
+    const success = await requestLocationPermission();
+    if (!success) {
+      Alert.alert(
+        'লোকেশন পারমিশন',
+        'আপনার ডিভাইসের লোকেশন এক্সেস করতে পারমিশন প্রয়োজন। সঠিক প্রার্থনার সময় এর জন্য আপনার বর্তমান অবস্থান আমাদের প্রয়োজন।'
+      );
+    }
+  };
 
   useEffect(() => {
     if (location) {
@@ -132,7 +142,15 @@ export default function HomeScreen() {
       <TopNavigationBar activeTab="Home" />
       <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
         {/* Location Display */}
-        <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
+        <Pressable
+          onPress={handleLocationPress}
+          style={({ pressed }) => [
+            styles.locationCard,
+            { backgroundColor: theme.backgroundDefault },
+            pressed && { opacity: 0.7 }
+          ]}
+          disabled={locationLoading}
+        >
           <View style={styles.locationInfo}>
             <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
               <Feather name="map-pin" size={18} color={theme.primary} />
@@ -141,10 +159,15 @@ export default function HomeScreen() {
               <ThemedText style={styles.locationTitle}>
                 {location ? `${location.name}, ${location.country}` : t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}
               </ThemedText>
-              <ThemedText style={styles.locationSubtitle}>{t('home.location_current') || 'আপনার বর্তমান লোকেশন'}</ThemedText>
+              <ThemedText style={styles.locationSubtitle}>
+                {locationLoading ? 'লোকেশন প্রাপ্ত হচ্ছে...' : (t('home.location_current') || 'আপনার বর্তমান লোকেশন')}
+              </ThemedText>
+            </View>
+            <View style={[styles.locationRefresh, { opacity: locationLoading ? 0.6 : 1 }]}>
+              <Feather name={locationLoading ? "loader" : "refresh-cw"} size={16} color={theme.primary} />
             </View>
           </View>
-        </View>
+        </Pressable>
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
@@ -637,5 +660,8 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginTop: 5,
     textAlign: 'center',
+  },
+  locationRefresh: {
+    padding: 8,
   },
 });
