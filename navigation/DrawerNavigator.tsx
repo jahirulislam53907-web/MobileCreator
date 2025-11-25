@@ -181,7 +181,6 @@ const DrawerContent = ({ navigation }: { navigation: any }) => {
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundSecondary }]}>
       <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
-        <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
       </View>
 
       <ScrollView 
@@ -242,21 +241,13 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     justifyContent: 'center',
-    minHeight: 56,
+    alignItems: 'center',
+    height: 56,
   },
   drawerTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: 0,
-    lineHeight: 20,
-  },
-  drawerSubtitle: {
-    fontSize: 11,
-    color: '#fff',
-    opacity: 0.75,
-    marginTop: 0,
-    lineHeight: 14,
   },
   menuItemsContainer: {
     flex: 1,
