@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   verseCarouselItem: {
-    marginRight: 0,
+    marginRight: 20,
   },
   dotsContainer: {
     flexDirection: 'row',
