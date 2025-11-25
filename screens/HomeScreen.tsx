@@ -33,8 +33,9 @@ export default function HomeScreen() {
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
-  const quickActionsHeightAnim = useRef(new Animated.Value(100)).current;
-  const prayerTimesMarginAnim = useRef(new Animated.Value(100)).current;
+  const [quickActionsFullHeight, setQuickActionsFullHeight] = useState(200);
+  const quickActionsHeightAnim = useRef(new Animated.Value(200)).current;
+  const prayerTimesMarginAnim = useRef(new Animated.Value(200)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -67,12 +68,12 @@ export default function HomeScreen() {
         useNativeDriver: false,
       }),
       Animated.timing(quickActionsHeightAnim, {
-        toValue: shouldCollapse ? 0 : 100,
+        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
         duration: 300,
         useNativeDriver: false,
       }),
       Animated.timing(prayerTimesMarginAnim, {
-        toValue: shouldCollapse ? 0 : 100,
+        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
         duration: 300,
         useNativeDriver: false,
       }),
@@ -82,6 +83,13 @@ export default function HomeScreen() {
   const handleVerseLayout = (event: LayoutChangeEvent, index: number) => {
     const height = event.nativeEvent.layout.height;
     verseHeights[index] = height;
+  };
+
+  const handleQuickActionsLayout = (event: LayoutChangeEvent) => {
+    const height = event.nativeEvent.layout.height;
+    setQuickActionsFullHeight(height);
+    quickActionsHeightAnim.setValue(height);
+    prayerTimesMarginAnim.setValue(height);
   };
   
   const renderVerseItem = ({ item, index }: { item: QuranVerse; index: number }) => (
@@ -317,13 +325,14 @@ export default function HomeScreen() {
 
         {/* Quick Actions */}
         <Animated.View style={{ height: quickActionsHeightAnim, overflow: 'hidden' }}>
-          <View style={styles.sectionTitleRow}>
-            <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
-            <Pressable>
-              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
-            </Pressable>
-          </View>
-          <View style={styles.quickActionsGrid}>
+          <View onLayout={handleQuickActionsLayout}>
+            <View style={styles.sectionTitleRow}>
+              <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
+              <Pressable>
+                <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+              </Pressable>
+            </View>
+            <View style={styles.quickActionsGrid}>
           {QUICK_ACTIONS.map((item, idx) => (
             <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.actionIcon]}>
@@ -335,6 +344,7 @@ export default function HomeScreen() {
               <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
             </Pressable>
           ))}
+            </View>
           </View>
         </Animated.View>
 
