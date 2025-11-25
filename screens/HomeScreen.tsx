@@ -618,6 +618,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  trackerIconImage: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+  },
   trackerStats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -661,6 +666,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
+  },
+  featureIconImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+    marginBottom: 8,
+  },
+  actionIconImage: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
   },
   featureTitle: {
     fontSize: 14,
