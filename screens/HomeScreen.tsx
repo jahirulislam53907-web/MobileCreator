@@ -62,6 +62,9 @@ export default function HomeScreen() {
     const currentHeight = verseHeights[currentIndex] || 0;
     const shouldCollapse = currentHeight > 200; // threshold for collapse
     
+    // Auto collapse/expand Quick Actions based on verse height
+    setIsQuickActionsExpanded(!shouldCollapse);
+    
     Animated.parallel([
       Animated.timing(dotsPositionAnim, {
         toValue: shouldCollapse ? -50 : 0,
