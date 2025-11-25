@@ -59,7 +59,7 @@ export default function HomeScreen() {
     
     // Trigger animation based on current verse height
     const currentHeight = verseHeights[currentIndex] || 0;
-    const shouldCollapse = currentHeight > 200; // threshold for collapse
+    const shouldCollapse = currentHeight <= 200; // small verse = collapse
     
     // Auto animate Quick Actions height based on verse size (independent of items toggle)
     Animated.parallel([
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         useNativeDriver: false,
       }),
       Animated.timing(quickActionsHeightAnim, {
-        toValue: shouldCollapse ? quickActionsFullHeight : 0,
+        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
         duration: 300,
         useNativeDriver: false,
       }),
