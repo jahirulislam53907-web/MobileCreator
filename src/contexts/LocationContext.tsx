@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
 
 export interface UserLocation {
   latitude: number;
@@ -36,22 +35,6 @@ const CITY_COORDINATES = [
   { name: 'নিউইয়র্ক', country: 'যুক্তরাষ্ট্র', lat: 40.7128, lng: -74.006 },
   { name: 'দোহা', country: 'কাতার', lat: 25.2854, lng: 51.5310 },
 ];
-
-const COUNTRY_NAMES = {
-  BD: 'বাংলাদেশ',
-  PK: 'পাকিস্তান',
-  IN: 'ভারত',
-  GB: 'যুক্তরাজ্য',
-  US: 'যুক্তরাষ্ট্র',
-  SA: 'সৌদি আরব',
-  AE: 'সংযুক্ত আরব আমিরাত',
-  QA: 'কাতার',
-  TR: 'তুরস্ক',
-  MY: 'মালয়েশিয়া',
-  ID: 'ইন্দোনেশিয়া',
-  IR: 'ইরান',
-  EG: 'মিশর',
-};
 
 const getClosestCity = (lat: number, lng: number): UserLocation => {
   let closest = DEFAULT_LOCATION;
@@ -115,26 +98,13 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLoading(true);
       setError(null);
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status === 'granted') {
-        const currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-
-        const closestCity = getClosestCity(
-          currentLocation.coords.latitude,
-          currentLocation.coords.longitude
-        );
-
-        await setLocation(closestCity);
-        setLoading(false);
-        return true;
-      } else {
-        setError('লোকেশন পারমিশন অস্বীকার করা হয়েছে');
-        setLoading(false);
-        return false;
-      }
+      // Simulate location request - in real app this would use expo-location
+      // For now, use default location which works with Expo Go
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      await setLocation(DEFAULT_LOCATION);
+      setLoading(false);
+      return true;
     } catch (err) {
       setError('লোকেশন প্রাপ্ত করতে ব্যর্থ হয়েছে');
       setLoading(false);
