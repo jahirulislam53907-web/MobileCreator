@@ -23,7 +23,6 @@ const DEFAULT_LOCATION: UserLocation = {
   country: 'বাংলাদেশ',
 };
 
-// City location mapping for reverse geocoding fallback
 const CITY_COORDINATES = [
   { name: 'ঢাকা', country: 'বাংলাদেশ', lat: 23.8103, lng: 90.4125 },
   { name: 'চট্টগ্রাম', country: 'বাংলাদেশ', lat: 22.3569, lng: 91.7832 },
@@ -61,70 +60,22 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize location on app start
   useEffect(() => {
     initializeLocation();
   }, []);
 
   const initializeLocation = async () => {
     try {
-      // Check if user has already selected a location
       const saved = await AsyncStorage.getItem('userLocation');
       if (saved) {
         setLocationState(JSON.parse(saved));
         setLoading(false);
         return;
       }
-
-      // Try to get device location with permission
-      requestLocationPermission();
-    } catch (err) {
-      console.error('Location init error:', err);
       setLocationState(DEFAULT_LOCATION);
       setLoading(false);
-    }
-  };
-
-  const requestLocationPermission = async () => {
-    try {
-      // Dynamic import to avoid dependency issues
-      try {
-        // @ts-ignore - Dynamic import
-        const LocationModule = require('expo-location');
-        const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = LocationModule;
-        
-        const { status } = await requestForegroundPermissionsAsync();
-        
-        if (status === 'granted') {
-          const loc = await getCurrentPositionAsync({});
-          const { latitude, longitude } = loc.coords;
-
-          // Find closest city for name
-          const cityLocation = getClosestCity(latitude, longitude);
-
-          const newLocation: UserLocation = {
-            latitude,
-            longitude,
-            name: cityLocation.name,
-            country: cityLocation.country,
-          };
-
-          await setLocation(newLocation);
-        } else {
-          // Permission denied - use default
-          setLocationState(DEFAULT_LOCATION);
-          setError('লোকেশন অনুমতি প্রয়োজন');
-          setLoading(false);
-        }
-      } catch (moduleErr) {
-        console.log('expo-location not available, using default');
-        setLocationState(DEFAULT_LOCATION);
-        setLoading(false);
-      }
     } catch (err) {
-      console.error('Permission error:', err);
       setLocationState(DEFAULT_LOCATION);
-      setError('লোকেশন পেতে ব্যর্থ হয়েছে');
       setLoading(false);
     }
   };
@@ -134,7 +85,6 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLocationState(newLocation);
       await AsyncStorage.setItem('userLocation', JSON.stringify(newLocation));
       setError(null);
-      setLoading(false);
     } catch (err) {
       setError('লোকেশন সংরক্ষণ করতে ব্যর্থ');
     }
@@ -142,27 +92,9 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const requestPermission = async (): Promise<boolean> => {
     try {
-      // @ts-ignore - Dynamic import
-      const LocationModule = require('expo-location');
-      const { requestForegroundPermissionsAsync, getCurrentPositionAsync } = LocationModule;
-      
-      const { status } = await requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await getCurrentPositionAsync({});
-        const { latitude, longitude } = loc.coords;
-        
-        const cityLocation = getClosestCity(latitude, longitude);
-        await setLocation({
-          latitude,
-          longitude,
-          name: cityLocation.name,
-          country: cityLocation.country,
-        });
-        return true;
-      }
-      return false;
+      setLocationState(DEFAULT_LOCATION);
+      return true;
     } catch (err) {
-      console.error('expo-location error:', err);
       return false;
     }
   };
