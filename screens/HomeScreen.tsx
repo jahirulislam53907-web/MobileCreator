@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Pressable, ScrollView, Alert } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
@@ -84,18 +84,18 @@ export default function HomeScreen() {
   ];
 
   const QUICK_ACTIONS = [
-    { icon: 'book-open', label: quickActionLabels[0] || 'কুরআন', color: actionColors[0] },
-    { icon: 'volume-2', label: quickActionLabels[1] || 'আজান', color: actionColors[1] },
-    { icon: 'users', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: actionColors[2] },
-    { icon: 'heart', label: quickActionLabels[3] || 'দুয়া', color: actionColors[3] },
-    { icon: 'compass', label: quickActionLabels[4] || 'কিবলা', color: actionColors[4] },
-    { icon: 'map-pin', label: quickActionLabels[5] || 'মসজিদ', color: actionColors[5] },
-    { icon: 'clock', label: quickActionLabels[6] || 'নামাজ', color: actionColors[6] },
-    { icon: 'book', label: quickActionLabels[7] || 'কিতাব', color: actionColors[7] },
-    { icon: 'calendar', label: quickActionLabels[8] || 'রোজা', color: actionColors[8] },
-    { icon: 'star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: actionColors[9] },
-    { icon: 'gift', label: quickActionLabels[10] || 'যাকাত', color: actionColors[10] },
-    { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
+    { icon: 'MenuBook', label: quickActionLabels[0] || 'কুরআন', color: actionColors[0] },
+    { icon: 'VolumeUp', label: quickActionLabels[1] || 'আজান', color: actionColors[1] },
+    { icon: 'People', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: actionColors[2] },
+    { icon: 'FavoriteBorder', label: quickActionLabels[3] || 'দুয়া', color: actionColors[3] },
+    { icon: 'Explore', label: quickActionLabels[4] || 'কিবলা', color: actionColors[4] },
+    { icon: 'LocationOn', label: quickActionLabels[5] || 'মসজিদ', color: actionColors[5] },
+    { icon: 'AccessTime', label: quickActionLabels[6] || 'নামাজ', color: actionColors[6] },
+    { icon: 'Book', label: quickActionLabels[7] || 'কিতাব', color: actionColors[7] },
+    { icon: 'CalendarMonth', label: quickActionLabels[8] || 'রোজা', color: actionColors[8] },
+    { icon: 'Star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: actionColors[9] },
+    { icon: 'CardGiftcard', label: quickActionLabels[10] || 'যাকাত', color: actionColors[10] },
+    { icon: 'DarkMode', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
   ];
 
   const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as unknown as Record<string, string>) : {};
@@ -110,7 +110,7 @@ export default function HomeScreen() {
   const TRACKER_DATA = [
     {
       title: t('home.prayer_tracker') || 'নামাজ ট্র্যাকার',
-      icon: 'users',
+      icon: 'People',
       stat1: '৫/৫',
       label1: t('home.today') || 'আজ',
       stat2: '৩০/३०',
@@ -119,7 +119,7 @@ export default function HomeScreen() {
     },
     {
       title: t('home.quran_recitation') || 'কুরআন তিলাওয়াত',
-      icon: 'book',
+      icon: 'MenuBook',
       stat1: '2' + (t('home.pages') || 'পৃষ্ঠা'),
       label1: t('home.today') || 'আজ',
       stat2: '15%',
@@ -129,12 +129,12 @@ export default function HomeScreen() {
   ];
 
   const FEATURES = [
-    { title: t('home.quran_title') || 'কুরআন মাজিদ', desc: t('home.quran_desc') || 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'book-open' },
-    { title: t('home.prayer_schedule_title') || 'নামাজের সময়সূচী', desc: t('home.prayer_schedule_desc') || 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'clock' },
-    { title: t('home.dua_title') || 'দুয়া ও যিকর', desc: t('home.dua_desc') || 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'heart' },
-    { title: t('home.calendar_title') || 'ইসলামিক ক্যালেন্ডার', desc: t('home.calendar_desc') || 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'calendar' },
-    { title: t('home.qibla_title') || 'কিবলা কম্পাস', desc: t('home.qibla_desc') || 'সঠিক কিবলা দিক নির্দেশনা', icon: 'compass' },
-    { title: t('home.prayer_teaching') || 'নামাজ শিক্ষা', desc: t('home.prayer_teaching_desc') || 'সঠিকভাবে নামাজ শিখুন', icon: 'users' },
+    { title: t('home.quran_title') || 'কুরআন মাজিদ', desc: t('home.quran_desc') || 'সম্পূর্ণ কুরআন বাংলা অনুবাদ ও তাফসীর সহ', icon: 'MenuBook' },
+    { title: t('home.prayer_schedule_title') || 'নামাজের সময়সূচী', desc: t('home.prayer_schedule_desc') || 'সঠিক সময়ে নামাজের জন্য রিমাইন্ডার', icon: 'AccessTime' },
+    { title: t('home.dua_title') || 'দুয়া ও যিকর', desc: t('home.dua_desc') || 'প্রতিদিনের দুয়া ও যিকরের সংগ্রহ', icon: 'FavoriteBorder' },
+    { title: t('home.calendar_title') || 'ইসলামিক ক্যালেন্ডার', desc: t('home.calendar_desc') || 'হিজরি ও ইংরেজি তারিখ একসাথে', icon: 'CalendarMonth' },
+    { title: t('home.qibla_title') || 'কিবলা কম্পাস', desc: t('home.qibla_desc') || 'সঠিক কিবলা দিক নির্দেশনা', icon: 'Explore' },
+    { title: t('home.prayer_teaching') || 'নামাজ শিক্ষা', desc: t('home.prayer_teaching_desc') || 'সঠিকভাবে নামাজ শিখুন', icon: 'People' },
   ];
 
   return (
@@ -153,7 +153,7 @@ export default function HomeScreen() {
         >
           <View style={styles.locationInfo}>
             <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
-              <Feather name="map-pin" size={18} color={theme.primary} />
+              <MaterialIcons name="LocationOn" size={18} color={theme.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>
@@ -164,7 +164,7 @@ export default function HomeScreen() {
               </ThemedText>
             </View>
             <View style={[styles.locationRefresh, { opacity: locationLoading ? 0.6 : 1 }]}>
-              <Feather name={locationLoading ? "loader" : "refresh-cw"} size={16} color={theme.primary} />
+              <MaterialIcons name={locationLoading ? "Refresh" : "Refresh"} size={16} color={theme.primary} />
             </View>
           </View>
         </Pressable>
@@ -203,15 +203,15 @@ export default function HomeScreen() {
           <ThemedText style={styles.verseTranslation}>"{verse.bengali}"</ThemedText>
           <View style={styles.verseActions}>
             <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
-              <Feather name="play" size={14} color={theme.buttonText} />
+              <MaterialIcons name="PlayArrow" size={14} color={theme.buttonText} />
               <ThemedText style={[styles.verseBtnText, { color: theme.buttonText }]}>{t('home.listen') || 'শুনুন'}</ThemedText>
             </Pressable>
             <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <Feather name="share-2" size={14} color={theme.primary} />
+              <MaterialIcons name="Share" size={14} color={theme.primary} />
               <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.share') || 'শেয়ার'}</ThemedText>
             </Pressable>
             <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
-              <Feather name="bookmark" size={14} color={theme.primary} />
+              <MaterialIcons name="Bookmark" size={14} color={theme.primary} />
               <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.save') || 'সেভ'}</ThemedText>
             </Pressable>
           </View>
@@ -228,7 +228,7 @@ export default function HomeScreen() {
           {QUICK_ACTIONS.map((item, idx) => (
             <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.actionIcon, { backgroundColor: item.color + '20' }]}>
-                <Feather name={item.icon as any} size={16} color={item.color} />
+                <MaterialIcons name={item.icon as any} size={16} color={item.color} />
               </View>
               <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
             </Pressable>
@@ -266,7 +266,7 @@ export default function HomeScreen() {
               <View style={styles.trackerHeader}>
                 <ThemedText style={styles.trackerTitle}>{tracker.title}</ThemedText>
                 <View style={[styles.trackerIconBg, { backgroundColor: theme.primary }]}>
-                  <Feather name={tracker.icon as any} size={16} color={theme.buttonText} />
+                  <MaterialIcons name={tracker.icon as any} size={16} color={theme.buttonText} />
                 </View>
               </View>
               <View style={styles.trackerStats}>
@@ -296,7 +296,7 @@ export default function HomeScreen() {
         <View style={styles.featuresGrid}>
           {FEATURES.map((feature, idx) => (
             <View key={idx} style={[styles.featureCard, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
-              <Feather name={feature.icon as any} size={24} color={theme.primary} />
+              <MaterialIcons name={feature.icon as any} size={24} color={theme.primary} />
               <ThemedText style={styles.featureTitle}>{feature.title}</ThemedText>
               <ThemedText style={styles.featureDesc}>{feature.desc}</ThemedText>
             </View>
