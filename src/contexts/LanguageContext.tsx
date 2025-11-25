@@ -1,8 +1,18 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { ThemeName } from '@/constants/theme';
+import React, { createContext, useState, useEffect, useContext } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { ThemeName } from "@/constants/theme";
 
-export type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
+export type LanguageCode =
+  | "bn"
+  | "en"
+  | "ur"
+  | "hi"
+  | "ar"
+  | "tr"
+  | "ms"
+  | "id"
+  | "pa"
+  | "fa";
 
 interface LanguageContextType {
   language: LanguageCode;
@@ -11,37 +21,39 @@ interface LanguageContextType {
   getThemeForLanguage: (lang: LanguageCode) => ThemeName;
 }
 
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+export const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 // ভাষা অনুযায়ী থিম ম্যাপিং
 const languageThemeMap: Record<LanguageCode, ThemeName> = {
-  bn: 'bn',
-  en: 'en',
-  ur: 'ur',
-  hi: 'hi',
-  ar: 'ar',
-  tr: 'tr',
-  ms: 'ms',
-  id: 'id',
-  pa: 'pa',
-  fa: 'fa',
+  bn: "bn",
+  en: "en",
+  ur: "ur",
+  hi: "hi",
+  ar: "ar",
+  tr: "tr",
+  ms: "ms",
+  id: "id",
+  pa: "pa",
+  fa: "fa",
 };
 
 const translations = {
-  bn: require('../locales/bn.json'),
-  en: require('../locales/en.json'),
-  ur: require('../locales/ur.json'),
-  hi: require('../locales/hi.json'),
-  ar: require('../locales/ar.json'),
-  tr: require('../locales/tr.json'),
-  ms: require('../locales/ms.json'),
-  id: require('../locales/id.json'),
-  pa: require('../locales/pa.json'),
-  fa: require('../locales/fa.json'),
+  bn: require("../locales/bn.json"),
+  en: require("../locales/en.json"),
+  ur: require("../locales/ur.json"),
+  hi: require("../locales/hi.json"),
+  ar: require("../locales/ar.json"),
+  tr: require("../locales/tr.json"),
+  ms: require("../locales/ms.json"),
+  id: require("../locales/id.json"),
+  pa: require("../locales/pa.json"),
+  fa: require("../locales/fa.json"),
 };
 
 const getNestedValue = (obj: any, path: string): string => {
-  const keys = path.split('.');
+  const keys = path.split(".");
   let value = obj;
   for (const key of keys) {
     value = value?.[key];
@@ -49,19 +61,21 @@ const getNestedValue = (obj: any, path: string): string => {
   return value || path;
 };
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<LanguageCode>('bn');
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [language, setLanguageState] = useState<LanguageCode>("bn");
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const loadLanguage = async () => {
       try {
-        const saved = await AsyncStorage.getItem('app_language');
+        const saved = await AsyncStorage.getItem("app_language");
         if (saved && Object.keys(translations).includes(saved)) {
           setLanguageState(saved as LanguageCode);
         }
       } catch (error) {
-        console.error('Failed to load language:', error);
+        console.error("Failed to load language:", error);
       } finally {
         setIsLoaded(true);
       }
@@ -71,10 +85,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = async (lang: LanguageCode) => {
     try {
-      await AsyncStorage.setItem('app_language', lang);
+      await AsyncStorage.setItem("app_language", lang);
       setLanguageState(lang);
     } catch (error) {
-      console.error('Failed to save language:', error);
+      console.error("Failed to save language:", error);
     }
   };
 
@@ -92,7 +106,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, getThemeForLanguage }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, t, getThemeForLanguage }}
+    >
       {children}
     </LanguageContext.Provider>
   );
@@ -101,7 +117,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useTranslation = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useTranslation must be used within LanguageProvider');
+    throw new Error("useTranslation must be used within LanguageProvider");
   }
   return context;
 };

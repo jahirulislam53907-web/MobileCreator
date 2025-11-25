@@ -15,7 +15,7 @@ const { width, height } = Dimensions.get("window");
 
 export function DraggableFAB() {
   // Skip on web to avoid gesture handler issues
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     return null;
   }
 
@@ -37,7 +37,7 @@ export function DraggableFAB() {
         easing: Easing.linear,
       }),
       -1,
-      false
+      false,
     );
   }, [rotation]);
 
@@ -48,7 +48,10 @@ export function DraggableFAB() {
 
       // Boundary constraints
       translateX.value = Math.max(10, Math.min(newX, width - 60));
-      translateY.value = Math.max(10, Math.min(newY, height - 110 - insets.bottom));
+      translateY.value = Math.max(
+        10,
+        Math.min(newY, height - 110 - insets.bottom),
+      );
     })
     .onEnd(() => {
       // Optional: Snap to edges or finalize position
@@ -76,12 +79,7 @@ export function DraggableFAB() {
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
         {/* Rotating Loading Border */}
-        <Animated.View
-          style={[
-            styles.spinningBorder,
-            rotatingBorderStyle,
-          ]}
-        >
+        <Animated.View style={[styles.spinningBorder, rotatingBorderStyle]}>
           <View
             style={[
               styles.spinnerRing,
@@ -96,7 +94,12 @@ export function DraggableFAB() {
         </Animated.View>
 
         {/* Center Button */}
-        <View style={[styles.centerButton, { backgroundColor: lighterPrimaryColor }]}>
+        <View
+          style={[
+            styles.centerButton,
+            { backgroundColor: lighterPrimaryColor },
+          ]}
+        >
           <Text style={styles.buttonText}>AI</Text>
         </View>
       </Animated.View>
