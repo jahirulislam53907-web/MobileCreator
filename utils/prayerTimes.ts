@@ -67,54 +67,55 @@ export const getNextPrayer = (
     const coordinates = new Coordinates(latitude, longitude);
     const params = CalculationMethod.Karachi();
     const now = new Date();
-    const prayerTimes = new PrayerTimes(coordinates, now, params);
+    const todayTimes = new PrayerTimes(coordinates, now, params);
 
-    const nextPrayer = prayerTimes.nextPrayer();
-    
-    if (!nextPrayer) {
-      // Fallback to Fajr if no next prayer found
-      return {
-        name: 'Fajr',
-        nameAr: 'الفجر',
-        nameBn: 'ফজর',
-        time: prayerTimes.fajr,
-        timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
-      };
+    // Define prayer order and times
+    const prayers: Array<{ key: Prayer; name: string; nameAr: string; nameBn: string; time: Date }> = [
+      { key: Prayer.Fajr, name: 'Fajr', nameAr: 'الفجر', nameBn: 'ফজর', time: todayTimes.fajr },
+      { key: Prayer.Sunrise, name: 'Sunrise', nameAr: 'الشروق', nameBn: 'সূর্যোদয়', time: todayTimes.sunrise },
+      { key: Prayer.Dhuhr, name: 'Dhuhr', nameAr: 'الظهر', nameBn: 'যোহর', time: todayTimes.dhuhr },
+      { key: Prayer.Asr, name: 'Asr', nameAr: 'العصر', nameBn: 'আসর', time: todayTimes.asr },
+      { key: Prayer.Maghrib, name: 'Maghrib', nameAr: 'المغرب', nameBn: 'মাগরিব', time: todayTimes.maghrib },
+      { key: Prayer.Isha, name: 'Isha', nameAr: 'العشاء', nameBn: 'এশা', time: todayTimes.isha },
+    ];
+
+    // Find next prayer today
+    for (const prayer of prayers) {
+      if (prayer.time > now) {
+        const diff = prayer.time.getTime() - now.getTime();
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        return {
+          name: prayer.name,
+          nameAr: prayer.nameAr,
+          nameBn: prayer.nameBn,
+          time: prayer.time,
+          timeRemaining: {
+            hours: Math.max(0, hours),
+            minutes: Math.max(0, minutes),
+            seconds: Math.max(0, seconds),
+          },
+        };
+      }
     }
 
-    const nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer);
-    if (!nextPrayerTime) {
-      return {
-        name: 'Fajr',
-        nameAr: 'الفجر',
-        nameBn: 'ফজর',
-        time: prayerTimes.fajr,
-        timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
-      };
-    }
+    // If no prayer left today, get tomorrow's Fajr
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowTimes = new PrayerTimes(coordinates, tomorrow, params);
 
-    const diff = nextPrayerTime.getTime() - now.getTime();
-    
+    const diff = tomorrowTimes.fajr.getTime() - now.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    let prayerKey = 'Fajr';
-    const prayerStr = String(nextPrayer).toLowerCase();
-    
-    if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
-    else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
-    else if (prayerStr.includes('asr')) prayerKey = 'Asr';
-    else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
-    else if (prayerStr.includes('isha')) prayerKey = 'Isha';
-    
-    const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
-    
     return {
-      name: prayerData.en,
-      nameAr: prayerData.ar,
-      nameBn: prayerData.bn,
-      time: nextPrayerTime,
+      name: 'Fajr',
+      nameAr: 'الفجر',
+      nameBn: 'ফজর',
+      time: tomorrowTimes.fajr,
       timeRemaining: {
         hours: Math.max(0, hours),
         minutes: Math.max(0, minutes),
@@ -122,7 +123,6 @@ export const getNextPrayer = (
       },
     };
   } catch (error) {
-    // Fallback if any error occurs
     return {
       name: 'Fajr',
       nameAr: 'الفجر',
