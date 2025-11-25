@@ -242,18 +242,21 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     justifyContent: 'center',
+    minHeight: 56,
   },
   drawerTitle: {
     fontSize: 16,
     fontWeight: '700',
     color: '#fff',
     marginBottom: 0,
+    lineHeight: 20,
   },
   drawerSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#fff',
     opacity: 0.75,
-    marginTop: 2,
+    marginTop: 0,
+    lineHeight: 14,
   },
   menuItemsContainer: {
     flex: 1,
