@@ -81,17 +81,15 @@ export const getNextPrayer = (
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const prayerNameMap: { [key: string]: string } = {
-    'fajr': 'Fajr',
-    'sunrise': 'Sunrise',
-    'dhuhr': 'Dhuhr',
-    'asr': 'Asr',
-    'maghrib': 'Maghrib',
-    'isha': 'Isha',
-    'none': 'Fajr'
-  };
-
-  const prayerKey = prayerNameMap[nextPrayer] || 'Fajr';
+  let prayerKey = 'Fajr';
+  const prayerStr = String(nextPrayer).toLowerCase();
+  
+  if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
+  else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
+  else if (prayerStr.includes('asr')) prayerKey = 'Asr';
+  else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
+  else if (prayerStr.includes('isha')) prayerKey = 'Isha';
+  
   const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   
   return {
@@ -118,17 +116,15 @@ export const getCurrentPrayer = (
   const currentPrayer = prayerTimes.currentPrayer();
   if (!currentPrayer) return null;
 
-  const prayerNameMap: { [key: string]: string } = {
-    'fajr': 'Fajr',
-    'sunrise': 'Sunrise',
-    'dhuhr': 'Dhuhr',
-    'asr': 'Asr',
-    'maghrib': 'Maghrib',
-    'isha': 'Isha',
-    'none': 'Fajr'
-  };
-
-  const prayerKey = prayerNameMap[currentPrayer] || 'Fajr';
+  let prayerKey = 'Fajr';
+  const prayerStr = String(currentPrayer).toLowerCase();
+  
+  if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
+  else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
+  else if (prayerStr.includes('asr')) prayerKey = 'Asr';
+  else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
+  else if (prayerStr.includes('isha')) prayerKey = 'Isha';
+  
   const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   return prayerData.bn;
 };
