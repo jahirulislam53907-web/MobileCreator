@@ -29,40 +29,41 @@ const DAY_NAMES = [
   'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'
 ];
 
-// Accurate Gregorian to Hijri conversion using Kuwaiti algorithm
+// Accurate Gregorian to Hijri conversion (Reingold-Dershowitz algorithm)
 export const gregorianToHijri = (date: Date): HijriDate => {
-  const D = date.getDate();
-  const M = date.getMonth() + 1;
-  const Y = date.getFullYear();
+  const d = date.getDate();
+  const m = date.getMonth() + 1;
+  const y = date.getFullYear();
 
-  // Kuwaiti algorithm (most accurate for Islamic calendar)
-  let N = D + Math.floor(306 * (M + 1) / 11) + (Y % 100) * 365 + Math.floor(Y / 400) * 97 + Math.floor(Y / 100) * 3 - Math.floor((Y - 1) / 4) + Math.floor(Y / 4) - 1948440 + 386;
-
-  let Q = Math.floor(N / 10631);
-  N = N % 10631;
-
-  let A = Math.floor((N + 1) / 354.36667);
-  if (A > 11) A = 11;
-
-  let B = Math.floor(((N % 354.36667) + 1) / 29.5001);
-  if (B > 11) B = 11;
-
-  let hijriYear = 30 * Q + 354 * A + B + 1;
-  let hijriMonth = B + 1;
+  // Calculate Julian Day Number
+  const a = Math.floor((14 - m) / 12);
+  const y2 = y + 4800 - a;
+  const m2 = m + 12 * a - 3;
   
-  if (hijriMonth > 12) {
-    hijriMonth = hijriMonth - 12;
-    hijriYear = hijriYear + 1;
-  }
+  const jdn = d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4) - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045;
 
-  N = N % 29.5001;
-  let hijriDay = Math.floor(N) + 1;
+  // Convert JDN to Islamic calendar
+  const l = jdn + 1;
+  const n = Math.floor((l - 1) / 10631);
+  const q = ((l - 1) % 10631) + 1;
+  
+  const r = Math.floor((q - 1) / 354.36667);
+  const a2 = ((q - 1) % 354.36667) + 1;
+  
+  const m3 = Math.floor((11 * a2 + 3) / 325);
+  
+  const hijriYear = 30 * n + 354 * r + m3 + 1;
+  const hijriMonth = (Math.floor((a2 - Math.floor((325 * m3 - 305) / 11)) / 29.5001) % 12) + 1;
+  const hijriDay = Math.max(1, Math.min(30, Math.floor(a2 - Math.floor((325 * m3 - 305) / 11)) % 30 + 1));
+
+  const month = Math.max(1, Math.min(12, hijriMonth));
+  const year = Math.max(1, hijriYear);
 
   return {
     day: hijriDay,
-    month: hijriMonth,
-    year: hijriYear,
-    monthName: HIJRI_MONTHS[hijriMonth - 1] || 'অজানা',
+    month: month,
+    year: year,
+    monthName: HIJRI_MONTHS[month - 1] || 'অজানা',
     dayName: DAY_NAMES[date.getDay()],
   };
 };

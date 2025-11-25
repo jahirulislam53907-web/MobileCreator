@@ -195,7 +195,7 @@ export default function HomeScreen() {
             </ThemedText>
             <ThemedText style={styles.countdownLabel}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
             <ThemedText style={[styles.countdown, { color: theme.secondary }]}>
-              {`${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
+              {`${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
             </ThemedText>
           </View>
         </View>
