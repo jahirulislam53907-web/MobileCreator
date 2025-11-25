@@ -13,17 +13,21 @@ export type DrawerParamList = {
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
-const DrawerContent = (props: any) => {
+interface DrawerContentProps {
+  navigation: any;
+}
+
+const DrawerContent = ({ navigation }: DrawerContentProps) => {
   const { theme } = useAppTheme();
 
   const menuItems = [
-    { icon: 'home', label: 'হোম', action: () => props.navigation.navigate('Main') },
-    { icon: 'book-open', label: 'কুরআন', action: () => { props.navigation.navigate('Main', { screen: 'QuranTab' }); props.navigation.closeDrawer(); } },
-    { icon: 'clock', label: 'নামাজ', action: () => { props.navigation.navigate('Main', { screen: 'PrayerTab' }); props.navigation.closeDrawer(); } },
-    { icon: 'book', label: 'দুয়া', action: () => { props.navigation.navigate('Main', { screen: 'DuaTab' }); props.navigation.closeDrawer(); } },
-    { icon: 'info', label: 'আমাদের সম্পর্কে', action: () => props.navigation.closeDrawer() },
-    { icon: 'help-circle', label: 'সহায়তা', action: () => props.navigation.closeDrawer() },
-    { icon: 'share-2', label: 'শেয়ার করুন', action: () => props.navigation.closeDrawer() },
+    { icon: 'home', label: 'হোম', action: () => navigation.navigate('Main') },
+    { icon: 'book-open', label: 'কুরআন', action: () => { navigation.navigate('Main', { screen: 'QuranTab' }); navigation.closeDrawer(); } },
+    { icon: 'clock', label: 'নামাজ', action: () => { navigation.navigate('Main', { screen: 'PrayerTab' }); navigation.closeDrawer(); } },
+    { icon: 'book', label: 'দুয়া', action: () => { navigation.navigate('Main', { screen: 'DuaTab' }); navigation.closeDrawer(); } },
+    { icon: 'info', label: 'আমাদের সম্পর্কে', action: () => navigation.closeDrawer() },
+    { icon: 'help-circle', label: 'সহায়তা', action: () => navigation.closeDrawer() },
+    { icon: 'share-2', label: 'শেয়ার করুন', action: () => navigation.closeDrawer() },
   ];
 
   return (
@@ -36,7 +40,7 @@ const DrawerContent = (props: any) => {
 
       {/* Menu Items */}
       <View style={styles.menuItemsContainer}>
-        {menuItems.map((item, index) => (
+        {menuItems.map((item: any, index: number) => (
           <Pressable
             key={index}
             style={[styles.menuItem, { borderBottomColor: theme.border }]}
