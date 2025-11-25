@@ -62,9 +62,7 @@ export default function HomeScreen() {
     const currentHeight = verseHeights[currentIndex] || 0;
     const shouldCollapse = currentHeight > 200; // threshold for collapse
     
-    // Auto collapse/expand Quick Actions based on verse height
-    setIsQuickActionsExpanded(!shouldCollapse);
-    
+    // Auto animate Quick Actions height based on verse size (independent of items toggle)
     Animated.parallel([
       Animated.timing(dotsPositionAnim, {
         toValue: shouldCollapse ? -50 : 0,
@@ -72,12 +70,7 @@ export default function HomeScreen() {
         useNativeDriver: false,
       }),
       Animated.timing(quickActionsHeightAnim, {
-        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(prayerTimesMarginAnim, {
-        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
+        toValue: shouldCollapse ? quickActionsFullHeight : 0,
         duration: 300,
         useNativeDriver: false,
       }),
