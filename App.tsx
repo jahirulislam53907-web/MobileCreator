@@ -6,7 +6,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
-import MainTabNavigator from "@/navigation/MainTabNavigator";
+import DrawerNavigator from "@/navigation/DrawerNavigator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppThemeProvider } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -20,7 +20,7 @@ function AppContent() {
         <GestureHandlerRootView style={styles.root}>
           <KeyboardProvider>
             <NavigationContainer>
-              <MainTabNavigator />
+              <DrawerNavigator />
             </NavigationContainer>
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           </KeyboardProvider>

@@ -32,7 +32,15 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
-      {/* Left: Logo */}
+      {/* Left: Hamburger Menu */}
+      <Pressable 
+        style={styles.hamburger}
+        onPress={() => navigation.toggleDrawer()}
+      >
+        <Feather name="menu" size={24} color={theme.text} />
+      </Pressable>
+
+      {/* Logo */}
       <View style={styles.logoSection}>
         <ThemedText style={[styles.logo, { color: theme.primary }]}>Smart Muslim</ThemedText>
       </View>
@@ -98,6 +106,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
+  },
+  hamburger: {
+    padding: Spacing.sm,
+    marginRight: Spacing.md,
   },
   logoSection: {
     minWidth: 120,
