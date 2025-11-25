@@ -60,6 +60,7 @@ export default function HomeScreen() {
       const lon = location?.longitude || DHAKA_COORDINATES.longitude;
       const next = getNextPrayer(lat, lon);
       setNextPrayerInfo(next);
+      setFormattedDate(formatDate());
     };
     updateNextPrayer();
     const interval = setInterval(updateNextPrayer, 1000);
