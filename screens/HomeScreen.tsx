@@ -174,7 +174,7 @@ export default function HomeScreen() {
               <ThemedText style={styles.sunriseSunsetLabel}>
                 {sunriseSunset.label}
               </ThemedText>
-              <ThemedText style={styles.sunriseSunsetTime}>
+              <ThemedText style={[styles.sunriseSunsetTime, { color: '#FFD700' }]}>
                 {sunriseSunset.timeString}
               </ThemedText>
             </View>
@@ -374,18 +374,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sunriseSunsetBox: {
+    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
+    gap: 6,
   },
   sunriseSunsetLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#ffffff',
-    marginBottom: 4,
+    fontWeight: '600',
   },
   sunriseSunsetTime: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
   },
   locationTitle: {
     fontSize: 14,
