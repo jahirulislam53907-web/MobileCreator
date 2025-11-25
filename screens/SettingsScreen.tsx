@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Switch, Alert } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
@@ -100,7 +100,11 @@ export default function SettingsScreen() {
                 <Card style={[styles.settingCard, { backgroundColor: theme.backgroundSecondary, ...Shadows.sm }]}>
                   <View style={styles.itemContent}>
                     <View style={[styles.itemIcon, { backgroundColor: theme.primary + '15' }]}>
-                      <Feather name={item.icon as any} size={18} color={theme.primary} />
+                      {item.icon === 'palette' ? (
+                        <MaterialIcons name="palette" size={18} color={theme.primary} />
+                      ) : (
+                        <Feather name={item.icon as any} size={18} color={theme.primary} />
+                      )}
                     </View>
                     <View style={{ flex: 1 }}>
                       <ThemedText style={[styles.itemLabel, { color: theme.text }]}>{item.label}</ThemedText>
