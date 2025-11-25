@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { HeaderNav } from "@/components/HeaderNav";
+import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
@@ -27,7 +27,7 @@ export default function DuaScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderNav />
+      <TopNavigationBar activeTab="Dua" />
       <ScreenScrollView>
 
       <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }]}>

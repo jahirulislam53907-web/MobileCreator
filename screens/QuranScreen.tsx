@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { HeaderNav } from "@/components/HeaderNav";
+import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
 import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
@@ -20,7 +20,7 @@ export default function QuranScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderNav />
+      <TopNavigationBar activeTab="Quran" />
       <ScreenScrollView>
 
       <View style={styles.tabContainer}>

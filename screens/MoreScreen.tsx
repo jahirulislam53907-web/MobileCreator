@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
-import { HeaderNav } from "@/components/HeaderNav";
+import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
 
@@ -32,7 +32,7 @@ export default function MoreScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderNav />
+      <TopNavigationBar activeTab="More" />
       <ScreenScrollView>
       <Card style={styles.profileCard}>
         <View style={styles.profileRow}>

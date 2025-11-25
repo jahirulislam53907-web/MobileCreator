@@ -30,22 +30,8 @@ export default function MainTabNavigator() {
         tabBarActiveTintColor: theme.tabIconSelected,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
-          position: "absolute",
-          backgroundColor: Platform.select({
-            ios: "transparent",
-            android: theme.backgroundRoot,
-          }),
-          borderTopWidth: 0,
-          elevation: 0,
+          display: "none",
         },
-        tabBarBackground: () =>
-          Platform.OS === "ios" ? (
-            <BlurView
-              intensity={100}
-              tint={isDark ? "dark" : "light"}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : null,
         headerShown: false,
       }}
     >
@@ -64,8 +50,7 @@ export default function MainTabNavigator() {
         component={PrayerScreen}
         options={{
           title: "নামাজ",
-          headerShown: true,
-          headerTitle: "নামাজ",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Feather name="clock" size={size} color={color} />
           ),
@@ -76,8 +61,7 @@ export default function MainTabNavigator() {
         component={QuranScreen}
         options={{
           title: "কুরআন",
-          headerShown: true,
-          headerTitle: "কুরআন",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Feather name="book-open" size={size + 2} color={color} />
           ),
@@ -88,8 +72,7 @@ export default function MainTabNavigator() {
         component={DuaScreen}
         options={{
           title: "দুয়া",
-          headerShown: true,
-          headerTitle: "দুয়া",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Feather name="book" size={size} color={color} />
           ),
