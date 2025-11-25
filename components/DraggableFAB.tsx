@@ -71,21 +71,24 @@ export function DraggableFAB() {
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
-        {/* Loading Spinner - Rotating Border */}
+        {/* Loading Spinner - Full rotating circle */}
         <Animated.View
           style={[
-            styles.spinner,
-            {
-              borderTopColor: primaryColor,
-              borderRightColor: lighterPrimaryColor,
-              borderBottomColor: primaryColor,
-              borderLeftColor: lighterPrimaryColor,
-            },
+            styles.spinnerContainer,
             rotatingBorderStyle,
           ]}
-        />
+        >
+          <View
+            style={[
+              styles.spinner,
+              {
+                borderColor: primaryColor,
+              },
+            ]}
+          />
+        </Animated.View>
 
-        {/* Inner Button */}
+        {/* Inner Button Below */}
         <View style={[styles.fabContainer, { backgroundColor: lighterPrimaryColor }]}>
           <Feather name="plus" size={20} color="#ffffff" />
         </View>
@@ -98,12 +101,17 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     width: 60,
+    height: 75,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  spinnerContainer: {
+    width: 60,
     height: 60,
     alignItems: "center",
     justifyContent: "center",
   },
   spinner: {
-    position: "absolute",
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -115,6 +123,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
