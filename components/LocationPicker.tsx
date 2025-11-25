@@ -26,14 +26,14 @@ const POPULAR_CITIES = [
   { name: 'খুলনা', country: 'বাংলাদেশ', latitude: 22.8456, longitude: 89.5664 },
   { name: 'রাজশাহী', country: 'বাংলাদেশ', latitude: 24.3745, longitude: 88.6042 },
   { name: 'করাচি', country: 'পাকিস্তান', latitude: 24.8607, longitude: 67.0011 },
-  { name: 'ঢাকা', country: 'পাকিস্তান', latitude: 24.8607, longitude: 67.0011 },
   { name: 'লাহোর', country: 'পাকিস্তান', latitude: 31.5204, longitude: 74.3587 },
 ];
 
 export function LocationPicker({ visible, onClose }: LocationPickerProps) {
   const { theme } = useAppTheme();
-  const { setLocation, getCurrentLocation, loading } = useLocation();
+  const { setLocation, requestPermission } = useLocation();
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const filteredCities = POPULAR_CITIES.filter(
     (city) =>
@@ -49,6 +49,15 @@ export function LocationPicker({ visible, onClose }: LocationPickerProps) {
       longitude: city.longitude,
     });
     onClose();
+  };
+
+  const handleRequestPermission = async () => {
+    setLoading(true);
+    const granted = await requestPermission();
+    setLoading(false);
+    if (granted) {
+      onClose();
+    }
   };
 
   return (
@@ -87,7 +96,7 @@ export function LocationPicker({ visible, onClose }: LocationPickerProps) {
 
         {/* Current Location Button */}
         <Pressable
-          onPress={getCurrentLocation}
+          onPress={handleRequestPermission}
           style={[styles.currentLocBtn, { backgroundColor: theme.secondary + '15', borderColor: theme.secondary }]}
           disabled={loading}
         >
@@ -97,7 +106,7 @@ export function LocationPicker({ visible, onClose }: LocationPickerProps) {
             <>
               <Feather name="map-pin" size={18} color={theme.secondary} />
               <ThemedText style={{ color: theme.secondary, fontWeight: '600', marginLeft: Spacing.md }}>
-                বর্তমান লোকেশন ব্যবহার করুন
+                আমার ডিভাইস লোকেশন ব্যবহার করুন
               </ThemedText>
             </>
           )}
