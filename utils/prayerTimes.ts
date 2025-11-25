@@ -81,7 +81,7 @@ export const getNextPrayer = (
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const prayerNameStr = Prayer[nextPrayer] as string;
+  const prayerNameStr = (Prayer[nextPrayer] as string)?.toLowerCase();
   const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['fajr'];
   
   return {
@@ -108,8 +108,8 @@ export const getCurrentPrayer = (
   const currentPrayer = prayerTimes.currentPrayer();
   if (!currentPrayer) return null;
 
-  const prayerName = Prayer[currentPrayer];
-  return (PRAYER_NAMES[prayerName as string] || PRAYER_NAMES['fajr']).bn;
+  const prayerName = (Prayer[currentPrayer] as string)?.toLowerCase();
+  return (PRAYER_NAMES[prayerName] || PRAYER_NAMES['fajr']).bn;
 };
 
 export const getTimeUntilNextPrayer = (
