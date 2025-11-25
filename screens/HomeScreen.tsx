@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions, Animated, LayoutChangeEvent } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedText } from "@/components/ThemedText";
@@ -29,8 +29,10 @@ export default function HomeScreen() {
   
   const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
+  const [verseHeight, setVerseHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
+  const dotsPositionAnim = useRef(new Animated.Value(0)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -52,10 +54,25 @@ export default function HomeScreen() {
     const currentIndex = Math.round(contentOffsetX / screenWidth);
     setCurrentVerseIndex(currentIndex);
   };
+
+  const handleVerseLayout = (event: LayoutChangeEvent) => {
+    const height = event.nativeEvent.layout.height;
+    setVerseHeight(height);
+    
+    const targetMargin = Math.max(0, height - 180);
+    Animated.timing(dotsPositionAnim, {
+      toValue: -targetMargin,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
   
   const renderVerseItem = ({ item }: { item: QuranVerse }) => (
     <View style={[styles.verseCarouselItem, { width: screenWidth - 30 }]}>
-      <View style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
+      <View 
+        onLayout={handleVerseLayout}
+        style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}
+      >
         <View style={styles.verseHeader}>
           <ThemedText style={styles.verseTitle}>{item.surah}</ThemedText>
           <ThemedText style={styles.verseMeta}>আয়াত: {item.ayah}</ThemedText>
@@ -266,7 +283,7 @@ export default function HomeScreen() {
           />
           
           {/* Dots Indicator */}
-          <View style={styles.dotsContainer}>
+          <Animated.View style={[styles.dotsContainer, { marginTop: dotsPositionAnim }]}>
             {quranVerses.slice(0, 7).map((_, index) => (
               <View
                 key={index}
@@ -278,7 +295,7 @@ export default function HomeScreen() {
                 ]}
               />
             ))}
-          </View>
+          </Animated.View>
         </View>
 
         {/* Quick Actions */}
