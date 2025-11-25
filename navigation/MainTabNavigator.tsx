@@ -55,10 +55,7 @@ export default function MainTabNavigator() {
         options={{
           title: "হোম",
           tabBarIcon: ({ color, size }) => (
-            <Image 
-              source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
-              style={{ width: size, height: size, resizeMode: 'contain', tintColor: color }}
-            />
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />
