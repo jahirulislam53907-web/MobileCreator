@@ -178,7 +178,7 @@ const DrawerContent = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundRoot }]}>
+    <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundSecondary }]}>
       <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
         <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
