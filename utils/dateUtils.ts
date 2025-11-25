@@ -90,7 +90,7 @@ export const formatDate = (date: Date = new Date()): FormattedDate => {
   const dayName = DAY_NAMES[date.getDay()];
   
   // Line 1: আজকের তারিখ ২৫ নভেম্বর ২০२५
-  const gregorianDate = `আজকের তারিখ ${date.getDate()} ${GREGORIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  const gregorianDate = `${dayName} ${date.getDate()} ${GREGORIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
   
   // Calculate Hijri from Gregorian using algorithm
   const hijri = gregorianToHijri(date);
