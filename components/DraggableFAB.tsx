@@ -13,7 +13,12 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 
 const { width, height } = Dimensions.get("window");
 
-function DraggableFABContent() {
+export function DraggableFAB() {
+  // Skip on web to avoid gesture handler issues
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [initialPosition] = useState({
@@ -32,7 +37,7 @@ function DraggableFABContent() {
         easing: Easing.linear,
       }),
       -1,
-      false,
+      false
     );
   }, [rotation]);
 
@@ -43,10 +48,7 @@ function DraggableFABContent() {
 
       // Boundary constraints
       translateX.value = Math.max(10, Math.min(newX, width - 60));
-      translateY.value = Math.max(
-        10,
-        Math.min(newY, height - 110 - insets.bottom),
-      );
+      translateY.value = Math.max(10, Math.min(newY, height - 110 - insets.bottom));
     })
     .onEnd(() => {
       // Optional: Snap to edges or finalize position
@@ -74,7 +76,12 @@ function DraggableFABContent() {
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
         {/* Rotating Loading Border */}
-        <Animated.View style={[styles.spinningBorder, rotatingBorderStyle]}>
+        <Animated.View
+          style={[
+            styles.spinningBorder,
+            rotatingBorderStyle,
+          ]}
+        >
           <View
             style={[
               styles.spinnerRing,
@@ -89,26 +96,12 @@ function DraggableFABContent() {
         </Animated.View>
 
         {/* Center Button */}
-        <View
-          style={[
-            styles.centerButton,
-            { backgroundColor: lighterPrimaryColor },
-          ]}
-        >
+        <View style={[styles.centerButton, { backgroundColor: lighterPrimaryColor }]}>
           <Text style={styles.buttonText}>AI</Text>
         </View>
       </Animated.View>
     </GestureDetector>
   );
-}
-
-export function DraggableFAB() {
-  // Skip on web to avoid gesture handler issues
-  if (Platform.OS === "web") {
-    return null;
-  }
-
-  return <DraggableFABContent />;
 }
 
 const styles = StyleSheet.create({

@@ -55,39 +55,33 @@ export default function PrayerScreen() {
         ))}
       </View>
 
-      <View style={{ paddingHorizontal: Spacing.lg }}>
-        <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>অতিরিক্ত</ThemedText>
-      </View>
+      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>অতিরিক্ত</ThemedText>
       
-      <View style={{ paddingHorizontal: Spacing.lg }}>
-        <Card style={[styles.card, { ...Shadows.sm }]}>
-          <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.accent + "15" }]}>
-              <Feather name="compass" size={24} color={theme.accent} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কিবলা দিক</ThemedText>
-              <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার দিকনির্দেশনা দেখুন</ThemedText>
-            </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+      <Card style={[styles.card, { ...Shadows.sm }]}>
+        <View style={styles.cardRow}>
+          <View style={[styles.iconBox, { backgroundColor: theme.accent + "15" }]}>
+            <Feather name="compass" size={24} color={theme.accent} />
           </View>
-        </Card>
-      </View>
+          <View style={{ flex: 1 }}>
+            <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কিবলা দিক</ThemedText>
+            <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার দিকনির্দেশনা দেখুন</ThemedText>
+          </View>
+          <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+        </View>
+      </Card>
 
-      <View style={{ paddingHorizontal: Spacing.lg }}>
-        <Card style={[styles.card, { ...Shadows.sm }]}>
-          <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.secondary + "15" }]}>
-              <Feather name="map-pin" size={24} color={theme.secondary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কাছের মসজিদ</ThemedText>
-              <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার কাছাকাছি মসজিদ খুঁজুন</ThemedText>
-            </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+      <Card style={[styles.card, { ...Shadows.sm }]}>
+        <View style={styles.cardRow}>
+          <View style={[styles.iconBox, { backgroundColor: theme.secondary + "15" }]}>
+            <Feather name="map-pin" size={24} color={theme.secondary} />
           </View>
-        </Card>
-      </View>
+          <View style={{ flex: 1 }}>
+            <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কাছের মসজিদ</ThemedText>
+            <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার কাছাকাছি মসজিদ খুঁজুন</ThemedText>
+          </View>
+          <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+        </View>
+      </Card>
 
       <View style={{ height: 30 }} />
       </ScreenScrollView>

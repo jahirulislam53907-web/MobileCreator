@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Pressable,
-  ViewStyle,
-  StyleProp,
-  View,
-} from "react-native";
+import { StyleSheet, Pressable, ViewStyle, StyleProp, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -36,7 +30,7 @@ const getBackgroundColorForElevation = (
   theme: any,
 ): string => {
   if (!theme) return "#ffffff";
-
+  
   switch (elevation) {
     case 1:
       return theme.backgroundDefault || "#ffffff";

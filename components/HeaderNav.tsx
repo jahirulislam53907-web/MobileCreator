@@ -29,7 +29,10 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
   return (
     <View style={[styles.header, { backgroundColor: theme.primary }]}>
       <View style={styles.headerContent}>
-        <Pressable style={styles.profileButton} onPress={onProfilePress}>
+        <Pressable 
+          style={styles.profileButton}
+          onPress={onProfilePress}
+        >
           <View style={styles.profileIcon}>
             <Feather name="user" size={20} color="#fff" />
           </View>
@@ -40,7 +43,10 @@ export function HeaderNav({ onProfilePress, onSettingsPress }: HeaderNavProps) {
           <ThemedText style={styles.appName}>smart Muslim</ThemedText>
         </View>
 
-        <Pressable style={styles.settingsButton} onPress={handleSettingsClick}>
+        <Pressable 
+          style={styles.settingsButton}
+          onPress={handleSettingsClick}
+        >
           <Feather name="settings" size={20} color="#fff" />
         </Pressable>
       </View>

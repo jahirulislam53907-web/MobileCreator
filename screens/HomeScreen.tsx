@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, SafeAreaView } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
@@ -122,7 +121,7 @@ export default function HomeScreen() {
   return (
     <View style={[{ flex: 1, backgroundColor: theme.backgroundRoot }]}>
       <TopNavigationBar activeTab="Home" />
-      <ScreenScrollView>
+      <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
         <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.locationInfo}>
@@ -271,7 +270,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={{ height: 100 }} />
-      </ScreenScrollView>
+      </ScrollView>
     </View>
   );
 }
