@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
@@ -32,13 +32,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
-      {/* Left: Mosque Icon */}
-      <Image 
-        source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
-        style={[styles.mosqueIcon, { tintColor: theme.primary }]}
-      />
-
-      {/* Hamburger Menu */}
+      {/* Left: Hamburger Menu */}
       <Pressable 
         style={styles.hamburger}
         onPress={() => navigation.toggleDrawer()}
@@ -112,12 +106,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-  },
-  mosqueIcon: {
-    width: 28,
-    height: 28,
-    resizeMode: 'contain',
-    marginRight: Spacing.sm,
   },
   hamburger: {
     padding: Spacing.sm,

@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet, Image } from "react-native";
 import HomeStackNavigator from "@/navigation/HomeStackNavigator";
 import PrayerScreen from "@/screens/PrayerScreen";
 import QuranScreen from "@/screens/QuranScreen";
@@ -55,7 +55,10 @@ export default function MainTabNavigator() {
         options={{
           title: "হোম",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <Image 
+              source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
+              style={{ width: size, height: size, resizeMode: 'contain', tintColor: color }}
+            />
           ),
         }}
       />
