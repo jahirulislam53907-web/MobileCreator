@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 80,
+    height: 68,
   },
   drawerTitle: {
     fontSize: 16,
