@@ -57,6 +57,10 @@ const DraggableMenuItem = ({
     ],
     zIndex: isDragging ? 1000 : 0,
     elevation: isDragging ? 10 : 0,
+    backgroundColor: theme.backgroundDefault,
+    borderRadius: 16,
+    marginVertical: Spacing.xs,
+    marginHorizontal: Spacing.sm,
   }));
 
   const handleBulletPress = () => {
@@ -127,12 +131,9 @@ const DraggableMenuItem = ({
         <Pressable
           style={[
             styles.menuItem,
-            { borderBottomColor: theme.border },
             isDragging && { 
               backgroundColor: theme.primary, 
               opacity: 0.15,
-              borderRadius: BorderRadius.md,
-              marginHorizontal: Spacing.md,
             }
           ]}
           onPress={handleItemPress}
@@ -263,11 +264,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     minHeight: 50,
-    backgroundColor: 'transparent',
-    marginVertical: Spacing.xs,
-    marginHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.sm,
-    borderBottomWidth: 0,
   },
   iconImage: {
     width: 32,
