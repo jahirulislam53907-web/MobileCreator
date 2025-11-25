@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, StyleSheet, Pressable, ScrollView, GestureResponderEvent } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
 import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -18,15 +20,72 @@ interface DrawerContentProps {
   navigation: any;
 }
 
+interface MenuItem {
+  id: string;
+  icon: string;
+  label: string;
+  action: string;
+}
+
+const DraggableMenuItem = ({ 
+  item, 
+  index, 
+  menuItems,
+  onReorder,
+  onPress,
+  theme 
+}: {
+  item: MenuItem;
+  index: number;
+  menuItems: MenuItem[];
+  onReorder: (from: number, to: number) => void;
+  onPress: () => void;
+  theme: any;
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const translateY = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    translateY.value = 0;
+  };
+
+  return (
+    <Animated.View style={[animatedStyle]}>
+      <Pressable
+        style={[
+          styles.menuItem,
+          { borderBottomColor: theme.border },
+          isDragging && { backgroundColor: theme.primary, opacity: 0.2 }
+        ]}
+        onPress={onPress}
+        onLongPress={handleDragStart}
+      >
+        <View style={styles.dragHandle}>
+          <Feather name="menu" size={16} color={theme.primary} />
+        </View>
+        <Feather name={item.icon as any} size={18} color={theme.primary} />
+        <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>
+          {item.label}
+        </ThemedText>
+      </Pressable>
+    </Animated.View>
+  );
+};
+
 const DrawerContent = ({ navigation }: DrawerContentProps) => {
   const { theme } = useAppTheme();
   const { menuItems, reorderMenu } = useMenuOrder();
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [isReorderMode, setIsReorderMode] = useState(false);
 
-  const handleMenuItemPress = (item: any) => {
-    if (isReorderMode) return;
-    
+  const handleMenuItemPress = (item: MenuItem) => {
     if (item.action === 'home') {
       navigation.navigate('Main', { screen: 'HomeTab' });
     } else if (item.action === 'dua') {
@@ -40,28 +99,6 @@ const DrawerContent = ({ navigation }: DrawerContentProps) => {
     navigation.closeDrawer();
   };
 
-  const handleLongPress = (index: number) => {
-    setDraggedIndex(index);
-    setIsReorderMode(true);
-  };
-
-  const handleSwapUp = (index: number) => {
-    if (index > 0) {
-      reorderMenu(index, index - 1);
-    }
-  };
-
-  const handleSwapDown = (index: number) => {
-    if (index < menuItems.length - 1) {
-      reorderMenu(index, index + 1);
-    }
-  };
-
-  const handleDoneReordering = () => {
-    setDraggedIndex(null);
-    setIsReorderMode(false);
-  };
-
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundRoot }]}>
       {/* Header */}
@@ -70,72 +107,25 @@ const DrawerContent = ({ navigation }: DrawerContentProps) => {
         <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
       </View>
 
-      {/* Reorder Mode Toggle */}
-      {!isReorderMode && (
-        <Pressable 
-          style={[styles.reorderToggle, { backgroundColor: theme.primary }]}
-          onPress={() => setIsReorderMode(true)}
-        >
-          <Feather name="move" size={16} color="#fff" />
-          <ThemedText style={styles.reorderToggleText}>সাজাতে টাচ করুন</ThemedText>
-        </Pressable>
-      )}
-
-      {/* Menu Items - Scrollable */}
+      {/* Menu Items - Scrollable with Drag Support */}
       <ScrollView 
         style={styles.menuItemsContainer}
         showsVerticalScrollIndicator={true}
         scrollIndicatorInsets={{ right: 1 }}
+        scrollEnabled={true}
       >
-        {menuItems.map((item: any, index: number) => (
-          <View key={item.id}>
-            {isReorderMode && draggedIndex === index && (
-              <View style={[styles.reorderButtonsRow]}>
-                <Pressable 
-                  style={[styles.reorderButton, { backgroundColor: theme.primary, opacity: index === 0 ? 0.5 : 1 }]}
-                  onPress={() => handleSwapUp(index)}
-                  disabled={index === 0}
-                >
-                  <Feather name="arrow-up" size={16} color="#fff" />
-                </Pressable>
-                <Pressable 
-                  style={[styles.reorderButton, { backgroundColor: theme.primary, opacity: index === menuItems.length - 1 ? 0.5 : 1 }]}
-                  onPress={() => handleSwapDown(index)}
-                  disabled={index === menuItems.length - 1}
-                >
-                  <Feather name="arrow-down" size={16} color="#fff" />
-                </Pressable>
-              </View>
-            )}
-            
-            <Pressable
-              style={[
-                styles.menuItem, 
-                { borderBottomColor: theme.border },
-                draggedIndex === index && isReorderMode && { backgroundColor: theme.primary, opacity: 0.3 }
-              ]}
-              onPress={() => !isReorderMode && handleMenuItemPress(item)}
-              onLongPress={() => handleLongPress(index)}
-            >
-              <Feather name={item.icon as any} size={18} color={theme.primary} />
-              <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>{item.label}</ThemedText>
-              {isReorderMode && (
-                <Feather name="menu" size={16} color={theme.textSecondary} style={styles.dragHandle} />
-              )}
-            </Pressable>
-          </View>
+        {menuItems.map((item: MenuItem, index: number) => (
+          <DraggableMenuItem
+            key={item.id}
+            item={item}
+            index={index}
+            menuItems={menuItems}
+            onReorder={(from, to) => reorderMenu(from, to)}
+            onPress={() => handleMenuItemPress(item)}
+            theme={theme}
+          />
         ))}
       </ScrollView>
-
-      {/* Done Button in Reorder Mode */}
-      {isReorderMode && (
-        <Pressable 
-          style={[styles.doneButton, { backgroundColor: theme.primary }]}
-          onPress={handleDoneReordering}
-        >
-          <ThemedText style={styles.doneButtonText}>সম্পন্ন</ThemedText>
-        </Pressable>
-      )}
     </View>
   );
 };
@@ -188,21 +178,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.85,
   },
-  reorderToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    marginHorizontal: Spacing.md,
-    marginVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-  },
-  reorderToggleText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
-  },
   menuItemsContainer: {
     flex: 1,
   },
@@ -214,38 +189,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
   },
+  dragHandle: {
+    marginRight: Spacing.xs,
+  },
   menuItemLabel: {
     fontSize: 15,
     fontWeight: '500',
     flex: 1,
-  },
-  dragHandle: {
-    marginLeft: 'auto',
-  },
-  reorderButtonsRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  reorderButton: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    alignItems: 'center',
-  },
-  doneButton: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    marginHorizontal: Spacing.md,
-    marginBottom: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-  },
-  doneButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
   },
 });
