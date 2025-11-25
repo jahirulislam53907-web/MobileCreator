@@ -84,10 +84,13 @@ export default function DrawerNavigator() {
         headerShown: false,
         drawerStyle: {
           backgroundColor: theme.backgroundRoot,
-          width: '65%',
+          width: '50%',
         },
         drawerActiveTintColor: theme.primary,
         drawerInactiveTintColor: theme.textSecondary,
+        sceneContainerStyle: {
+          backgroundColor: 'transparent',
+        },
       }}
     >
       <Drawer.Screen
