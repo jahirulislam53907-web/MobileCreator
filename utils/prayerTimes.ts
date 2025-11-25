@@ -81,7 +81,17 @@ export const getNextPrayer = (
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const prayerKey = Object.keys(Prayer).find(key => Prayer[key as keyof typeof Prayer] === nextPrayer) as string;
+  const prayerNameMap: { [key: string]: string } = {
+    'fajr': 'Fajr',
+    'sunrise': 'Sunrise',
+    'dhuhr': 'Dhuhr',
+    'asr': 'Asr',
+    'maghrib': 'Maghrib',
+    'isha': 'Isha',
+    'none': 'Fajr'
+  };
+
+  const prayerKey = prayerNameMap[nextPrayer] || 'Fajr';
   const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   
   return {
@@ -108,7 +118,17 @@ export const getCurrentPrayer = (
   const currentPrayer = prayerTimes.currentPrayer();
   if (!currentPrayer) return null;
 
-  const prayerKey = Object.keys(Prayer).find(key => Prayer[key as keyof typeof Prayer] === currentPrayer) as string;
+  const prayerNameMap: { [key: string]: string } = {
+    'fajr': 'Fajr',
+    'sunrise': 'Sunrise',
+    'dhuhr': 'Dhuhr',
+    'asr': 'Asr',
+    'maghrib': 'Maghrib',
+    'isha': 'Isha',
+    'none': 'Fajr'
+  };
+
+  const prayerKey = prayerNameMap[currentPrayer] || 'Fajr';
   const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
   return prayerData.bn;
 };
