@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: '700',
   },
   iconSection: {
@@ -190,13 +190,13 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
   },
   languageBtn: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: Spacing.sm,
     padding: Spacing.sm,
   },
   languageLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
   },
   modalOverlay: {
