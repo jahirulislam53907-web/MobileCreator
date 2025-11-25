@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, GestureResponderEvent } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
 import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
+import { useMenuOrder } from '@/hooks/useMenuOrder';
 
 export type DrawerParamList = {
   Main: undefined;
@@ -19,31 +20,47 @@ interface DrawerContentProps {
 
 const DrawerContent = ({ navigation }: DrawerContentProps) => {
   const { theme } = useAppTheme();
+  const { menuItems, reorderMenu } = useMenuOrder();
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
 
-  const menuItems = [
-    // প্রধান সেবা
-    { icon: 'home', label: 'হোম', action: () => { navigation.navigate('Main', { screen: 'HomeTab' }); navigation.closeDrawer(); } },
-    { icon: 'bell', label: 'আজান', action: () => navigation.closeDrawer() },
-    { icon: 'book-open', label: 'নামাজ শিক্ষা', action: () => navigation.closeDrawer() },
-    { icon: 'book', label: 'দুয়া', action: () => { navigation.navigate('Main', { screen: 'DuaTab' }); navigation.closeDrawer(); } },
-    { icon: 'award', label: 'হজ্জ', action: () => navigation.closeDrawer() },
-    { icon: 'coins', label: 'যাকাত', action: () => navigation.closeDrawer() },
-    { icon: 'check-circle', label: 'কালেমা', action: () => navigation.closeDrawer() },
-    { icon: 'clock', label: 'নামাজের সময়সূচী', action: () => { navigation.navigate('Main', { screen: 'PrayerTab' }); navigation.closeDrawer(); } },
-    { icon: 'compass', label: 'কিবলা কম্পাস', action: () => navigation.closeDrawer() },
-    { icon: 'calendar', label: 'ইসলামিক ক্যালেন্ডার', action: () => navigation.closeDrawer() },
-    { icon: 'book', label: 'ইসলামিক বই', action: () => navigation.closeDrawer() },
-    { icon: 'users', label: 'আমাদের কমিউনিটি', action: () => navigation.closeDrawer() },
-    { icon: 'volume-2', label: 'কুরআন তেলাওয়াত', action: () => { navigation.navigate('Main', { screen: 'QuranTab' }); navigation.closeDrawer(); } },
+  const handleMenuItemPress = (item: any) => {
+    if (isReorderMode) return;
     
-    // সাধারণ সেবা
-    { icon: 'settings', label: 'সেটিংস', action: () => navigation.closeDrawer() },
-    { icon: 'bell', label: 'বিজ্ঞপ্তি', action: () => navigation.closeDrawer() },
-    { icon: 'message-circle', label: 'প্রতিক্রিয়া', action: () => navigation.closeDrawer() },
-    { icon: 'info', label: 'আমাদের সম্পর্কে', action: () => navigation.closeDrawer() },
-    { icon: 'help-circle', label: 'সাহায্য ও সহায়তা', action: () => navigation.closeDrawer() },
-    { icon: 'share-2', label: 'অ্যাপ শেয়ার করুন', action: () => navigation.closeDrawer() },
-  ];
+    if (item.action === 'home') {
+      navigation.navigate('Main', { screen: 'HomeTab' });
+    } else if (item.action === 'dua') {
+      navigation.navigate('Main', { screen: 'DuaTab' });
+    } else if (item.action === 'prayer-time') {
+      navigation.navigate('Main', { screen: 'PrayerTab' });
+    } else if (item.action === 'quran-recitation') {
+      navigation.navigate('Main', { screen: 'QuranTab' });
+    }
+    
+    navigation.closeDrawer();
+  };
+
+  const handleLongPress = (index: number) => {
+    setDraggedIndex(index);
+    setIsReorderMode(true);
+  };
+
+  const handleSwapUp = (index: number) => {
+    if (index > 0) {
+      reorderMenu(index, index - 1);
+    }
+  };
+
+  const handleSwapDown = (index: number) => {
+    if (index < menuItems.length - 1) {
+      reorderMenu(index, index + 1);
+    }
+  };
+
+  const handleDoneReordering = () => {
+    setDraggedIndex(null);
+    setIsReorderMode(false);
+  };
 
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundRoot }]}>
@@ -53,6 +70,17 @@ const DrawerContent = ({ navigation }: DrawerContentProps) => {
         <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
       </View>
 
+      {/* Reorder Mode Toggle */}
+      {!isReorderMode && (
+        <Pressable 
+          style={[styles.reorderToggle, { backgroundColor: theme.primary }]}
+          onPress={() => setIsReorderMode(true)}
+        >
+          <Feather name="move" size={16} color="#fff" />
+          <ThemedText style={styles.reorderToggleText}>সাজাতে টাচ করুন</ThemedText>
+        </Pressable>
+      )}
+
       {/* Menu Items - Scrollable */}
       <ScrollView 
         style={styles.menuItemsContainer}
@@ -60,16 +88,54 @@ const DrawerContent = ({ navigation }: DrawerContentProps) => {
         scrollIndicatorInsets={{ right: 1 }}
       >
         {menuItems.map((item: any, index: number) => (
-          <Pressable
-            key={index}
-            style={[styles.menuItem, { borderBottomColor: theme.border }]}
-            onPress={item.action}
-          >
-            <Feather name={item.icon as any} size={18} color={theme.primary} />
-            <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>{item.label}</ThemedText>
-          </Pressable>
+          <View key={item.id}>
+            {isReorderMode && draggedIndex === index && (
+              <View style={[styles.reorderButtonsRow]}>
+                <Pressable 
+                  style={[styles.reorderButton, { backgroundColor: theme.primary, opacity: index === 0 ? 0.5 : 1 }]}
+                  onPress={() => handleSwapUp(index)}
+                  disabled={index === 0}
+                >
+                  <Feather name="arrow-up" size={16} color="#fff" />
+                </Pressable>
+                <Pressable 
+                  style={[styles.reorderButton, { backgroundColor: theme.primary, opacity: index === menuItems.length - 1 ? 0.5 : 1 }]}
+                  onPress={() => handleSwapDown(index)}
+                  disabled={index === menuItems.length - 1}
+                >
+                  <Feather name="arrow-down" size={16} color="#fff" />
+                </Pressable>
+              </View>
+            )}
+            
+            <Pressable
+              style={[
+                styles.menuItem, 
+                { borderBottomColor: theme.border },
+                draggedIndex === index && isReorderMode && { backgroundColor: theme.primary, opacity: 0.3 }
+              ]}
+              onPress={() => !isReorderMode && handleMenuItemPress(item)}
+              onLongPress={() => handleLongPress(index)}
+            >
+              <Feather name={item.icon as any} size={18} color={theme.primary} />
+              <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>{item.label}</ThemedText>
+              {isReorderMode && (
+                <Feather name="menu" size={16} color={theme.textSecondary} style={styles.dragHandle} />
+              )}
+            </Pressable>
+          </View>
         ))}
       </ScrollView>
+
+      {/* Done Button in Reorder Mode */}
+      {isReorderMode && (
+        <Pressable 
+          style={[styles.doneButton, { backgroundColor: theme.primary }]}
+          onPress={handleDoneReordering}
+        >
+          <ThemedText style={styles.doneButtonText}>সম্পন্ন</ThemedText>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -88,9 +154,6 @@ export default function DrawerNavigator() {
         },
         drawerActiveTintColor: theme.primary,
         drawerInactiveTintColor: theme.textSecondary,
-        sceneContainerStyle: {
-          backgroundColor: 'transparent',
-        },
       }}
     >
       <Drawer.Screen
@@ -125,6 +188,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.85,
   },
+  reorderToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+  },
+  reorderToggleText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#fff',
+  },
   menuItemsContainer: {
     flex: 1,
   },
@@ -139,5 +217,35 @@ const styles = StyleSheet.create({
   menuItemLabel: {
     fontSize: 15,
     fontWeight: '500',
+    flex: 1,
+  },
+  dragHandle: {
+    marginLeft: 'auto',
+  },
+  reorderButtonsRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  reorderButton: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    alignItems: 'center',
+  },
+  doneButton: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
