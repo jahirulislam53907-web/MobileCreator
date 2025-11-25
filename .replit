@@ -76,3 +76,7 @@ value = "1"
 path = "/*"
 name = "expo-sfv-version"
 value = "0"
+
+[[ports]]
+localPort = 44321
+externalPort = 80
