@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -13,22 +13,13 @@ export interface TopNavigationBarProps {
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
   const { theme, isDark } = useAppTheme();
   const navigation = useNavigation<any>();
+  const [selectedLanguage, setSelectedLanguage] = useState<'bn' | 'en'>('bn');
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
-  const tabs = [
-    { id: 'Home', label: 'হোম', icon: 'home' },
-    { id: 'Prayer', label: 'নামাজ', icon: 'clock' },
-    { id: 'Quran', label: 'কুরআন', icon: 'book-open' },
-    { id: 'Dua', label: 'দুয়া', icon: 'book' },
-    { id: 'More', label: 'আরও', icon: 'menu' },
+  const languages = [
+    { id: 'bn', label: 'বাংলা' },
+    { id: 'en', label: 'English' },
   ];
-
-  const handleTabPress = (tabId: string) => {
-    if (tabId === 'Home') navigation.navigate('HomeTab');
-    else if (tabId === 'Prayer') navigation.navigate('PrayerTab');
-    else if (tabId === 'Quran') navigation.navigate('QuranTab');
-    else if (tabId === 'Dua') navigation.navigate('DuaTab');
-    else if (tabId === 'More') navigation.navigate('MoreTab');
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
@@ -45,35 +36,47 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
         <ThemedText style={[styles.logo, { color: theme.primary }]}>Smart Muslim</ThemedText>
       </View>
 
-      {/* Middle: Tabs */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={styles.tabsScroll}
-        contentContainerStyle={styles.tabsContent}
-      >
-        {tabs.map((tab) => (
-          <Pressable
-            key={tab.id}
-            onPress={() => handleTabPress(tab.id)}
-            style={[
-              styles.tab,
-              activeTab === tab.id && { borderBottomColor: theme.primary, borderBottomWidth: 3 }
-            ]}
-          >
-            <Feather name={tab.icon as any} size={18} color={activeTab === tab.id ? theme.primary : theme.textSecondary} />
-            <ThemedText style={[
-              styles.tabLabel,
-              { color: activeTab === tab.id ? theme.primary : theme.textSecondary }
-            ]}>
-              {tab.label}
-            </ThemedText>
-          </Pressable>
-        ))}
-      </ScrollView>
-
       {/* Right: Icons */}
       <View style={styles.iconSection}>
+        {/* Language Button */}
+        <View style={styles.languageContainer}>
+          <Pressable 
+            style={styles.languageBtn}
+            onPress={() => setShowLanguageMenu(!showLanguageMenu)}
+          >
+            <Feather name="globe" size={20} color={theme.text} />
+            <ThemedText style={styles.languageLabel}>
+              {selectedLanguage === 'bn' ? 'BN' : 'EN'}
+            </ThemedText>
+          </Pressable>
+          
+          {/* Language Dropdown Menu */}
+          {showLanguageMenu && (
+            <View style={[styles.languageMenu, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
+              {languages.map((lang) => (
+                <Pressable
+                  key={lang.id}
+                  style={[
+                    styles.languageOption,
+                    selectedLanguage === lang.id && { backgroundColor: theme.primary }
+                  ]}
+                  onPress={() => {
+                    setSelectedLanguage(lang.id as 'bn' | 'en');
+                    setShowLanguageMenu(false);
+                  }}
+                >
+                  <ThemedText style={[
+                    styles.languageOptionLabel,
+                    { color: selectedLanguage === lang.id ? theme.backgroundDefault : theme.text }
+                  ]}>
+                    {lang.label}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+
         <Pressable style={styles.iconBtn}>
           <Feather name="bell" size={20} color={theme.text} />
         </Pressable>
@@ -112,37 +115,52 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   logoSection: {
-    minWidth: 120,
+    flex: 1,
   },
   logo: {
     fontSize: 16,
     fontWeight: '700',
   },
-  tabsScroll: {
-    flex: 1,
-    marginHorizontal: Spacing.md,
-  },
-  tabsContent: {
-    alignItems: 'center',
-    gap: Spacing.lg,
-  },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-  },
-  tabLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
   iconSection: {
     flexDirection: 'row',
     gap: Spacing.md,
-    minWidth: 100,
+    alignItems: 'center',
   },
   iconBtn: {
     padding: Spacing.sm,
+  },
+  languageContainer: {
+    position: 'relative',
+  },
+  languageBtn: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 2,
+    padding: Spacing.sm,
+  },
+  languageLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  languageMenu: {
+    position: 'absolute',
+    top: 50,
+    right: 0,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    minWidth: 120,
+    zIndex: 1000,
+  },
+  languageOption: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+  },
+  languageOptionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
