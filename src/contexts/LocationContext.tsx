@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 
 export interface UserLocation {
   latitude: number;
@@ -13,7 +14,7 @@ interface LocationContextType {
   loading: boolean;
   error: string | null;
   setLocation: (location: UserLocation) => Promise<void>;
-  requestPermission: () => Promise<boolean>;
+  requestLocationPermission: () => Promise<boolean>;
 }
 
 const DEFAULT_LOCATION: UserLocation = {
@@ -31,7 +32,26 @@ const CITY_COORDINATES = [
   { name: 'রাজশাহী', country: 'বাংলাদেশ', lat: 24.3745, lng: 88.6042 },
   { name: 'করাচি', country: 'পাকিস্তান', lat: 24.8607, lng: 67.0011 },
   { name: 'লাহোর', country: 'পাকিস্তান', lat: 31.5204, lng: 74.3587 },
+  { name: 'লন্ডন', country: 'যুক্তরাজ্য', lat: 51.5074, lng: -0.1278 },
+  { name: 'নিউইয়র্ক', country: 'যুক্তরাষ্ট্র', lat: 40.7128, lng: -74.006 },
+  { name: 'দোহা', country: 'কাতার', lat: 25.2854, lng: 51.5310 },
 ];
+
+const COUNTRY_NAMES = {
+  BD: 'বাংলাদেশ',
+  PK: 'পাকিস্তান',
+  IN: 'ভারত',
+  GB: 'যুক্তরাজ্য',
+  US: 'যুক্তরাষ্ট্র',
+  SA: 'সৌদি আরব',
+  AE: 'সংযুক্ত আরব আমিরাত',
+  QA: 'কাতার',
+  TR: 'তুরস্ক',
+  MY: 'মালয়েশিয়া',
+  ID: 'ইন্দোনেশিয়া',
+  IR: 'ইরান',
+  EG: 'মিশর',
+};
 
 const getClosestCity = (lat: number, lng: number): UserLocation => {
   let closest = DEFAULT_LOCATION;
@@ -90,11 +110,34 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  const requestPermission = async (): Promise<boolean> => {
+  const requestLocationPermission = async (): Promise<boolean> => {
     try {
-      setLocationState(DEFAULT_LOCATION);
-      return true;
+      setLoading(true);
+      setError(null);
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status === 'granted') {
+        const currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+
+        const closestCity = getClosestCity(
+          currentLocation.coords.latitude,
+          currentLocation.coords.longitude
+        );
+
+        await setLocation(closestCity);
+        setLoading(false);
+        return true;
+      } else {
+        setError('লোকেশন পারমিশন অস্বীকার করা হয়েছে');
+        setLoading(false);
+        return false;
+      }
     } catch (err) {
+      setError('লোকেশন প্রাপ্ত করতে ব্যর্থ হয়েছে');
+      setLoading(false);
       return false;
     }
   };
@@ -106,7 +149,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         loading,
         error,
         setLocation,
-        requestPermission,
+        requestLocationPermission,
       }}
     >
       {children}
