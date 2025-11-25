@@ -29,7 +29,7 @@ export default function HomeScreen() {
   
   const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [verseHeight, setVerseHeight] = useState(0);
+  const verseHeights = useRef<{ [key: number]: number }>({}).current;
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
@@ -54,13 +54,10 @@ export default function HomeScreen() {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(contentOffsetX / screenWidth);
     setCurrentVerseIndex(currentIndex);
-  };
-
-  const handleVerseLayout = (event: LayoutChangeEvent) => {
-    const height = event.nativeEvent.layout.height;
-    setVerseHeight(height);
     
-    const targetMargin = Math.max(0, height - 180);
+    // Trigger animation based on current verse height
+    const currentHeight = verseHeights[currentIndex] || 0;
+    const targetMargin = Math.max(0, currentHeight - 180);
     
     Animated.parallel([
       Animated.timing(dotsPositionAnim, {
@@ -75,11 +72,16 @@ export default function HomeScreen() {
       }),
     ]).start();
   };
+
+  const handleVerseLayout = (event: LayoutChangeEvent, index: number) => {
+    const height = event.nativeEvent.layout.height;
+    verseHeights[index] = height;
+  };
   
-  const renderVerseItem = ({ item }: { item: QuranVerse }) => (
+  const renderVerseItem = ({ item, index }: { item: QuranVerse; index: number }) => (
     <View style={[styles.verseCarouselItem, { width: screenWidth - 30 }]}>
       <View 
-        onLayout={handleVerseLayout}
+        onLayout={(event) => handleVerseLayout(event, index)}
         style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}
       >
         <View style={styles.verseHeader}>
