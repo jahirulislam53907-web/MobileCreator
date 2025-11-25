@@ -173,8 +173,12 @@ export default function HomeScreen() {
         <View style={styles.datetimeGrid}>
           <View style={[styles.dateCard, { backgroundColor: theme.backgroundDefault }]}>
             <ThemedText style={styles.cardLabel}>{t('home.today_date') || 'আজকের তারিখ'}</ThemedText>
-            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>{formattedDate.hijri}</ThemedText>
-            <ThemedText style={styles.gregorianDate}>{formattedDate.gregorian}</ThemedText>
+            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>
+              {formattedDate.hijri}
+            </ThemedText>
+            <ThemedText style={styles.gregorianDate}>
+              {formattedDate.gregorian}
+            </ThemedText>
           </View>
 
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
@@ -182,7 +186,7 @@ export default function HomeScreen() {
             <ThemedText style={[styles.nextPrayerName, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
             <ThemedText style={styles.countdownLabel}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
             <ThemedText style={[styles.countdown, { color: theme.secondary }]}>
-              {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
+              {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
             </ThemedText>
           </View>
         </View>
