@@ -33,9 +33,8 @@ export default function HomeScreen() {
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
-  const [quickActionsFullHeight, setQuickActionsFullHeight] = useState(200);
-  const quickActionsHeightAnim = useRef(new Animated.Value(200)).current;
-  const prayerTimesMarginAnim = useRef(new Animated.Value(200)).current;
+  const [quickActionsFullHeight, setQuickActionsFullHeight] = useState(0);
+  const quickActionsHeightAnim = useRef(new Animated.Value(0)).current;
   const [isQuickActionsExpanded, setIsQuickActionsExpanded] = useState(false);
   
   // Initialize Quran data in AsyncStorage
@@ -86,7 +85,6 @@ export default function HomeScreen() {
     const height = event.nativeEvent.layout.height;
     setQuickActionsFullHeight(height);
     quickActionsHeightAnim.setValue(height);
-    prayerTimesMarginAnim.setValue(height);
   };
 
   const toggleQuickActionsExpand = () => {
