@@ -47,19 +47,36 @@ export default function HomeScreen() {
   }, []);
 
   const quickActionLabels = typeof t('home.quick_actions') === 'string' ? [] : (t('home.quick_actions') || []);
+  
+  // Dynamic color palette based on theme
+  const actionColors = [
+    theme.primary,
+    theme.secondary,
+    theme.accent,
+    theme.success,
+    theme.primaryLight,
+    theme.secondaryLight,
+    theme.accent,
+    theme.primary,
+    theme.secondary,
+    theme.accent,
+    theme.primaryLight,
+    theme.secondary,
+  ];
+
   const QUICK_ACTIONS = [
-    { icon: 'book-open', label: quickActionLabels[0] || 'কুরআন', color: '#2d936c' },
-    { icon: 'volume-2', label: quickActionLabels[1] || 'আজান', color: '#f9a826' },
-    { icon: 'users', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: '#1a5e63' },
-    { icon: 'heart', label: quickActionLabels[3] || 'দুয়া', color: '#4CAF50' },
-    { icon: 'compass', label: quickActionLabels[4] || 'কিবলা', color: '#2d936c' },
-    { icon: 'map-pin', label: quickActionLabels[5] || 'মসজিদ', color: '#1a5e63' },
-    { icon: 'clock', label: quickActionLabels[6] || 'নামাজ', color: '#f9a826' },
-    { icon: 'book', label: quickActionLabels[7] || 'কিতাব', color: '#2d936c' },
-    { icon: 'calendar', label: quickActionLabels[8] || 'রোজা', color: '#1a5e63' },
-    { icon: 'star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: '#f9a826' },
-    { icon: 'gift', label: quickActionLabels[10] || 'যাকাত', color: '#4CAF50' },
-    { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: '#2d936c' },
+    { icon: 'book-open', label: quickActionLabels[0] || 'কুরআন', color: actionColors[0] },
+    { icon: 'volume-2', label: quickActionLabels[1] || 'আজান', color: actionColors[1] },
+    { icon: 'users', label: quickActionLabels[2] || 'নামাজ শিক্ষা', color: actionColors[2] },
+    { icon: 'heart', label: quickActionLabels[3] || 'দুয়া', color: actionColors[3] },
+    { icon: 'compass', label: quickActionLabels[4] || 'কিবলা', color: actionColors[4] },
+    { icon: 'map-pin', label: quickActionLabels[5] || 'মসজিদ', color: actionColors[5] },
+    { icon: 'clock', label: quickActionLabels[6] || 'নামাজ', color: actionColors[6] },
+    { icon: 'book', label: quickActionLabels[7] || 'কিতাব', color: actionColors[7] },
+    { icon: 'calendar', label: quickActionLabels[8] || 'রোজা', color: actionColors[8] },
+    { icon: 'star', label: quickActionLabels[9] || 'হজ্জ ও ওমরা', color: actionColors[9] },
+    { icon: 'gift', label: quickActionLabels[10] || 'যাকাত', color: actionColors[10] },
+    { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: actionColors[11] },
   ];
 
   const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as Record<string, string>) : {};
@@ -102,66 +119,66 @@ export default function HomeScreen() {
   ];
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[{ flex: 1 }, { backgroundColor: theme.backgroundRoot }]}>
       <TopNavigationBar activeTab="Home" />
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
-        <View style={styles.locationCard}>
+        <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.locationInfo}>
-            <View style={styles.locationIconBg}>
-              <Feather name="map-pin" size={18} color="#1a5e63" />
+            <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
+              <Feather name="map-pin" size={18} color={theme.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>{t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}</ThemedText>
               <ThemedText style={styles.locationSubtitle}>{t('home.location_current') || 'আপনার বর্তমান লোকেশন'}</ThemedText>
             </View>
           </View>
-          <Pressable style={styles.changeBtn}>
-            <Feather name="edit-2" size={12} color="#fff" />
-            <ThemedText style={styles.changeBtnText}>{t('home.location_change') || 'পরিবর্তন'}</ThemedText>
+          <Pressable style={[styles.changeBtn, { backgroundColor: theme.primary }]}>
+            <Feather name="edit-2" size={12} color={theme.buttonText} />
+            <ThemedText style={[styles.changeBtnText, { color: theme.buttonText }]}>{t('home.location_change') || 'পরিবর্তন'}</ThemedText>
           </Pressable>
         </View>
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
-          <View style={styles.dateCard}>
+          <View style={[styles.dateCard, { backgroundColor: theme.backgroundDefault }]}>
             <ThemedText style={styles.cardLabel}>{t('home.today_date') || 'আজকের তারিখ'}</ThemedText>
-            <ThemedText style={styles.hijriDate}>{t('home.hijri_date') || '२३ রমজান १४४५'}</ThemedText>
+            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>{t('home.hijri_date') || '२३ রমজান १४४५'}</ThemedText>
             <ThemedText style={styles.gregorianDate}>{t('home.gregorian_date') || 'শুক্রবার, ३ মে २०२४'}</ThemedText>
           </View>
 
-          <View style={styles.nextPrayerCard}>
+          <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
             <ThemedText style={styles.cardLabel}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
-            <ThemedText style={styles.nextPrayerName}>{nextPrayerInfo?.nameBn}</ThemedText>
+            <ThemedText style={[styles.nextPrayerName, { color: theme.primary }]}>{nextPrayerInfo?.nameBn}</ThemedText>
             <ThemedText style={styles.countdownLabel}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
-            <ThemedText style={styles.countdown}>
+            <ThemedText style={[styles.countdown, { color: theme.secondary }]}>
               {nextPrayerInfo && `${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
             </ThemedText>
           </View>
         </View>
 
         {/* Quran Verse of the Day */}
-        <View style={styles.verseSection}>
+        <View style={[styles.verseSection, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
           <View style={styles.verseHeader}>
             <ThemedText style={styles.verseTitle}>{t('home.verse_of_day') || 'আজকের আয়াত'}</ThemedText>
             <ThemedText style={styles.verseMeta}>{verse.surah}, {verse.ayah}</ThemedText>
           </View>
-          <View style={styles.verseBg}>
-            <ThemedText style={styles.verseArabic}>{verse.arabic}</ThemedText>
+          <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
+            <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{verse.arabic}</ThemedText>
           </View>
           <ThemedText style={styles.verseTranslation}>"{verse.bengali}"</ThemedText>
           <View style={styles.verseActions}>
-            <Pressable style={styles.verseBtn}>
-              <Feather name="play" size={14} color="#fff" />
-              <ThemedText style={styles.verseBtnText}>{t('home.listen') || 'শুনুন'}</ThemedText>
+            <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
+              <Feather name="play" size={14} color={theme.buttonText} />
+              <ThemedText style={[styles.verseBtnText, { color: theme.buttonText }]}>{t('home.listen') || 'শুনুন'}</ThemedText>
             </Pressable>
-            <Pressable style={styles.verseBtnSecondary}>
-              <Feather name="share-2" size={14} color="#1a5e63" />
-              <ThemedText style={styles.verseBtnTextSecondary}>{t('home.share') || 'শেয়ার'}</ThemedText>
+            <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
+              <Feather name="share-2" size={14} color={theme.primary} />
+              <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.share') || 'শেয়ার'}</ThemedText>
             </Pressable>
-            <Pressable style={styles.verseBtnSecondary}>
-              <Feather name="bookmark" size={14} color="#1a5e63" />
-              <ThemedText style={styles.verseBtnTextSecondary}>{t('home.save') || 'সেভ'}</ThemedText>
+            <Pressable style={[styles.verseBtnSecondary, { backgroundColor: theme.backgroundSecondary }]}>
+              <Feather name="bookmark" size={14} color={theme.primary} />
+              <ThemedText style={[styles.verseBtnTextSecondary, { color: theme.primary }]}>{t('home.save') || 'সেভ'}</ThemedText>
             </Pressable>
           </View>
         </View>
@@ -170,12 +187,12 @@ export default function HomeScreen() {
         <View style={styles.sectionTitleRow}>
           <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.quickActionsGrid}>
           {QUICK_ACTIONS.map((item, idx) => (
-            <Pressable key={idx} style={styles.actionCard}>
+            <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.actionIcon, { backgroundColor: item.color + '20' }]}>
                 <Feather name={item.icon as any} size={16} color={item.color} />
               </View>
@@ -188,15 +205,15 @@ export default function HomeScreen() {
         <View style={styles.sectionTitleRow}>
           <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
           </Pressable>
         </View>
-        <View style={styles.prayerTimesCard}>
+        <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.prayerGrid}>
             {prayers.map((prayer) => (
               <View key={prayer.key} style={styles.prayerTimeItem}>
                 <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                <ThemedText style={styles.prayerTime}>{prayer.time}</ThemedText>
+                <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
               </View>
             ))}
           </View>
@@ -206,30 +223,30 @@ export default function HomeScreen() {
         <View style={styles.sectionTitleRow}>
           <ThemedText style={styles.sectionTitle}>{t('home.worship_tracker') || 'আপনার ইবাদত ট্র্যাকার'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>{t('home.view_details') || 'বিস্তারিত'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.view_details') || 'বিস্তারিত'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.trackerGrid}>
           {TRACKER_DATA.map((tracker, idx) => (
-            <View key={idx} style={styles.trackerCard}>
+            <View key={idx} style={[styles.trackerCard, { backgroundColor: theme.backgroundDefault }]}>
               <View style={styles.trackerHeader}>
                 <ThemedText style={styles.trackerTitle}>{tracker.title}</ThemedText>
-                <View style={styles.trackerIconBg}>
-                  <Feather name={tracker.icon as any} size={16} color="#fff" />
+                <View style={[styles.trackerIconBg, { backgroundColor: theme.primary }]}>
+                  <Feather name={tracker.icon as any} size={16} color={theme.buttonText} />
                 </View>
               </View>
               <View style={styles.trackerStats}>
                 <View style={styles.stat}>
-                  <ThemedText style={styles.statValue}>{tracker.stat1}</ThemedText>
+                  <ThemedText style={[styles.statValue, { color: theme.primary }]}>{tracker.stat1}</ThemedText>
                   <ThemedText style={styles.statLabel}>{tracker.label1}</ThemedText>
                 </View>
                 <View style={styles.stat}>
-                  <ThemedText style={styles.statValue}>{tracker.stat2}</ThemedText>
+                  <ThemedText style={[styles.statValue, { color: theme.primary }]}>{tracker.stat2}</ThemedText>
                   <ThemedText style={styles.statLabel}>{tracker.label2}</ThemedText>
                 </View>
               </View>
-              <View style={styles.progressBar}>
-                <View style={[styles.progress, { width: `${tracker.progress}%` }]} />
+              <View style={[styles.progressBar, { backgroundColor: theme.backgroundSecondary }]}>
+                <View style={[styles.progress, { width: `${tracker.progress}%`, backgroundColor: theme.primary }]} />
               </View>
             </View>
           ))}
@@ -239,13 +256,13 @@ export default function HomeScreen() {
         <View style={styles.sectionTitleRow}>
           <ThemedText style={styles.sectionTitle}>{t('home.features_title') || 'বিশেষ ফিচারসমূহ'}</ThemedText>
           <Pressable>
-            <ThemedText style={styles.seeAll}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.featuresGrid}>
           {FEATURES.map((feature, idx) => (
-            <View key={idx} style={styles.featureCard}>
-              <Feather name={feature.icon as any} size={24} color="#1a5e63" />
+            <View key={idx} style={[styles.featureCard, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
+              <Feather name={feature.icon as any} size={24} color={theme.primary} />
               <ThemedText style={styles.featureTitle}>{feature.title}</ThemedText>
               <ThemedText style={styles.featureDesc}>{feature.desc}</ThemedText>
             </View>
@@ -254,11 +271,6 @@ export default function HomeScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
-
-      {/* AI Assistant Button */}
-      <Pressable style={styles.aiButton}>
-        <Feather name="message-circle" size={24} color="#fff" />
-      </Pressable>
     </View>
   );
 }
@@ -266,7 +278,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   content: {
     flex: 1,
@@ -274,7 +285,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   locationCard: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
     marginBottom: 12,
@@ -297,7 +307,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: '#1a5e631a',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -318,12 +327,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 16,
-    backgroundColor: '#1a5e63',
   },
   changeBtnText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#fff',
   },
   datetimeGrid: {
     flexDirection: 'row',
@@ -332,7 +339,6 @@ const styles = StyleSheet.create({
   },
   dateCard: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
     shadowColor: '#000',
@@ -343,7 +349,6 @@ const styles = StyleSheet.create({
   },
   nextPrayerCard: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
     shadowColor: '#000',
@@ -360,7 +365,6 @@ const styles = StyleSheet.create({
   hijriDate: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1a5e63',
     marginBottom: 2,
   },
   gregorianDate: {
@@ -370,7 +374,6 @@ const styles = StyleSheet.create({
   nextPrayerName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1a5e63',
     marginBottom: 6,
   },
   countdownLabel: {
@@ -381,15 +384,12 @@ const styles = StyleSheet.create({
   countdown: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#f9a826',
   },
   verseSection: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
     borderTopWidth: 4,
-    borderTopColor: '#1a5e63',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -412,7 +412,6 @@ const styles = StyleSheet.create({
     color: '#6c757d',
   },
   verseBg: {
-    backgroundColor: '#e9ecef',
     borderRadius: 10,
     paddingVertical: 14,
     paddingHorizontal: 12,
@@ -422,7 +421,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#1a5e63',
     lineHeight: 24,
   },
   verseTranslation: {
@@ -445,12 +443,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 18,
-    backgroundColor: '#1a5e63',
   },
   verseBtnText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#fff',
   },
   verseBtnSecondary: {
     flexDirection: 'row',
@@ -459,12 +455,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 18,
-    backgroundColor: '#f8f9fa',
   },
   verseBtnTextSecondary: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1a5e63',
   },
   sectionTitleRow: {
     flexDirection: 'row',
@@ -481,7 +475,6 @@ const styles = StyleSheet.create({
   seeAll: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1a5e63',
   },
   quickActionsGrid: {
     flexDirection: 'row',
@@ -492,7 +485,6 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '23.5%',
-    backgroundColor: '#fff',
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -517,7 +509,6 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   prayerTimesCard: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
     marginBottom: 12,
@@ -545,7 +536,6 @@ const styles = StyleSheet.create({
   prayerTime: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1a5e63',
   },
   trackerGrid: {
     flexDirection: 'row',
@@ -554,7 +544,6 @@ const styles = StyleSheet.create({
   },
   trackerCard: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     shadowColor: '#000',
@@ -578,7 +567,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#1a5e63',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -593,7 +581,6 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1a5e63',
   },
   statLabel: {
     fontSize: 11,
@@ -602,13 +589,11 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 5,
-    backgroundColor: '#e9ecef',
     borderRadius: 3,
     overflow: 'hidden',
   },
   progress: {
     height: '100%',
-    backgroundColor: '#1a5e63',
   },
   featuresGrid: {
     flexDirection: 'row',
@@ -619,12 +604,10 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '48%',
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
     alignItems: 'center',
     borderTopWidth: 4,
-    borderTopColor: '#1a5e63',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
