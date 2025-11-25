@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
 import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -45,10 +46,14 @@ const DraggableMenuItem = ({
   theme 
 }: DraggableMenuItemProps) => {
   const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
   const [isDragging, setIsDragging] = useState(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
+    transform: [
+      { translateY: translateY.value },
+      { scale: scale.value }
+    ],
     zIndex: isDragging ? 1000 : 0,
     elevation: isDragging ? 10 : 0,
   }));
@@ -56,6 +61,13 @@ const DraggableMenuItem = ({
   const handleDragGesture = Gesture.Pan()
     .onStart(() => {
       setIsDragging(true);
+      scale.value = withSpring(1.05, {
+        damping: 10,
+        mass: 1,
+        stiffness: 100,
+      });
+      // Trigger haptic feedback when drag starts
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     })
     .onChange((e) => {
       translateY.value = e.translationY;
@@ -74,6 +86,11 @@ const DraggableMenuItem = ({
       }
       
       translateY.value = withSpring(0, {
+        damping: 10,
+        mass: 1,
+        stiffness: 100,
+      });
+      scale.value = withSpring(1, {
         damping: 10,
         mass: 1,
         stiffness: 100,
@@ -102,7 +119,7 @@ const DraggableMenuItem = ({
             {item.label}
           </ThemedText>
           <View style={styles.dragHandle}>
-            <Feather name="circle" size={8} color={theme.primary} />
+            <View style={[styles.bulletIcon, { backgroundColor: theme.primary }]} />
           </View>
         </Pressable>
       </Animated.View>
@@ -222,6 +239,11 @@ const styles = StyleSheet.create({
   dragHandle: {
     marginLeft: 'auto',
     paddingLeft: Spacing.md,
+  },
+  bulletIcon: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   menuItemLabel: {
     fontSize: 15,
