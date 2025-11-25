@@ -48,6 +48,7 @@ const DraggableMenuItem = ({
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
   const [isDragging, setIsDragging] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -58,16 +59,22 @@ const DraggableMenuItem = ({
     elevation: isDragging ? 10 : 0,
   }));
 
+  const handleBulletPress = () => {
+    // Haptic feedback on bullet tap
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Zoom in on tap
+    setIsZoomed(true);
+    scale.value = withSpring(1.05, {
+      damping: 10,
+      mass: 1,
+      stiffness: 100,
+    });
+  };
+
   const handleDragGesture = Gesture.Pan()
     .onStart(() => {
       setIsDragging(true);
-      scale.value = withSpring(1.05, {
-        damping: 10,
-        mass: 1,
-        stiffness: 100,
-      });
-      // Trigger haptic feedback when drag starts
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     })
     .onChange((e) => {
       translateY.value = e.translationY;
@@ -90,13 +97,36 @@ const DraggableMenuItem = ({
         mass: 1,
         stiffness: 100,
       });
+      
+      if (isZoomed) {
+        scale.value = withSpring(1.05, {
+          damping: 10,
+          mass: 1,
+          stiffness: 100,
+        });
+      } else {
+        scale.value = withSpring(1, {
+          damping: 10,
+          mass: 1,
+          stiffness: 100,
+        });
+      }
+      
+      setIsDragging(false);
+    });
+
+  const handleItemPress = () => {
+    if (!isZoomed) {
+      onPress();
+    } else {
+      setIsZoomed(false);
       scale.value = withSpring(1, {
         damping: 10,
         mass: 1,
         stiffness: 100,
       });
-      setIsDragging(false);
-    });
+    }
+  };
 
   return (
     <GestureDetector gesture={handleDragGesture}>
@@ -112,15 +142,18 @@ const DraggableMenuItem = ({
               marginHorizontal: Spacing.md,
             }
           ]}
-          onPress={onPress}
+          onPress={handleItemPress}
         >
           <Feather name={item.icon as any} size={18} color={theme.primary} />
           <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>
             {item.label}
           </ThemedText>
-          <View style={styles.dragHandle}>
+          <Pressable 
+            style={styles.dragHandle}
+            onPress={handleBulletPress}
+          >
             <View style={[styles.bulletIcon, { backgroundColor: theme.primary }]} />
-          </View>
+          </Pressable>
         </Pressable>
       </Animated.View>
     </GestureDetector>
@@ -239,6 +272,7 @@ const styles = StyleSheet.create({
   dragHandle: {
     marginLeft: 'auto',
     paddingLeft: Spacing.md,
+    padding: Spacing.sm,
   },
   bulletIcon: {
     width: 8,
