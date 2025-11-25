@@ -63,13 +63,7 @@ export default function HomeScreen() {
         <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
           <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{item.arabic}</ThemedText>
         </View>
-        <ScrollView 
-          style={styles.verseScrollContainer}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-        >
-          <ThemedText style={styles.verseTranslation}>"{item.bengali}"</ThemedText>
-        </ScrollView>
+        <ThemedText style={styles.verseTranslation}>"{item.bengali}"</ThemedText>
         <View style={styles.verseActions}>
           <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
             <MaterialIcons name="play-arrow" size={14} color={theme.buttonText} />
@@ -548,11 +542,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
-    height: 380,
     flexDirection: 'column',
   },
   verseScrollContainer: {
-    flex: 1,
     marginBottom: 12,
   },
   verseHeader: {
