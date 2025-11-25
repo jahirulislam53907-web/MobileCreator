@@ -55,9 +55,12 @@ export default function PrayerScreen() {
         ))}
       </View>
 
-      <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>অতিরিক্ত</ThemedText>
+      <View style={{ paddingHorizontal: Spacing.lg }}>
+        <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>অতিরিক্ত</ThemedText>
+      </View>
       
-      <Card style={[styles.card, { ...Shadows.sm }]}>
+      <View style={{ paddingHorizontal: Spacing.lg }}>
+        <Card style={[styles.card, { ...Shadows.sm }]}>
         <View style={styles.cardRow}>
           <View style={[styles.iconBox, { backgroundColor: theme.accent + "15" }]}>
             <Feather name="compass" size={24} color={theme.accent} />
@@ -69,9 +72,11 @@ export default function PrayerScreen() {
           <Feather name="chevron-right" size={20} color={theme.textSecondary} />
         </View>
       </Card>
+        </View>
 
-      <Card style={[styles.card, { ...Shadows.sm }]}>
-        <View style={styles.cardRow}>
+      <View style={{ paddingHorizontal: Spacing.lg }}>
+        <Card style={[styles.card, { ...Shadows.sm }]}>
+          <View style={styles.cardRow}>
           <View style={[styles.iconBox, { backgroundColor: theme.secondary + "15" }]}>
             <Feather name="map-pin" size={24} color={theme.secondary} />
           </View>
@@ -80,8 +85,9 @@ export default function PrayerScreen() {
             <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার কাছাকাছি মসজিদ খুঁজুন</ThemedText>
           </View>
           <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-        </View>
-      </Card>
+          </View>
+        </Card>
+      </View>
 
       <View style={{ height: 30 }} />
       </ScreenScrollView>
