@@ -61,7 +61,7 @@ export const LocationContext = createContext<LocationContextType | undefined>(un
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [location, setLocationState] = useState<UserLocation | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -76,19 +76,9 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setLoading(false);
         return;
       }
-      // Try to get location automatically on first load
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const location = await Location.getCurrentPositionAsync({});
-        const closest = getClosestCity(location.coords.latitude, location.coords.longitude);
-        await AsyncStorage.setItem('userLocation', JSON.stringify(closest));
-        setLocationState(closest);
-      } else {
-        setLocationState(DEFAULT_LOCATION);
-      }
+      // Start with null - no location selected yet
       setLoading(false);
     } catch (err) {
-      setLocationState(DEFAULT_LOCATION);
       setLoading(false);
     }
   };
@@ -135,7 +125,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <LocationContext.Provider
       value={{
-        location: location || DEFAULT_LOCATION,
+        location,
         loading,
         error,
         setLocation,

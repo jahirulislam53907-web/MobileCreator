@@ -164,10 +164,10 @@ export default function HomeScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>
-                {location ? `${location.name}, ${location.country}` : t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}
+                {location ? `${location.name}, ${location.country}` : t('home.add_location') || 'লোকেশন যুক্ত করুন'}
               </ThemedText>
               <ThemedText style={styles.locationSubtitle}>
-                {locationLoading ? 'লোকেশন প্রাপ্ত হচ্ছে...' : (t('home.location_current') || 'আপনার বর্তমান লোকেশন')}
+                {locationLoading ? 'লোকেশন প্রাপ্ত হচ্ছে...' : (location ? (t('home.location_current') || 'আপনার বর্তমান লোকেশন') : (t('home.click_enable') || 'ক্লিক করে অনুমতি দিন'))}
               </ThemedText>
             </View>
             <View style={[styles.locationRefresh, { opacity: locationLoading ? 0.6 : 1 }]}>
