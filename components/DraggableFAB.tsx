@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  useAnimatedGestureHandler,
+  runOnJS,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
@@ -23,20 +23,18 @@ export function DraggableFAB() {
   const translateX = useSharedValue(initialPosition.x);
   const translateY = useSharedValue(initialPosition.y);
 
-  const gestureHandler = useAnimatedGestureHandler({
-    onStart: (event, context: any) => {
-      context.startX = translateX.value;
-      context.startY = translateY.value;
-    },
-    onActive: (event, context: any) => {
-      const newX = context.startX + event.translationX;
-      const newY = context.startY + event.translationY;
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      const newX = event.translationX + initialPosition.x;
+      const newY = event.translationY + initialPosition.y;
 
       // Boundary constraints
       translateX.value = Math.max(10, Math.min(newX, width - 70));
       translateY.value = Math.max(10, Math.min(newY, height - 120 - insets.bottom));
-    },
-  });
+    })
+    .onEnd(() => {
+      // Optional: Snap to edges or finalize position
+    });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -50,10 +48,8 @@ export function DraggableFAB() {
   // Lighter color for the button (increase brightness)
   const lighterPrimaryColor = theme.primaryLight || "#a8a5db";
 
-  const gesture = Gesture.Pan().onUpdate(gestureHandler);
-
   return (
-    <GestureDetector gesture={gesture}>
+    <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.fab, animatedStyle]}>
         <Animated.View
           style={[

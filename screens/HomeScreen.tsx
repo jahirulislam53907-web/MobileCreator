@@ -62,13 +62,13 @@ export default function HomeScreen() {
     { icon: 'moon', label: quickActionLabels[11] || 'রমজান', color: '#2d936c' },
   ];
 
-  const prayerNames = t('home.prayer_names') || {};
+  const prayerNamesObj = typeof t('home.prayer_names') === 'object' ? (t('home.prayer_names') as Record<string, string>) : {};
   const prayers = prayerTimes ? [
-    { name: prayerNames.fajr || 'ফজর', time: prayerTimes.fajr, key: 'fajr' },
-    { name: prayerNames.dhuhr || 'যোহর', time: prayerTimes.dhuhr, key: 'dhuhr' },
-    { name: prayerNames.asr || 'আসর', time: prayerTimes.asr, key: 'asr' },
-    { name: prayerNames.maghrib || 'মাগরিব', time: prayerTimes.maghrib, key: 'maghrib' },
-    { name: prayerNames.isha || 'এশা', time: prayerTimes.isha, key: 'isha' },
+    { name: prayerNamesObj.fajr || 'ফজর', time: prayerTimes.fajr, key: 'fajr' },
+    { name: prayerNamesObj.dhuhr || 'যোহর', time: prayerTimes.dhuhr, key: 'dhuhr' },
+    { name: prayerNamesObj.asr || 'আসর', time: prayerTimes.asr, key: 'asr' },
+    { name: prayerNamesObj.maghrib || 'মাগরিব', time: prayerTimes.maghrib, key: 'maghrib' },
+    { name: prayerNamesObj.isha || 'এশা', time: prayerTimes.isha, key: 'isha' },
   ] : [];
 
   const TRACKER_DATA = [
