@@ -188,19 +188,17 @@ export default function HomeScreen() {
           </View>
 
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
-            <View style={styles.prayerInfoRow}>
-              <View style={{ flex: 1 }}>
-                <ThemedText style={styles.prayerLabelSmall}>{t('home.next_prayer') || 'পরবর্তী নামাজ:'}</ThemedText>
-                <ThemedText style={[styles.prayerNameSmall, { color: theme.primary }]}>
-                  {nextPrayerInfo.nameBn}
-                </ThemedText>
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <ThemedText style={styles.prayerLabelSmall}>{t('home.time_remaining') || 'বাকি আছে:'}</ThemedText>
-                <ThemedText style={[styles.countdownSmall, { color: theme.secondary }]}>
-                  {`${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
-                </ThemedText>
-              </View>
+            <View style={styles.prayerInfoLine}>
+              <ThemedText style={styles.prayerLabelSmall}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
+              <ThemedText style={[styles.prayerNameSmall, { color: theme.primary }]}>
+                {nextPrayerInfo.nameBn}
+              </ThemedText>
+            </View>
+            <View style={styles.prayerInfoLine}>
+              <ThemedText style={styles.prayerLabelSmall}>{t('home.time_remaining') || 'বাকি আছে'}</ThemedText>
+              <ThemedText style={[styles.countdownSmall, { color: theme.secondary }]}>
+                {`${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
+              </ThemedText>
             </View>
           </View>
         </View>
@@ -440,10 +438,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  prayerInfoRow: {
+  prayerInfoLine: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8,
   },
   prayerLabelSmall: {
     fontSize: 18,
