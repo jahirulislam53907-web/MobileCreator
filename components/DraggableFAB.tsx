@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Dimensions, View } from "react-native";
+import { StyleSheet, Dimensions, View, Text } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,7 +8,6 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
@@ -93,7 +92,7 @@ export function DraggableFAB() {
 
         {/* Center Button */}
         <View style={[styles.centerButton, { backgroundColor: lighterPrimaryColor }]}>
-          <Feather name="plus" size={20} color="#ffffff" />
+          <Text style={styles.buttonText}>AI</Text>
         </View>
       </Animated.View>
     </GestureDetector>
@@ -133,5 +132,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  buttonText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#ffffff",
   },
 });
