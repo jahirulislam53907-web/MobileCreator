@@ -60,12 +60,12 @@ const DraggableMenuItem = ({
   }));
 
   const handleBulletPress = () => {
-    // Haptic feedback on bullet tap
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Strong haptic feedback on bullet tap
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     
-    // Zoom in on tap
+    // Zoom in on tap - increased to 1.2
     setIsZoomed(true);
-    scale.value = withSpring(1.05, {
+    scale.value = withSpring(1.2, {
       damping: 10,
       mass: 1,
       stiffness: 100,
@@ -98,20 +98,14 @@ const DraggableMenuItem = ({
         stiffness: 100,
       });
       
-      if (isZoomed) {
-        scale.value = withSpring(1.05, {
-          damping: 10,
-          mass: 1,
-          stiffness: 100,
-        });
-      } else {
-        scale.value = withSpring(1, {
-          damping: 10,
-          mass: 1,
-          stiffness: 100,
-        });
-      }
+      // Auto zoom-out after drag ends
+      scale.value = withSpring(1, {
+        damping: 10,
+        mass: 1,
+        stiffness: 100,
+      });
       
+      setIsZoomed(false);
       setIsDragging(false);
     });
 
