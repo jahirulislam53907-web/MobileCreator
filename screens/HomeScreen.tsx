@@ -190,7 +190,7 @@ export default function HomeScreen() {
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
             <View style={styles.prayerInfoLine}>
               <ThemedText style={styles.prayerLabelSmall}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
-              <ThemedText style={[styles.prayerNameSmall, { color: theme.primary, flex: 1, textAlign: 'right' }]}>
+              <ThemedText style={[styles.prayerNameSmall, { color: '#ffffff', flex: 1, textAlign: 'right' }]}>
                 {nextPrayerInfo.nameBn}
               </ThemedText>
             </View>
@@ -442,6 +442,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+    justifyContent: 'space-between',
   },
   prayerLabelSmall: {
     fontSize: 18,
