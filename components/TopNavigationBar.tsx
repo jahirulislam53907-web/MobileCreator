@@ -5,6 +5,7 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
 import { ThemedText } from './ThemedText';
 import { Spacing, BorderRadius } from '@/constants/theme';
+import { useTranslation } from '../src/contexts/LanguageContext';
 
 type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
 
@@ -22,8 +23,8 @@ export interface TopNavigationBarProps {
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
   const { theme } = useAppTheme();
   const navigation = useNavigation<any>();
+  const { language, setLanguage } = useTranslation();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  const [language] = useState<LanguageCode>('bn');
 
   const languages: Language[] = [
     { id: 'bn', label: 'বাংলা', nativeLabel: 'বাংলা', flag: '🇧🇩' },
@@ -119,7 +120,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                     language === lang.id && { backgroundColor: theme.primary }
                   ]}
                   onPress={() => {
-                    // TODO: Implement language change
+                    setLanguage(lang.id);
                     setShowLanguageMenu(false);
                   }}
                 >

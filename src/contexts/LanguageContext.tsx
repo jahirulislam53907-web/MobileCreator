@@ -12,16 +12,16 @@ interface LanguageContextType {
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const translations = {
-  bn: require('@/locales/bn.json'),
-  en: require('@/locales/en.json'),
-  ur: require('@/locales/ur.json'),
-  hi: require('@/locales/hi.json'),
-  ar: require('@/locales/ar.json'),
-  tr: require('@/locales/tr.json'),
-  ms: require('@/locales/ms.json'),
-  id: require('@/locales/id.json'),
-  pa: require('@/locales/pa.json'),
-  fa: require('@/locales/fa.json'),
+  bn: require('../locales/bn.json'),
+  en: require('../locales/en.json'),
+  ur: require('../locales/ur.json'),
+  hi: require('../locales/hi.json'),
+  ar: require('../locales/ar.json'),
+  tr: require('../locales/tr.json'),
+  ms: require('../locales/ms.json'),
+  id: require('../locales/id.json'),
+  pa: require('../locales/pa.json'),
+  fa: require('../locales/fa.json'),
 };
 
 const getNestedValue = (obj: any, path: string): string => {
