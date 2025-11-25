@@ -7,7 +7,7 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useTranslation } from "../src/contexts/LanguageContext";
 import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
-import { calculatePrayerTimes, getNextPrayer, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
+import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
 
 interface QuranVerse {
@@ -46,19 +46,19 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    if (location) {
-      const times = calculatePrayerTimes(location.latitude, location.longitude);
-      setPrayerTimes(times);
-      setFormattedDate(formatDate());
-    }
+    const lat = location?.latitude || DHAKA_COORDINATES.latitude;
+    const lon = location?.longitude || DHAKA_COORDINATES.longitude;
+    const times = calculatePrayerTimes(lat, lon);
+    setPrayerTimes(times);
+    setFormattedDate(formatDate());
   }, [location]);
 
   useEffect(() => {
     const updateNextPrayer = () => {
-      if (location) {
-        const next = getNextPrayer(location.latitude, location.longitude);
-        setNextPrayerInfo(next);
-      }
+      const lat = location?.latitude || DHAKA_COORDINATES.latitude;
+      const lon = location?.longitude || DHAKA_COORDINATES.longitude;
+      const next = getNextPrayer(lat, lon);
+      setNextPrayerInfo(next);
     };
     updateNextPrayer();
     const interval = setInterval(updateNextPrayer, 1000);
