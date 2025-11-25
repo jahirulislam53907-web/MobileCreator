@@ -1,0 +1,23 @@
+// Menu Icons Mapping - Local Storage for all services
+export const MENU_ICONS = {
+  home: require('@/assets/menu-icons/home_dashboard_icon_teal_cream.png'),
+  azan: require('@/assets/menu-icons/azan_prayer_call_icon_teal_gold.png'),
+  'prayer-teaching': require('@/assets/menu-icons/prayer_teaching_education_icon_blue_gold.png'),
+  dua: require('@/assets/menu-icons/dua_prayer_request_icon_purple_gold.png'),
+  hajj: require('@/assets/menu-icons/hajj_pilgrimage_kaaba_icon_rose_gold.png'),
+  zakat: require('@/assets/menu-icons/zakat_charity_donation_icon_green_gold.png'),
+  kalima: require('@/assets/menu-icons/kalima_islamic_crescent_star_icon_navy_gold.png'),
+  'prayer-time': require('@/assets/menu-icons/prayer_times_clock_icon_orange_blue.png'),
+  qibla: require('@/assets/menu-icons/qibla_compass_direction_icon_coral_gold.png'),
+  'islamic-calendar': require('@/assets/menu-icons/islamic_calendar_hijri_icon_indigo_gold.png'),
+  'islamic-books': require('@/assets/menu-icons/islamic_books_library_icon_burgundy_gold.png'),
+  community: require('@/assets/menu-icons/community_ummah_people_icon_teal_orange.png'),
+  'quran-recitation': require('@/assets/menu-icons/quran_recitation_audio_icon_emerald_gold.png'),
+  settings: require('@/assets/menu-icons/settings_gear_icon_slate_gold.png'),
+  notifications: require('@/assets/menu-icons/notifications_bell_icon_amber_gold.png'),
+  feedback: require('@/assets/menu-icons/feedback_message_bubble_icon_cyan_gold.png'),
+  about: require('@/assets/menu-icons/about_information_icon_violet_gold.png'),
+  help: require('@/assets/menu-icons/help_support_question_icon_teal_gold.png'),
+  share: require('@/assets/menu-icons/share_forward_arrow_icon_lime_gold.png'),
+  'quran': require('@/assets/menu-icons/quran_book_icon_green_gold.png'),
+};

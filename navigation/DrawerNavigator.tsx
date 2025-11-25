@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { View, StyleSheet, Pressable, ScrollView, Image } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { 
   useSharedValue, 
@@ -14,6 +13,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
 import { useMenuOrder } from '@/hooks/useMenuOrder';
+import { MENU_ICONS } from '@/constants/menuIcons';
 
 export type DrawerParamList = {
   Main: undefined;
@@ -60,10 +60,7 @@ const DraggableMenuItem = ({
   }));
 
   const handleBulletPress = () => {
-    // Strong haptic feedback on bullet tap
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    
-    // Zoom in on tap - increased to 1.2
     setIsZoomed(true);
     scale.value = withSpring(1.2, {
       damping: 10,
@@ -99,7 +96,6 @@ const DraggableMenuItem = ({
         stiffness: 100,
       });
       
-      // Auto zoom-out after drag ends
       scale.value = withSpring(1, {
         damping: 10,
         mass: 1,
@@ -123,6 +119,8 @@ const DraggableMenuItem = ({
     }
   };
 
+  const iconSource = MENU_ICONS[item.id as keyof typeof MENU_ICONS];
+
   return (
     <GestureDetector gesture={handleDragGesture}>
       <Animated.View style={[animatedStyle]}>
@@ -139,7 +137,12 @@ const DraggableMenuItem = ({
           ]}
           onPress={handleItemPress}
         >
-          <Feather name={item.icon as any} size={18} color={theme.primary} />
+          {iconSource && (
+            <Image 
+              source={iconSource} 
+              style={styles.iconImage}
+            />
+          )}
           <ThemedText style={[styles.menuItemLabel, { color: theme.text }]}>
             {item.label}
           </ThemedText>
@@ -175,13 +178,11 @@ const DrawerContent = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundRoot }]}>
-      {/* Header */}
       <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
         <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
         <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
       </View>
 
-      {/* Menu Items - Scrollable with Drag Support */}
       <ScrollView 
         style={styles.menuItemsContainer}
         showsVerticalScrollIndicator={true}
@@ -263,6 +264,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     minHeight: 60,
+  },
+  iconImage: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   dragHandle: {
     marginLeft: 'auto',
