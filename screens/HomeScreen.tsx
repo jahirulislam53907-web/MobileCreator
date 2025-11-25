@@ -360,17 +360,17 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             <Animated.View style={[styles.quickActionsGrid, { height: quickActionsGridHeightAnim, overflow: 'hidden' }]} onLayout={handleQuickActionsGridLayout}>
-          {QUICK_ACTIONS.map((item, idx) => (
-            <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
-              <View style={[styles.actionIcon]}>
-                <Image 
-                  source={MENU_ICONS[item.iconKey as keyof typeof MENU_ICONS]}
-                  style={styles.actionIconImage}
-                />
-              </View>
-              <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
-            </Pressable>
-          ))}
+              {QUICK_ACTIONS.map((item, idx) => (
+                <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
+                  <View style={[styles.actionIcon]}>
+                    <Image 
+                      source={MENU_ICONS[item.iconKey as keyof typeof MENU_ICONS]}
+                      style={styles.actionIconImage}
+                    />
+                  </View>
+                  <ThemedText style={styles.actionLabel}>{item.label}</ThemedText>
+                </Pressable>
+              ))}
             </Animated.View>
           </View>
         </Animated.View>
