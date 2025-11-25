@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DEFAULT_MENU_ITEMS = [
+export const DEFAULT_MENU_ITEMS = [
   { id: 'home', icon: 'home', label: 'হোম', action: 'home' },
   { id: 'azan', icon: 'bell', label: 'আজান', action: 'azan' },
   { id: 'prayer-teaching', icon: 'book-open', label: 'নামাজ শিক্ষা', action: 'prayer-teaching' },
   { id: 'dua', icon: 'book', label: 'দুয়া', action: 'dua' },
   { id: 'hajj', icon: 'award', label: 'হজ্জ', action: 'hajj' },
-  { id: 'zakat', icon: 'coins', label: 'যাকাত', action: 'zakat' },
+  { id: 'zakat', icon: 'dollar-sign', label: 'যাকাত', action: 'zakat' },
   { id: 'kalima', icon: 'check-circle', label: 'কালেমা', action: 'kalima' },
   { id: 'prayer-time', icon: 'clock', label: 'নামাজের সময়সূচী', action: 'prayer-time' },
   { id: 'qibla', icon: 'compass', label: 'কিবলা কম্পাস', action: 'qibla' },
