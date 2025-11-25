@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/contexts/LanguageContext";
 import { Spacing, BorderRadius } from "@/constants/theme";
 import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
 

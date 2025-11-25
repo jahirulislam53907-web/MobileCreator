@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
+export type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
 
 interface LanguageContextType {
   language: LanguageCode;
@@ -76,4 +76,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       {children}
     </LanguageContext.Provider>
   );
+};
+
+export const useTranslation = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useTranslation must be used within LanguageProvider');
+  }
+  return context;
 };

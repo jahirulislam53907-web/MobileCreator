@@ -1,74 +1,122 @@
 import React, { useState } from 'react';
-import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Pressable, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from '@/contexts/LanguageContext';
 import { ThemedText } from './ThemedText';
 import { Spacing, BorderRadius } from '@/constants/theme';
 
 type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
+
+interface Language {
+  id: LanguageCode;
+  label: string;
+  nativeLabel: string;
+  flag: string;
+}
 
 export interface TopNavigationBarProps {
   activeTab?: 'Home' | 'Prayer' | 'Quran' | 'Dua' | 'More';
 }
 
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
-  const { theme, isDark } = useAppTheme();
+  const { theme } = useAppTheme();
   const navigation = useNavigation<any>();
-  const { language, setLanguage, t } = useTranslation();
+  const { language, setLanguage } = useTranslation();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
-  const languages: { id: LanguageCode; label: string }[] = [
-    { id: 'bn', label: t('language.bengali') },
-    { id: 'en', label: t('language.english') },
-    { id: 'ur', label: t('language.urdu') },
-    { id: 'hi', label: t('language.hindi') },
-    { id: 'ar', label: t('language.arabic') },
-    { id: 'tr', label: t('language.turkish') },
-    { id: 'ms', label: t('language.malay') },
-    { id: 'id', label: t('language.indonesian') },
-    { id: 'pa', label: t('language.punjabi') },
-    { id: 'fa', label: t('language.persian') },
+  const languages: Language[] = [
+    { id: 'bn', label: 'বাংলা', nativeLabel: 'বাংলা', flag: '🇧🇩' },
+    { id: 'en', label: 'English', nativeLabel: 'English', flag: '🇬🇧' },
+    { id: 'ur', label: 'اردو', nativeLabel: 'اردو', flag: '🇵🇰' },
+    { id: 'hi', label: 'हिंदी', nativeLabel: 'हिंदी', flag: '🇮🇳' },
+    { id: 'ar', label: 'العربية', nativeLabel: 'العربية', flag: '🇸🇦' },
+    { id: 'tr', label: 'Türkçe', nativeLabel: 'Türkçe', flag: '🇹🇷' },
+    { id: 'ms', label: 'Bahasa Melayu', nativeLabel: 'Bahasa Melayu', flag: '🇲🇾' },
+    { id: 'id', label: 'Bahasa Indonesia', nativeLabel: 'Bahasa Indonesia', flag: '🇮🇩' },
+    { id: 'pa', label: 'پنجابی', nativeLabel: 'پنجابی', flag: '🇵🇰' },
+    { id: 'fa', label: 'فارسی', nativeLabel: 'فارسی', flag: '🇮🇷' },
   ];
 
+  const currentLang = languages.find(l => l.id === language);
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
-      {/* Left: Hamburger Menu */}
-      <Pressable 
-        style={styles.hamburger}
-        onPress={() => navigation.toggleDrawer()}
-      >
-        <Feather name="menu" size={24} color={theme.text} />
-      </Pressable>
+    <>
+      <View style={[styles.container, { backgroundColor: theme.backgroundRoot, borderBottomColor: theme.border }]}>
+        {/* Left: Hamburger Menu */}
+        <Pressable 
+          style={styles.hamburger}
+          onPress={() => navigation.toggleDrawer()}
+        >
+          <Feather name="menu" size={24} color={theme.text} />
+        </Pressable>
 
-      {/* Logo */}
-      <View style={styles.logoSection}>
-        <ThemedText style={[styles.logo, { color: theme.primary }]}>{t('home.title')}</ThemedText>
-      </View>
+        {/* Logo */}
+        <View style={styles.logoSection}>
+          <ThemedText style={[styles.logo, { color: theme.primary }]}>Smart Muslim</ThemedText>
+        </View>
 
-      {/* Right: Icons */}
-      <View style={styles.iconSection}>
-        {/* Language Button */}
-        <View style={styles.languageContainer}>
+        {/* Right: Icons */}
+        <View style={styles.iconSection}>
+          {/* Language Button */}
           <Pressable 
             style={styles.languageBtn}
-            onPress={() => setShowLanguageMenu(!showLanguageMenu)}
+            onPress={() => setShowLanguageMenu(true)}
           >
             <Feather name="globe" size={20} color={theme.text} />
             <ThemedText style={styles.languageLabel}>
-              {language.toUpperCase()}
+              {currentLang?.flag} {language.toUpperCase()}
             </ThemedText>
           </Pressable>
-          
-          {/* Language Dropdown Menu */}
-          {showLanguageMenu && (
-            <View style={[styles.languageMenu, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
+
+          <Pressable style={styles.iconBtn}>
+            <Feather name="bell" size={20} color={theme.text} />
+          </Pressable>
+          <Pressable 
+            style={styles.iconBtn}
+            onPress={() => navigation.navigate('MoreTab')}
+          >
+            <Feather name="user" size={20} color={theme.text} />
+          </Pressable>
+          <Pressable 
+            style={styles.iconBtn}
+            onPress={() => {
+              if (navigation.navigate) {
+                navigation.navigate('MoreTab', { screen: 'Settings' });
+              }
+            }}
+          >
+            <Feather name="settings" size={20} color={theme.text} />
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Language Selection Modal */}
+      <Modal
+        visible={showLanguageMenu}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLanguageMenu(false)}
+      >
+        <Pressable 
+          style={styles.modalOverlay}
+          onPress={() => setShowLanguageMenu(false)}
+        >
+          <View style={[styles.languageModal, { backgroundColor: theme.backgroundDefault, borderColor: theme.border }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
+              <ThemedText style={styles.modalTitle}>ভাষা নির্বাচন করুন</ThemedText>
+              <Pressable onPress={() => setShowLanguageMenu(false)}>
+                <Feather name="x" size={24} color={theme.text} />
+              </Pressable>
+            </View>
+            
+            <ScrollView style={styles.languageList}>
               {languages.map((lang) => (
                 <Pressable
                   key={lang.id}
                   style={[
-                    styles.languageOption,
+                    styles.languageOptionItem,
                     language === lang.id && { backgroundColor: theme.primary }
                   ]}
                   onPress={() => {
@@ -77,38 +125,35 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                   }}
                 >
                   <ThemedText style={[
-                    styles.languageOptionLabel,
+                    styles.languageOptionFlag,
                     { color: language === lang.id ? theme.backgroundDefault : theme.text }
                   ]}>
-                    {lang.label}
+                    {lang.flag}
                   </ThemedText>
+                  <View style={styles.languageOptionText}>
+                    <ThemedText style={[
+                      styles.languageOptionNative,
+                      { color: language === lang.id ? theme.backgroundDefault : theme.text }
+                    ]}>
+                      {lang.nativeLabel}
+                    </ThemedText>
+                    <ThemedText style={[
+                      styles.languageOptionEnglish,
+                      { color: language === lang.id ? theme.backgroundDefault : theme.textSecondary }
+                    ]}>
+                      {lang.label}
+                    </ThemedText>
+                  </View>
+                  {language === lang.id && (
+                    <Feather name="check" size={20} color={theme.backgroundDefault} />
+                  )}
                 </Pressable>
               ))}
-            </View>
-          )}
-        </View>
-
-        <Pressable style={styles.iconBtn}>
-          <Feather name="bell" size={20} color={theme.text} />
+            </ScrollView>
+          </View>
         </Pressable>
-        <Pressable 
-          style={styles.iconBtn}
-          onPress={() => navigation.navigate('MoreTab')}
-        >
-          <Feather name="user" size={20} color={theme.text} />
-        </Pressable>
-        <Pressable 
-          style={styles.iconBtn}
-          onPress={() => {
-            if (navigation.navigate) {
-              navigation.navigate('MoreTab', { screen: 'Settings' });
-            }
-          }}
-        >
-          <Feather name="settings" size={20} color={theme.text} />
-        </Pressable>
-      </View>
-    </View>
+      </Modal>
+    </>
   );
 };
 
@@ -140,9 +185,6 @@ const styles = StyleSheet.create({
   iconBtn: {
     padding: Spacing.sm,
   },
-  languageContainer: {
-    position: 'relative',
-  },
   languageBtn: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -153,25 +195,60 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
   },
-  languageMenu: {
-    position: 'absolute',
-    top: 50,
-    right: 0,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  languageModal: {
+    width: '85%',
+    maxHeight: '80%',
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderRadius: BorderRadius.md,
     overflow: 'hidden',
-    minWidth: 120,
-    zIndex: 1000,
+    zIndex: 10000,
   },
-  languageOption: {
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: 'transparent',
   },
-  languageOptionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  languageList: {
+    maxHeight: 400,
+  },
+  languageOptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    gap: Spacing.md,
+  },
+  languageOptionFlag: {
+    fontSize: 24,
+    minWidth: 40,
     textAlign: 'center',
+  },
+  languageOptionText: {
+    flex: 1,
+  },
+  languageOptionNative: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  languageOptionEnglish: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2,
   },
 });
