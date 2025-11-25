@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Dimensions, View, Text } from "react-native";
+import { StyleSheet, Dimensions, View, Text, Platform } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +14,11 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 const { width, height } = Dimensions.get("window");
 
 export function DraggableFAB() {
+  // Skip on web to avoid gesture handler issues
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [initialPosition] = useState({
