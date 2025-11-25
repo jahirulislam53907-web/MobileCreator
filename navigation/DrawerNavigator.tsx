@@ -264,6 +264,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     minHeight: 60,
+    backgroundColor: 'transparent',
   },
   iconImage: {
     width: 32,
