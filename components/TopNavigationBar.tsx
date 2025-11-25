@@ -3,7 +3,6 @@ import { View, Pressable, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from '@/contexts/LanguageContext';
 import { ThemedText } from './ThemedText';
 import { Spacing, BorderRadius } from '@/constants/theme';
 
@@ -23,8 +22,8 @@ export interface TopNavigationBarProps {
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
   const { theme } = useAppTheme();
   const navigation = useNavigation<any>();
-  const { language, setLanguage } = useTranslation();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [language] = useState<LanguageCode>('bn');
 
   const languages: Language[] = [
     { id: 'bn', label: 'বাংলা', nativeLabel: 'বাংলা', flag: '🇧🇩' },
@@ -120,7 +119,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                     language === lang.id && { backgroundColor: theme.primary }
                   ]}
                   onPress={() => {
-                    setLanguage(lang.id);
+                    // TODO: Implement language change
                     setShowLanguageMenu(false);
                   }}
                 >
