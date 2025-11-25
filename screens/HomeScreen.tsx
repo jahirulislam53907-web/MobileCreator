@@ -304,6 +304,9 @@ export default function HomeScreen() {
             onMomentumScrollEnd={handleScrollEnd}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
+            snapToAlignment="center"
+            snapToInterval={screenWidth - 30}
+            decelerationRate="fast"
           />
           
           {/* Dots Indicator */}
