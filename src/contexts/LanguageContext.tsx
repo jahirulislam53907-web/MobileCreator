@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { ThemeName } from '@/constants/theme';
 
 export type LanguageCode = 'bn' | 'en' | 'ur' | 'hi' | 'ar' | 'tr' | 'ms' | 'id' | 'pa' | 'fa';
 
@@ -7,9 +8,24 @@ interface LanguageContextType {
   language: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
   t: (key: string) => string;
+  getThemeForLanguage: (lang: LanguageCode) => ThemeName;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+// ভাষা অনুযায়ী থিম ম্যাপিং
+const languageThemeMap: Record<LanguageCode, ThemeName> = {
+  bn: 'bn',
+  en: 'en',
+  ur: 'ur',
+  hi: 'hi',
+  ar: 'ar',
+  tr: 'tr',
+  ms: 'ms',
+  id: 'id',
+  pa: 'pa',
+  fa: 'fa',
+};
 
 const translations = {
   bn: require('../locales/bn.json'),
@@ -62,6 +78,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const getThemeForLanguage = (lang: LanguageCode): ThemeName => {
+    return languageThemeMap[lang];
+  };
+
   const t = (key: string): string => {
     const currentTranslations = translations[language];
     return getNestedValue(currentTranslations, key);
@@ -72,7 +92,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, getThemeForLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
