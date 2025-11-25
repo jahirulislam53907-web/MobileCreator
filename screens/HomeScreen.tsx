@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   nextPrayerName: {
     fontSize: 15,
