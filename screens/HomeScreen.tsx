@@ -34,6 +34,7 @@ export default function HomeScreen() {
   const screenWidth = Dimensions.get('window').width;
   const dotsPositionAnim = useRef(new Animated.Value(0)).current;
   const quickActionsHeightAnim = useRef(new Animated.Value(100)).current;
+  const prayerTimesMarginAnim = useRef(new Animated.Value(100)).current;
   
   // Initialize Quran data in AsyncStorage
   useEffect(() => {
@@ -61,12 +62,17 @@ export default function HomeScreen() {
     
     Animated.parallel([
       Animated.timing(dotsPositionAnim, {
-        toValue: shouldCollapse ? -50 : 0, // ডটস উপরে/নিচে যাবে
+        toValue: shouldCollapse ? -50 : 0,
         duration: 300,
         useNativeDriver: false,
       }),
       Animated.timing(quickActionsHeightAnim, {
-        toValue: shouldCollapse ? 0 : 100, // Quick Actions collapse/expand
+        toValue: shouldCollapse ? 0 : 100,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(prayerTimesMarginAnim, {
+        toValue: shouldCollapse ? 0 : 100,
         duration: 300,
         useNativeDriver: false,
       }),
@@ -333,22 +339,24 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Prayer Times */}
-        <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
-          <Pressable>
-            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
-          </Pressable>
-        </View>
-        <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
-          <View style={styles.prayerGrid}>
-            {prayers.map((prayer) => (
-              <View key={prayer.key} style={styles.prayerTimeItem}>
-                <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-              </View>
-            ))}
+        <Animated.View style={{ marginTop: prayerTimesMarginAnim }}>
+          <View style={styles.sectionTitleRow}>
+            <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
+            <Pressable>
+              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
+            </Pressable>
           </View>
-        </View>
+          <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
+            <View style={styles.prayerGrid}>
+              {prayers.map((prayer) => (
+                <View key={prayer.key} style={styles.prayerTimeItem}>
+                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
+                </View>
+              ))}
+            </View>
+          </View>
+        </Animated.View>
 
         {/* Tracker Section */}
         <View style={styles.sectionTitleRow}>
