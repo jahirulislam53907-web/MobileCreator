@@ -190,13 +190,13 @@ export default function HomeScreen() {
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
             <View style={styles.prayerInfoLine}>
               <ThemedText style={styles.prayerLabelSmall}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
-              <ThemedText style={[styles.prayerNameSmall, { color: theme.primary }]}>
+              <ThemedText style={[styles.prayerNameSmall, { color: theme.primary, flex: 1, textAlign: 'right' }]}>
                 {nextPrayerInfo.nameBn}
               </ThemedText>
             </View>
             <View style={styles.prayerInfoLine}>
               <ThemedText style={styles.prayerLabelSmall}>{t('home.time_remaining') || 'বাকি আছে'}</ThemedText>
-              <ThemedText style={[styles.countdownSmall, { color: theme.secondary }]}>
+              <ThemedText style={[styles.countdownSmall, { color: theme.secondary, flex: 1, textAlign: 'right' }]}>
                 {`${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
               </ThemedText>
             </View>
@@ -453,10 +453,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#ffffff',
+    marginBottom: 0,
   },
   countdownSmall: {
     fontSize: 18,
     fontWeight: '700',
+    marginBottom: 0,
   },
   verseSection: {
     borderRadius: 12,
