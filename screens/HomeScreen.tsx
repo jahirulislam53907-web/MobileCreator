@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   dateDisplayLine: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#ffffff',
     marginBottom: 6,
   },
@@ -446,20 +446,21 @@ const styles = StyleSheet.create({
   },
   prayerLabelSmall: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   prayerNameSmall: {
     fontSize: 18,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 0,
+    marginBottom: 6,
   },
   countdownSmall: {
     fontSize: 18,
     fontWeight: '700',
-    marginBottom: 0,
+    color: '#ffffff',
+    marginBottom: 6,
   },
   verseSection: {
     borderRadius: 12,
