@@ -179,10 +179,10 @@ export default function HomeScreen() {
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
           <View style={[styles.dateCard, { backgroundColor: theme.backgroundDefault }]}>
-            <ThemedText style={[styles.dateDisplayLine, { color: theme.primary }]}>
+            <ThemedText style={[styles.dateDisplayLine, { color: '#ffffff' }]}>
               {formattedDate.gregorian}
             </ThemedText>
-            <ThemedText style={[styles.dateDisplayLine, { color: theme.primary }]}>
+            <ThemedText style={[styles.dateDisplayLine, { color: '#ffffff' }]}>
               {formattedDate.hijri}
             </ThemedText>
           </View>
@@ -446,17 +446,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   prayerLabelSmall: {
-    fontSize: 10,
+    fontSize: 14,
     color: '#ffffff',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   prayerNameSmall: {
-    fontSize: 13,
+    fontSize: 18,
     fontWeight: '700',
     color: '#ffffff',
   },
   countdownSmall: {
-    fontSize: 13,
+    fontSize: 18,
     fontWeight: '700',
   },
   verseSection: {
