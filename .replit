@@ -80,7 +80,3 @@ value = "0"
 [[ports]]
 localPort = 8081
 externalPort = 80
-
-[[ports]]
-localPort = 35549
-externalPort = 3000
