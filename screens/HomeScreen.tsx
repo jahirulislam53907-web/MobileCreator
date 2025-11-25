@@ -441,10 +441,11 @@ const styles = StyleSheet.create({
   prayerInfoLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   prayerLabelSmall: {
     fontSize: 18,
+    fontWeight: '600',
     color: '#ffffff',
     marginBottom: 4,
   },
