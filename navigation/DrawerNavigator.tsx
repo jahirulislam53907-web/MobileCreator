@@ -6,6 +6,11 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle,
   withSpring,
+  useEffect,
+  withRepeat,
+  withSequence,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
@@ -47,14 +52,23 @@ const DraggableMenuItem = ({
 }: DraggableMenuItemProps) => {
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
+  const opacity = useSharedValue(0);
+  const slideX = useSharedValue(-50);
   const [isDragging, setIsDragging] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+
+  useEffect(() => {
+    opacity.value = withSpring(1, { damping: 12, mass: 1, stiffness: 100 });
+    slideX.value = withSpring(0, { damping: 12, mass: 1, stiffness: 100 });
+  }, [opacity, slideX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateY: translateY.value },
+      { translateX: slideX.value },
       { scale: scale.value }
     ],
+    opacity: opacity.value,
     zIndex: isDragging ? 1000 : 0,
     elevation: isDragging ? 10 : 0,
     backgroundColor: theme.backgroundDefault,
@@ -159,6 +173,50 @@ const DraggableMenuItem = ({
   );
 };
 
+const DrawerHeaderAnimated = ({ theme }: { theme: any }) => {
+  const scale = useSharedValue(0.9);
+  const opacity = useSharedValue(0);
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withSpring(1, { damping: 10, mass: 1, stiffness: 100 });
+    scale.value = withSpring(1, { damping: 10, mass: 1, stiffness: 100 });
+    rotate.value = withRepeat(
+      withSequence(
+        withSpring(5, { damping: 50, mass: 1, stiffness: 200 }),
+        withSpring(-5, { damping: 50, mass: 1, stiffness: 200 }),
+        withSpring(0, { damping: 50, mass: 1, stiffness: 200 })
+      ),
+      -1,
+      true,
+      () => {}
+    );
+  }, [opacity, scale, rotate]);
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotate.value}deg` }
+    ],
+  }));
+
+  return (
+    <Animated.View style={headerAnimatedStyle}>
+      <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
+        <Image 
+          source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
+          style={styles.headerIcon}
+        />
+        <View style={styles.headerTextContainer}>
+          <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
+          <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
+        </View>
+      </View>
+    </Animated.View>
+  );
+};
+
 const DrawerContent = ({ navigation }: { navigation: any }) => {
   const { theme } = useAppTheme();
   const { menuItems, reorderMenu } = useMenuOrder();
@@ -179,16 +237,7 @@ const DrawerContent = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={[styles.drawerContainer, { backgroundColor: theme.backgroundSecondary }]}>
-      <View style={[styles.drawerHeader, { backgroundColor: theme.primary }]}>
-        <Image 
-          source={require('@/assets/menu-icons/mosque_minaret_icon.png')}
-          style={styles.headerIcon}
-        />
-        <View style={styles.headerTextContainer}>
-          <ThemedText style={styles.drawerTitle}>Smart Muslim</ThemedText>
-          <ThemedText style={styles.drawerSubtitle}>আপনার ইসলামিক সঙ্গী</ThemedText>
-        </View>
-      </View>
+      <DrawerHeaderAnimated theme={theme} />
 
       <ScrollView 
         style={styles.menuItemsContainer}
