@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 
 export interface UserLocation {
   latitude: number;
@@ -75,7 +76,16 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setLoading(false);
         return;
       }
-      setLocationState(DEFAULT_LOCATION);
+      // Try to get location automatically on first load
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({});
+        const closest = getClosestCity(location.coords.latitude, location.coords.longitude);
+        await AsyncStorage.setItem('userLocation', JSON.stringify(closest));
+        setLocationState(closest);
+      } else {
+        setLocationState(DEFAULT_LOCATION);
+      }
       setLoading(false);
     } catch (err) {
       setLocationState(DEFAULT_LOCATION);
@@ -98,15 +108,25 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLoading(true);
       setError(null);
 
-      // Simulate location request - in real app this would use expo-location
-      // For now, use default location which works with Expo Go
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      await setLocation(DEFAULT_LOCATION);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setError('লোকেশন পারমিশন প্রয়োজন');
+        await setLocation(DEFAULT_LOCATION);
+        setLoading(false);
+        return false;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const closest = getClosestCity(location.coords.latitude, location.coords.longitude);
+      await setLocation(closest);
       setLoading(false);
       return true;
     } catch (err) {
       setError('লোকেশন প্রাপ্ত করতে ব্যর্থ হয়েছে');
+      await setLocation(DEFAULT_LOCATION);
       setLoading(false);
       return false;
     }
