@@ -40,6 +40,13 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
   ];
 
   const currentLang = languages.find(l => l.id === language);
+  const { setThemeName } = useAppTheme();
+
+  const handleLanguageChange = (lang: LanguageCode) => {
+    setLanguage(lang);
+    setThemeName(lang as any);
+    setShowLanguageMenu(false);
+  };
 
   return (
     <>
@@ -119,10 +126,7 @@ export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 
                     styles.languageOptionItem,
                     language === lang.id && { backgroundColor: theme.primary }
                   ]}
-                  onPress={() => {
-                    setLanguage(lang.id);
-                    setShowLanguageMenu(false);
-                  }}
+                  onPress={() => handleLanguageChange(lang.id)}
                 >
                   <ThemedText style={[
                     styles.languageOptionFlag,
