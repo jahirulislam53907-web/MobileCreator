@@ -33,7 +33,7 @@ export default function MoreStackNavigator() {
         name="Settings"
         component={SettingsScreen}
         options={{
-          headerTitle: "সেটিংস",
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
