@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, ScrollView, SafeAreaView } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useTranslation } from "../src/contexts/LanguageContext";
+import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
-import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
+import { calculatePrayerTimes, getNextPrayer, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
+import { formatDate } from "@/utils/dateUtils";
+import { LocationPicker } from "@/components/LocationPicker";
 
 interface QuranVerse {
   surah: string;
@@ -27,24 +30,32 @@ const QURAN_VERSES: QuranVerse[] = [
 export default function HomeScreen() {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const { location } = useLocation();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo | null>(null);
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
+  const [locationPickerVisible, setLocationPickerVisible] = useState(false);
+  const [formattedDate, setFormattedDate] = useState(formatDate());
 
   useEffect(() => {
-    const times = calculatePrayerTimes(DHAKA_COORDINATES.latitude, DHAKA_COORDINATES.longitude);
-    setPrayerTimes(times);
-  }, []);
+    if (location) {
+      const times = calculatePrayerTimes(location.latitude, location.longitude);
+      setPrayerTimes(times);
+      setFormattedDate(formatDate());
+    }
+  }, [location]);
 
   useEffect(() => {
     const updateNextPrayer = () => {
-      const next = getNextPrayer(DHAKA_COORDINATES.latitude, DHAKA_COORDINATES.longitude);
-      setNextPrayerInfo(next);
+      if (location) {
+        const next = getNextPrayer(location.latitude, location.longitude);
+        setNextPrayerInfo(next);
+      }
     };
     updateNextPrayer();
     const interval = setInterval(updateNextPrayer, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [location]);
 
   const quickActionLabels = typeof t('home.quick_actions') === 'string' ? [] : (t('home.quick_actions') || []);
   
@@ -123,28 +134,35 @@ export default function HomeScreen() {
       <TopNavigationBar activeTab="Home" />
       <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
-        <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
+        <Pressable
+          onPress={() => setLocationPickerVisible(true)}
+          style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}
+        >
           <View style={styles.locationInfo}>
             <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
               <Feather name="map-pin" size={18} color={theme.primary} />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.locationTitle}>{t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}</ThemedText>
+              <ThemedText style={styles.locationTitle}>
+                {location ? `${location.name}, ${location.country}` : t('home.location_dhaka') || 'ঢাকা, বাংলাদেশ'}
+              </ThemedText>
               <ThemedText style={styles.locationSubtitle}>{t('home.location_current') || 'আপনার বর্তমান লোকেশন'}</ThemedText>
             </View>
           </View>
-          <Pressable style={[styles.changeBtn, { backgroundColor: theme.primary }]}>
+          <View style={[styles.changeBtn, { backgroundColor: theme.primary }]}>
             <Feather name="edit-2" size={12} color={theme.buttonText} />
             <ThemedText style={[styles.changeBtnText, { color: theme.buttonText }]}>{t('home.location_change') || 'পরিবর্তন'}</ThemedText>
-          </Pressable>
-        </View>
+          </View>
+        </Pressable>
+
+        <LocationPicker visible={locationPickerVisible} onClose={() => setLocationPickerVisible(false)} />
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
           <View style={[styles.dateCard, { backgroundColor: theme.backgroundDefault }]}>
             <ThemedText style={styles.cardLabel}>{t('home.today_date') || 'আজকের তারিখ'}</ThemedText>
-            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>{t('home.hijri_date') || '२३ রমজান १४४५'}</ThemedText>
-            <ThemedText style={styles.gregorianDate}>{t('home.gregorian_date') || 'শুক্রবার, ३ মে २०२४'}</ThemedText>
+            <ThemedText style={[styles.hijriDate, { color: theme.primary }]}>{formattedDate.hijri}</ThemedText>
+            <ThemedText style={styles.gregorianDate}>{formattedDate.gregorian}</ThemedText>
           </View>
 
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>

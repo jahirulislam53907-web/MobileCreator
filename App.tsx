@@ -11,6 +11,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppThemeProvider } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider } from "./src/contexts/LanguageContext";
+import { LocationProvider } from "./src/contexts/LocationContext";
 import { DraggableFAB } from "@/components/DraggableFAB";
 
 function AppContent() {
@@ -35,11 +36,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AppThemeProvider>
-        <AppContent />
-      </AppThemeProvider>
-    </LanguageProvider>
+    <LocationProvider>
+      <LanguageProvider>
+        <AppThemeProvider>
+          <AppContent />
+        </AppThemeProvider>
+      </LanguageProvider>
+    </LocationProvider>
   );
 }
 

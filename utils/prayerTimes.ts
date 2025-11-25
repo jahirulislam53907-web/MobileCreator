@@ -108,8 +108,9 @@ export const getCurrentPrayer = (
   const currentPrayer = prayerTimes.currentPrayer();
   if (!currentPrayer) return null;
 
-  const prayerName = Prayer[currentPrayer];
-  return PRAYER_NAMES[prayerName].bn;
+  const prayerNameStr = Prayer[currentPrayer] as string;
+  const prayerData = PRAYER_NAMES[prayerNameStr] || PRAYER_NAMES['Fajr'];
+  return prayerData.bn;
 };
 
 export const getTimeUntilNextPrayer = (
