@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { ScreenScrollView } from '@/components/ScreenScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/Card';
-import { HeaderNav } from '@/components/HeaderNav';
+import { TopNavigationBar } from '@/components/TopNavigationBar';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
 import { type ThemeName } from '@/constants/theme';
@@ -75,7 +75,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderNav />
+      <TopNavigationBar activeTab="More" />
       <ScreenScrollView>
       {/* Content Container */}
       <View style={styles.contentContainer}>
