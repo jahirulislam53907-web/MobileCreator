@@ -62,47 +62,75 @@ export const calculatePrayerTimes = (
 export const getNextPrayer = (
   latitude: number,
   longitude: number
-): NextPrayerInfo | null => {
-  const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
-  const prayerTimes = new PrayerTimes(coordinates, new Date(), params);
+): NextPrayerInfo => {
+  try {
+    const coordinates = new Coordinates(latitude, longitude);
+    const params = CalculationMethod.Karachi();
+    const now = new Date();
+    const prayerTimes = new PrayerTimes(coordinates, now, params);
 
-  const nextPrayer = prayerTimes.nextPrayer();
-  
-  if (!nextPrayer) return null;
+    const nextPrayer = prayerTimes.nextPrayer();
+    
+    if (!nextPrayer) {
+      // Fallback to Fajr if no next prayer found
+      return {
+        name: 'Fajr',
+        nameAr: 'الفجر',
+        nameBn: 'ফজর',
+        time: prayerTimes.fajr,
+        timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
+      };
+    }
 
-  const nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer);
-  if (!nextPrayerTime) return null;
+    const nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer);
+    if (!nextPrayerTime) {
+      return {
+        name: 'Fajr',
+        nameAr: 'الفجر',
+        nameBn: 'ফজর',
+        time: prayerTimes.fajr,
+        timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
+      };
+    }
 
-  const now = new Date();
-  const diff = nextPrayerTime.getTime() - now.getTime();
-  
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    const diff = nextPrayerTime.getTime() - now.getTime();
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  let prayerKey = 'Fajr';
-  const prayerStr = String(nextPrayer).toLowerCase();
-  
-  if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
-  else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
-  else if (prayerStr.includes('asr')) prayerKey = 'Asr';
-  else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
-  else if (prayerStr.includes('isha')) prayerKey = 'Isha';
-  
-  const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
-  
-  return {
-    name: prayerData.en,
-    nameAr: prayerData.ar,
-    nameBn: prayerData.bn,
-    time: nextPrayerTime,
-    timeRemaining: {
-      hours: Math.max(0, hours),
-      minutes: Math.max(0, minutes),
-      seconds: Math.max(0, seconds),
-    },
-  };
+    let prayerKey = 'Fajr';
+    const prayerStr = String(nextPrayer).toLowerCase();
+    
+    if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
+    else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
+    else if (prayerStr.includes('asr')) prayerKey = 'Asr';
+    else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
+    else if (prayerStr.includes('isha')) prayerKey = 'Isha';
+    
+    const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
+    
+    return {
+      name: prayerData.en,
+      nameAr: prayerData.ar,
+      nameBn: prayerData.bn,
+      time: nextPrayerTime,
+      timeRemaining: {
+        hours: Math.max(0, hours),
+        minutes: Math.max(0, minutes),
+        seconds: Math.max(0, seconds),
+      },
+    };
+  } catch (error) {
+    // Fallback if any error occurs
+    return {
+      name: 'Fajr',
+      nameAr: 'الفجر',
+      nameBn: 'ফজর',
+      time: new Date(),
+      timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
+    };
+  }
 };
 
 export const getCurrentPrayer = (
