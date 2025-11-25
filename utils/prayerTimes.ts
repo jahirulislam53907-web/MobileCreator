@@ -181,6 +181,77 @@ export const getTimeUntilNextPrayer = (
   return `${bengaliDigits(hours)}:${bengaliDigits(Number(paddedMinutes))}:${bengaliDigits(Number(paddedSeconds))}`;
 };
 
+export interface SunriseSunsetInfo {
+  type: 'sunrise' | 'sunset';
+  time: Date;
+  timeString: string;
+  label: string;
+}
+
+export const getNextSunriseOrSunset = (
+  latitude: number,
+  longitude: number
+): SunriseSunsetInfo => {
+  try {
+    const coordinates = new Coordinates(latitude, longitude);
+    const params = CalculationMethod.Karachi();
+    const now = new Date();
+    const todayTimes = new PrayerTimes(coordinates, now, params);
+
+    const sunrise = todayTimes.sunrise;
+    const sunset = todayTimes.maghrib; // Using maghrib as sunset
+
+    // If current time is before sunrise, show today's sunrise
+    if (now < sunrise) {
+      return {
+        type: 'sunrise',
+        time: sunrise,
+        timeString: formatTime(sunrise),
+        label: 'সূর্যোদয়',
+      };
+    }
+
+    // If current time is between sunrise and sunset, show today's sunset
+    if (now < sunset) {
+      return {
+        type: 'sunset',
+        time: sunset,
+        timeString: formatTime(sunset),
+        label: 'সূর্যাস্ত',
+      };
+    }
+
+    // If current time is after sunset + 1 hour, show tomorrow's sunrise
+    const oneHourAfterSunset = new Date(sunset.getTime() + 60 * 60 * 1000);
+    if (now > oneHourAfterSunset) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowTimes = new PrayerTimes(coordinates, tomorrow, params);
+      return {
+        type: 'sunrise',
+        time: tomorrowTimes.sunrise,
+        timeString: formatTime(tomorrowTimes.sunrise),
+        label: 'সূর্যোদয়',
+      };
+    }
+
+    // If between sunset and 1 hour after sunset, show sunset
+    return {
+      type: 'sunset',
+      time: sunset,
+      timeString: formatTime(sunset),
+      label: 'সূর্যাস্ত',
+    };
+  } catch (error) {
+    return {
+      type: 'sunrise',
+      time: new Date(),
+      timeString: '--:--',
+      label: 'সূর্যোদয়',
+    };
+  }
+};
+
 export const DHAKA_COORDINATES = {
   latitude: 23.8103,
   longitude: 90.4125,

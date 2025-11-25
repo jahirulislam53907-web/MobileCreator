@@ -7,7 +7,7 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useTranslation } from "../src/contexts/LanguageContext";
 import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
-import { calculatePrayerTimes, getNextPrayer, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo } from "@/utils/prayerTimes";
+import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 
@@ -38,6 +38,7 @@ export default function HomeScreen() {
   
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(() => calculatePrayerTimes(defaultLat, defaultLon));
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo>(() => getNextPrayer(defaultLat, defaultLon));
+  const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [verse] = useState<QuranVerse>(QURAN_VERSES[0]);
   const [formattedDate, setFormattedDate] = useState(formatDate());
 
@@ -65,6 +66,7 @@ export default function HomeScreen() {
       const lon = location?.longitude || DHAKA_COORDINATES.longitude;
       const next = getNextPrayer(lat, lon);
       setNextPrayerInfo(next);
+      setSunriseSunset(getNextSunriseOrSunset(lat, lon));
       setFormattedDate(formatDate());
     };
     updateNextPrayer();
@@ -149,19 +151,17 @@ export default function HomeScreen() {
       <TopNavigationBar activeTab="Home" />
       <ScrollView style={[styles.content, { backgroundColor: theme.backgroundRoot }]} scrollEnabled={true} contentContainerStyle={{ backgroundColor: theme.backgroundRoot }} showsVerticalScrollIndicator={false}>
         {/* Location Display */}
-        <Pressable
-          onPress={handleLocationPress}
-          style={({ pressed }) => [
-            styles.locationCard,
-            { backgroundColor: theme.backgroundDefault },
-            pressed && { opacity: 0.7 }
-          ]}
-          disabled={locationLoading}
-        >
+        <View style={[styles.locationCard, { backgroundColor: theme.backgroundDefault }]}>
           <View style={styles.locationInfo}>
-            <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
-              <MaterialIcons name="location-on" size={18} color={theme.primary} />
-            </View>
+            <Pressable 
+              onPress={handleLocationPress}
+              disabled={locationLoading}
+              style={styles.locationIconContainer}
+            >
+              <View style={[styles.locationIconBg, { backgroundColor: theme.primary + '20' }]}>
+                <MaterialIcons name="location-on" size={18} color={theme.primary} />
+              </View>
+            </Pressable>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>
                 {location ? `${location.name}, ${location.country}` : 'লোকেশন যুক্ত করুন'}
@@ -170,11 +170,16 @@ export default function HomeScreen() {
                 {locationLoading ? 'লোকেশন প্রাপ্ত হচ্ছে...' : (location ? 'আপনার বর্তমান লোকেশন' : 'ক্লিক করে অনুমতি দিন')}
               </ThemedText>
             </View>
-            <View style={[styles.locationRefresh, { opacity: locationLoading ? 0.6 : 1 }]}>
-              <MaterialIcons name="refresh" size={16} color={theme.primary} />
+            <View style={styles.sunriseSunsetBox}>
+              <ThemedText style={styles.sunriseSunsetLabel}>
+                {sunriseSunset.label}
+              </ThemedText>
+              <ThemedText style={styles.sunriseSunsetTime}>
+                {sunriseSunset.timeString}
+              </ThemedText>
             </View>
           </View>
-        </Pressable>
+        </View>
 
         {/* Date & Next Prayer */}
         <View style={styles.datetimeGrid}>
@@ -358,12 +363,29 @@ const styles = StyleSheet.create({
     gap: 10,
     flex: 1,
   },
+  locationIconContainer: {
+    padding: 0,
+  },
   locationIconBg: {
     width: 36,
     height: 36,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sunriseSunsetBox: {
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  sunriseSunsetLabel: {
+    fontSize: 11,
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  sunriseSunsetTime: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   locationTitle: {
     fontSize: 14,
