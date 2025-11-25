@@ -340,7 +340,7 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             <View style={styles.quickActionsGrid}>
-              {(isQuickActionsExpanded ? QUICK_ACTIONS : QUICK_ACTIONS.slice(0, 6)).map((item, idx) => (
+              {(isQuickActionsExpanded ? QUICK_ACTIONS : QUICK_ACTIONS.slice(0, 8)).map((item, idx) => (
                 <Pressable key={idx} style={[styles.actionCard, { backgroundColor: theme.backgroundDefault }]}>
                   <View style={[styles.actionIcon]}>
                     <Image 
