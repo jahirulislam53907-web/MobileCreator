@@ -70,12 +70,8 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const initializeLocation = async () => {
     try {
-      const saved = await AsyncStorage.getItem('userLocation');
-      if (saved) {
-        setLocationState(JSON.parse(saved));
-        setLoading(false);
-        return;
-      }
+      // Clear old location data for new behavior
+      await AsyncStorage.removeItem('userLocation');
       // Start with null - no location selected yet
       setLoading(false);
     } catch (err) {
