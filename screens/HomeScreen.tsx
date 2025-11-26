@@ -51,6 +51,32 @@ export default function HomeScreen() {
     };
     initQuranData();
   }, []);
+
+  // Auto-scroll carousel every 5 seconds
+  useEffect(() => {
+    if (quranVerses.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentVerseIndex(prevIndex => {
+        const nextIndex = (prevIndex + 1) % quranVerses.length;
+        
+        // Scroll to next verse
+        const itemWidth = screenWidth - 30;
+        const targetOffsetX = nextIndex * itemWidth;
+        
+        if (flatListRef.current) {
+          flatListRef.current.scrollToOffset({ 
+            offset: targetOffsetX, 
+            animated: true 
+          });
+        }
+        
+        return nextIndex;
+      });
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [quranVerses.length, screenWidth]);
   
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;

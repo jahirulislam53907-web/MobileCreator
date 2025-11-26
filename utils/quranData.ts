@@ -93,7 +93,8 @@ export const QURAN_DATA: QuranVerse[] = [
 ];
 
 export const getQuranVerses = (): QuranVerse[] => {
-  return QURAN_DATA;
+  // Return only short verses (exclude long verses like Ayat-Al-Kursi)
+  return QURAN_DATA.filter(verse => verse.id !== 10);
 };
 
 export const getVerseById = (id: number): QuranVerse | undefined => {
