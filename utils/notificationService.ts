@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as Asset from 'expo-asset';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -26,6 +27,8 @@ export const playAzanAudioFile = async () => {
       return;
     }
 
+    console.log('🎵 আজান প্লেয়ার শুরু হচ্ছে...');
+
     // Dynamically import Audio - only available on native
     let Audio: any;
     try {
@@ -50,8 +53,18 @@ export const playAzanAudioFile = async () => {
 
     // Create new sound instance
     soundPlayer = new SoundModule.Sound();
-    // Use asset URI for Expo Go compatibility
-    await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
+    
+    // Load audio using Asset module for proper URI resolution in Expo Go
+    try {
+      const audioAsset = await Asset.fromModule(require('@/assets/audio/azan.mp3')).downloadAsync();
+      console.log('📁 আজান ফাইল লোডেড:', audioAsset.localUri);
+      await soundPlayer.loadAsync({ uri: audioAsset.localUri });
+    } catch (assetError) {
+      console.warn('⚠️ Asset loading failed, trying direct require:', assetError);
+      // Fallback to direct require
+      await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
+    }
+    
     await soundPlayer.playAsync();
     console.log('🔊 আজান বাজছে...');
   } catch (error) {
