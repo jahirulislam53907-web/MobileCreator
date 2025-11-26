@@ -33,7 +33,12 @@ export const playAzanAudioFile = async () => {
     try {
       // @ts-ignore
       const AVModule = await import('expo-av');
-      Sound = AVModule.Sound;
+      // Try different export patterns for expo-av
+      Sound = AVModule.Sound || AVModule.default?.Sound || AVModule.default;
+      if (!Sound || !Sound.createAsync) {
+        console.error('❌ Sound class not found in expo-av');
+        return;
+      }
     } catch (e) {
       console.error('❌ expo-av লোড করতে পারা যায়নি:', e);
       return;
