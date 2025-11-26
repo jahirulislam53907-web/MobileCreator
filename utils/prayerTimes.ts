@@ -49,8 +49,8 @@ export const calculatePrayerTimes = (
   calculationDate.setHours(0, 0, 0, 0);
   
   const coordinates = new Coordinates(latitude, longitude);
-  // Using Karachi method - appropriate for Bangladesh (South Asia)
-  const params = CalculationMethod.Karachi();
+  // Using ISNA method - Most accurate for Bangladesh and South Asia
+  const params = CalculationMethod.Isna();
   const prayerTimes = new PrayerTimes(coordinates, calculationDate, params);
 
   return {
@@ -70,7 +70,7 @@ export const getNextPrayer = (
 ): NextPrayerInfo => {
   try {
     const coordinates = new Coordinates(latitude, longitude);
-    const params = CalculationMethod.Karachi();
+    const params = CalculationMethod.Isna();
     const now = new Date();
     const todayTimes = new PrayerTimes(coordinates, now, params);
 
@@ -143,7 +143,7 @@ export const getCurrentPrayer = (
   longitude: number
 ): string | null => {
   const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
+  const params = CalculationMethod.Isna();
   const prayerTimes = new PrayerTimes(coordinates, new Date(), params);
 
   const currentPrayer = prayerTimes.currentPrayer();
@@ -199,7 +199,7 @@ export const getNextSunriseOrSunset = (
 ): SunriseSunsetInfo => {
   try {
     const coordinates = new Coordinates(latitude, longitude);
-    const params = CalculationMethod.Karachi();
+    const params = CalculationMethod.Isna();
     const now = new Date();
     const todayTimes = new PrayerTimes(coordinates, now, params);
 
