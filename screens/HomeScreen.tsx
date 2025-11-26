@@ -1064,6 +1064,17 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
   },
+  prayerTimeSmall: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  prayerTimeEditable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+  },
   prayerHeaderInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
