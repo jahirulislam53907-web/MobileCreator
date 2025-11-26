@@ -1,82 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
-// Poll local notifications (from AsyncStorage)
-export const startNotificationPolling = () => {
-  const pollInterval = setInterval(async () => {
-    try {
-      const lastCheck = await AsyncStorage.getItem('lastNotificationCheck');
-      const sinceTime = lastCheck ? parseInt(lastCheck, 10) : 0;
-      
-      // Get notifications from local storage
-      const data = await AsyncStorage.getItem('notifications');
-      const allNotifs = data ? JSON.parse(data) : [];
-      
-      // Filter for pending notifications
-      const pendingNotifs = allNotifs.filter((n: any) => {
-        const notifTime = new Date(n.created_at).getTime();
-        return notifTime > sinceTime;
-      });
-      
-      if (pendingNotifs.length > 0) {
-        // Save new check time
-        await AsyncStorage.setItem('lastNotificationCheck', Date.now().toString());
-        
-        // Show notification for each pending
-        for (const notif of pendingNotifs) {
-          // Check if it should be shown (delivery mode and prayer time check)
-          const shouldShow = notif.delivery_mode === 'immediate' || 
-                            (notif.delivery_mode === 'prayer-time' && checkIfPrayerTime(notif.prayer_name));
-          
-          if (shouldShow) {
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                title: `${notif.prayer_name?.toUpperCase() || 'বিজ্ঞপ্তি'}`,
-                body: notif.message,
-                sound: true,
-                badge: 1,
-              },
-              trigger: null,
-            });
-          }
-        }
-      }
-    } catch (error) {
-      // Silent error handling - app continues working
-    }
-  }, 5000); // Poll every 5 seconds
-  
-  return pollInterval;
-};
+interface PrayerNotification {
+  id: string;
+  prayer: PrayerName;
+  type: 'start' | 'end';
+  scheduledTime: string; // HH:MM format
+  message: string;
+  enabled: boolean;
+}
 
-// Helper to check if current time is prayer time
-const checkIfPrayerTime = (prayerName?: string): boolean => {
-  if (!prayerName) return false;
-  
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  
-  // Approximate prayer times (can be customized based on actual prayer times)
-  const prayerTimes: Record<string, [number, number]> = {
-    fajr: [4, 30],
-    dhuhr: [12, 0],
-    asr: [15, 30],
-    maghrib: [17, 45],
-    isha: [20, 0]
-  };
-  
-  const [hour, minute] = prayerTimes[prayerName] || [0, 0];
-  const withinWindow = (currentHour === hour && currentMinute >= minute && currentMinute < minute + 15) ||
-                       (currentHour === hour && currentMinute < minute);
-  
-  return withinWindow;
-};
-
-// Simple notification storage system (since expo-notifications has limited support in Expo Go)
+// Initialize notifications
 export const initializeNotifications = async () => {
   try {
     console.log(`✅ Notification system initialized`);
@@ -93,6 +31,7 @@ export const createNotificationChannel = async () => {
   }
 };
 
+// Parse time string to 24-hour format
 const parseTimeString = (timeString: string): { hour24: number; minutes: number } | null => {
   try {
     const [time, period] = timeString.includes(' ') 
@@ -117,76 +56,208 @@ const parseTimeString = (timeString: string): { hour24: number; minutes: number 
   }
 };
 
-export const scheduleAzanNotifications = async (
-  azanTimes: Record<string, string>,
+// Schedule all prayer time notifications (10 total - start + end for each prayer)
+export const schedulePrayerTimeNotifications = async (
+  prayerTimes: PrayerTimesData,
   enabledPrayers: Record<PrayerName, boolean>
 ) => {
   try {
-    console.log('📋 Saving notification preferences...');
+    console.log('📋 Setting up prayer time notifications...');
 
-    const prayerLabels: Record<PrayerName, string> = {
-      fajr: 'ফজর আজান',
-      dhuhr: 'যোহর আজান',
-      asr: 'আসর আজান',
-      maghrib: 'মাগরিব আজান',
-      isha: 'ইশা আজান',
-    };
+    const prayers: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    const notificationList: PrayerNotification[] = [];
 
-    const prayersToSchedule: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    const scheduleData: Record<string, any> = {};
-    let enabledCount = 0;
+    // Get default notification messages
+    const defaultMessages = await getDefaultNotificationMessages();
 
-    for (const prayer of prayersToSchedule) {
+    for (const prayer of prayers) {
       if (!enabledPrayers[prayer]) {
-        console.log(`⏭️ ${prayer} disabled`);
+        console.log(`⏭️ ${prayer} notifications disabled`);
         continue;
       }
 
-      const timeString = azanTimes[prayer];
+      const timeString = prayerTimes[prayer as keyof PrayerTimesData];
       if (!timeString) {
         console.warn(`⚠️ No time found for ${prayer}`);
         continue;
       }
 
-      const parsed = parseTimeString(timeString);
+      const parsed = parseTimeString(timeString as string);
       if (!parsed) {
         console.warn(`⚠️ Could not parse time for ${prayer}: ${timeString}`);
         continue;
       }
 
       const { hour24, minutes } = parsed;
-      
-      scheduleData[prayer] = {
-        label: prayerLabels[prayer],
-        time: `${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
-        enabled: true,
-      };
+      const timeFormatted = `${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
-      console.log(`✅ ${prayer} set to ${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`);
-      enabledCount++;
+      // Start time notification
+      notificationList.push({
+        id: `${prayer}-start-${Date.now()}`,
+        prayer,
+        type: 'start',
+        scheduledTime: timeFormatted,
+        message: defaultMessages[`${prayer}_start`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} starts`,
+        enabled: true,
+      });
+
+      // End time notification
+      const endTime = new Date();
+      endTime.setHours(hour24, minutes, 0, 0);
+      endTime.setMinutes(endTime.getMinutes() + 40); // Prayer duration ~40 minutes
+      
+      const endHour24 = endTime.getHours();
+      const endMinutes = endTime.getMinutes();
+      const endTimeFormatted = `${String(endHour24).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+
+      notificationList.push({
+        id: `${prayer}-end-${Date.now()}`,
+        prayer,
+        type: 'end',
+        scheduledTime: endTimeFormatted,
+        message: defaultMessages[`${prayer}_end`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} ends`,
+        enabled: true,
+      });
+
+      console.log(`✅ ${prayer} notifications scheduled - Start: ${timeFormatted}, End: ${endTimeFormatted}`);
     }
 
-    console.log(`📊 Total enabled prayers: ${enabledCount}/5`);
-
     // Save to AsyncStorage
-    await AsyncStorage.setItem('azanSchedule', JSON.stringify(scheduleData));
+    await AsyncStorage.setItem('prayerNotifications', JSON.stringify(notificationList));
     await AsyncStorage.setItem('enabledPrayersStatus', JSON.stringify(enabledPrayers));
     
-    console.log('💾 Notification preferences saved');
+    console.log(`💾 Total notifications scheduled: ${notificationList.length}/10`);
+    return notificationList;
   } catch (error) {
-    console.error('❌ Error in scheduleAzanNotifications:', error);
+    console.error('❌ Error in schedulePrayerTimeNotifications:', error);
+    return [];
   }
 };
 
-export const getScheduledNotifications = async () => {
+// Cancel all notifications
+export const cancelAllNotifications = async () => {
   try {
-    const schedule = await AsyncStorage.getItem('azanSchedule');
-    if (schedule) {
-      console.log(`📝 Current azan schedule:`, JSON.parse(schedule));
+    const notifs = await Notifications.getAllScheduledNotificationsAsync();
+    for (const notif of notifs) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
     }
-    return schedule ? JSON.parse(schedule) : null;
+    console.log('✅ All notifications cancelled');
+  } catch (error) {
+    console.error('❌ Error cancelling notifications:', error);
+  }
+};
+
+// Get scheduled notifications
+export const getScheduledNotifications = async (): Promise<PrayerNotification[]> => {
+  try {
+    const schedule = await AsyncStorage.getItem('prayerNotifications');
+    if (schedule) {
+      const notifications = JSON.parse(schedule) as PrayerNotification[];
+      console.log(`📝 Current prayer notifications:`, notifications.length);
+      return notifications;
+    }
+    return [];
   } catch (error) {
     console.error('❌ Error fetching schedule:', error);
-    return null;
+    return [];
   }
+};
+
+// Update notification message
+export const updateNotificationMessage = async (
+  notificationId: string,
+  newMessage: string
+) => {
+  try {
+    const notifications = await getScheduledNotifications();
+    const updated = notifications.map((n) =>
+      n.id === notificationId ? { ...n, message: newMessage } : n
+    );
+    await AsyncStorage.setItem('prayerNotifications', JSON.stringify(updated));
+    console.log(`✅ Notification ${notificationId} updated`);
+    return updated;
+  } catch (error) {
+    console.error('❌ Error updating notification:', error);
+    return [];
+  }
+};
+
+// Get default notification messages
+const getDefaultNotificationMessages = async (): Promise<Record<string, string>> => {
+  try {
+    const saved = await AsyncStorage.getItem('notificationMessages');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('❌ Error loading notification messages:', error);
+  }
+
+  // Default messages in Bengali
+  return {
+    fajr_start: 'ফজরের নামাজের সময় শুরু হয়েছে',
+    fajr_end: 'ফজরের নামাজের সময় শেষ হয়েছে',
+    dhuhr_start: 'যোহরের নামাজের সময় শুরু হয়েছে',
+    dhuhr_end: 'যোহরের নামাজের সময় শেষ হয়েছে',
+    asr_start: 'আসরের নামাজের সময় শুরু হয়েছে',
+    asr_end: 'আসরের নামাজের সময় শেষ হয়েছে',
+    maghrib_start: 'মাগরিবের নামাজের সময় শুরু হয়েছে',
+    maghrib_end: 'মাগরিবের নামাজের সময় শেষ হয়েছে',
+    isha_start: 'এশার নামাজের সময় শুরু হয়েছে',
+    isha_end: 'এশার নামাজের সময় শেষ হয়েছে',
+  };
+};
+
+// Save notification messages
+export const saveNotificationMessages = async (messages: Record<string, string>) => {
+  try {
+    await AsyncStorage.setItem('notificationMessages', JSON.stringify(messages));
+    console.log('✅ Notification messages saved');
+  } catch (error) {
+    console.error('❌ Error saving notification messages:', error);
+  }
+};
+
+// Poll for notifications and trigger them
+export const startNotificationPolling = () => {
+  const pollInterval = setInterval(async () => {
+    try {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      const notifications = await getScheduledNotifications();
+      
+      for (const notif of notifications) {
+        if (notif.enabled && notif.scheduledTime === currentTime) {
+          // Show notification
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `${notif.prayer.toUpperCase()} - ${notif.type === 'start' ? 'শুরু' : 'শেষ'}`,
+              body: notif.message,
+              sound: true,
+              badge: 1,
+            },
+            trigger: null,
+          });
+          console.log(`🔔 Notification triggered: ${notif.prayer} ${notif.type}`);
+        }
+      }
+    } catch (error) {
+      // Silent error handling
+    }
+  }, 30000); // Poll every 30 seconds
+  
+  return pollInterval;
+};
+
+// Legacy function for backward compatibility
+export const scheduleAzanNotifications = async (
+  azanTimes: Record<string, string>,
+  enabledPrayers: Record<PrayerName, boolean>
+) => {
+  // This now calls the new prayer time notification system
+  console.log('📋 Legacy scheduleAzanNotifications called - using new system...');
+  
+  const prayerTimesData = azanTimes as any as PrayerTimesData;
+  return await schedulePrayerTimeNotifications(prayerTimesData, enabledPrayers);
 };

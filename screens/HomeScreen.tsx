@@ -12,7 +12,7 @@ import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COOR
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
-import { scheduleAzanNotifications, getScheduledNotifications } from "@/utils/notificationService";
+import { schedulePrayerTimeNotifications, getScheduledNotifications, cancelAllNotifications } from "@/utils/notificationService";
 
 // Helper function to parse time string to Date
 const parseTimeToDate = (timeStr: string): Date => {
@@ -540,9 +540,9 @@ export default function HomeScreen() {
                         setEnabledPrayers(updated);
                         await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
                         
-                        if (azanTimes) {
-                          const { date, ...azanTimesForNotification } = azanTimes;
-                          await scheduleAzanNotifications(azanTimesForNotification as Record<string, string>, updated);
+                        if (prayerTimes) {
+                          await cancelAllNotifications();
+                          await schedulePrayerTimeNotifications(prayerTimes, updated);
                           setTimeout(() => {
                             getScheduledNotifications();
                           }, 500);
