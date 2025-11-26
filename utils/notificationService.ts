@@ -29,6 +29,7 @@ export const playAzanAudioFile = async () => {
     // Dynamically import Audio - only available on native
     let Audio: any;
     try {
+      // @ts-ignore - Dynamic import for runtime availability check
       Audio = await import('expo-audio');
     } catch (e) {
       console.error('❌ expo-audio লোড করতে পারা যায়নি:', e);
