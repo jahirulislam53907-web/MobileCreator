@@ -32,6 +32,13 @@ export default function HomeScreen() {
   const [editMinutes, setEditMinutes] = useState('00');
   const [editPeriod, setEditPeriod] = useState('AM');
   const [azanTimes, setAzanTimes] = useState<PrayerTimesData | null>(null);
+  const [enabledPrayers, setEnabledPrayers] = useState({
+    fajr: true,
+    dhuhr: true,
+    asr: true,
+    maghrib: true,
+    isha: true,
+  });
 
   const handleTimeInput = (value: string, type: 'hours' | 'minutes') => {
     const numericOnly = value.replace(/[^0-9]/g, '');
@@ -199,6 +206,10 @@ export default function HomeScreen() {
           setAzanTimes(JSON.parse(savedAzan));
         } else {
           setAzanTimes(times);
+        }
+        const savedEnabled = await AsyncStorage.getItem('enabledPrayers');
+        if (savedEnabled) {
+          setEnabledPrayers(JSON.parse(savedEnabled));
         }
       } catch (error) {
         console.log('Error fetching prayer times:', error);
@@ -399,17 +410,29 @@ export default function HomeScreen() {
               {azanTimes && prayers.map((prayer) => {
                 const azanTime = String(azanTimes[prayer.key as keyof PrayerTimesData] || prayer.time);
                 return (
-                  <Pressable key={prayer.key} onPress={() => {
-                    const parts = azanTime.split(' ');
-                    const timeParts = parts[0].split(':');
-                    setSelectedAzanToEdit(prayer.key);
-                    setEditHours(timeParts[0]);
-                    setEditMinutes(timeParts[1]);
-                    setEditPeriod(parts[1] || 'AM');
-                  }} style={styles.prayerTimeItem}>
-                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                    <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{azanTime}</ThemedText>
-                  </Pressable>
+                  <View key={prayer.key} style={styles.prayerTimeItem}>
+                    <Pressable onPress={() => {
+                      const parts = azanTime.split(' ');
+                      const timeParts = parts[0].split(':');
+                      setSelectedAzanToEdit(prayer.key);
+                      setEditHours(timeParts[0]);
+                      setEditMinutes(timeParts[1]);
+                      setEditPeriod(parts[1] || 'AM');
+                    }}>
+                      <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                      <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{azanTime}</ThemedText>
+                    </Pressable>
+                    <Pressable 
+                      onPress={async () => {
+                        const updated = { ...enabledPrayers, [prayer.key]: !enabledPrayers[prayer.key as keyof typeof enabledPrayers] };
+                        setEnabledPrayers(updated);
+                        await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
+                      }}
+                      style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
+                    >
+                      <ThemedText style={styles.prayerToggleText}>{enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? 'ON' : 'OFF'}</ThemedText>
+                    </Pressable>
+                  </View>
                 );
               })}
             </View>
@@ -453,17 +476,29 @@ export default function HomeScreen() {
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
-                <Pressable key={prayer.key} onPress={() => {
-                  const parts = prayer.time.split(' ');
-                  const timeParts = parts[0].split(':');
-                  setSelectedPrayerToEdit(prayer.key);
-                  setEditHours(timeParts[0]);
-                  setEditMinutes(timeParts[1]);
-                  setEditPeriod(parts[1] || 'AM');
-                }} style={styles.prayerTimeItem}>
-                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-                </Pressable>
+                <View key={prayer.key} style={styles.prayerTimeItem}>
+                  <Pressable onPress={() => {
+                    const parts = prayer.time.split(' ');
+                    const timeParts = parts[0].split(':');
+                    setSelectedPrayerToEdit(prayer.key);
+                    setEditHours(timeParts[0]);
+                    setEditMinutes(timeParts[1]);
+                    setEditPeriod(parts[1] || 'AM');
+                  }}>
+                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                    <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
+                  </Pressable>
+                  <Pressable 
+                    onPress={async () => {
+                      const updated = { ...enabledPrayers, [prayer.key]: !enabledPrayers[prayer.key as keyof typeof enabledPrayers] };
+                      setEnabledPrayers(updated);
+                      await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
+                    }}
+                    style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
+                  >
+                    <ThemedText style={styles.prayerToggleText}>{enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? 'ON' : 'OFF'}</ThemedText>
+                  </Pressable>
+                </View>
               ))}
             </View>
             <View style={styles.prayerInfoBox}>
