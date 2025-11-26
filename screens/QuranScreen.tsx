@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Pressable, FlatList, TextInput } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
@@ -8,11 +8,34 @@ import { TopNavigationBar } from "@/components/TopNavigationBar";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Spacing, Typography, BorderRadius, Shadows } from "@/constants/theme";
 import { QURAN_SURAHS, QURAN_PARA } from "@/data/quranData";
+import QuranReaderScreen from "@/screens/QuranReaderScreen";
 
 export default function QuranScreen() {
   const { theme } = useAppTheme();
-  const [selectedTab, setSelectedTab] = useState<"surah" | "para">("surah");
+  const [selectedTab, setSelectedTab] = useState<"surah" | "para" | "reader">("surah");
   const [search, setSearch] = useState("");
+  const [selectedSurahForReading, setSelectedSurahForReading] = useState<number | null>(null);
+
+  const handleSelectSurah = (surahNumber: number) => {
+    setSelectedSurahForReading(surahNumber);
+    setSelectedTab("reader");
+  };
+
+  if (selectedTab === "reader" && selectedSurahForReading) {
+    return (
+      <View style={{ flex: 1 }}>
+        <TopNavigationBar activeTab="Quran" />
+        <Pressable
+          style={[styles.backButton, { backgroundColor: theme.primary + '15' }]}
+          onPress={() => setSelectedTab("surah")}
+        >
+          <MaterialIcons name="arrow-back" size={20} color={theme.primary} />
+          <ThemedText style={[styles.backButtonText, { color: theme.primary }]}>ফিরে যান</ThemedText>
+        </Pressable>
+        <QuranReaderScreen surahNumber={selectedSurahForReading} />
+      </View>
+    );
+  }
 
   const filteredData = selectedTab === "surah" 
     ? QURAN_SURAHS.filter(s => s.nameBengali.toLowerCase().includes(search.toLowerCase()))
@@ -58,7 +81,7 @@ export default function QuranScreen() {
         scrollEnabled={false}
         data={filteredData as any}
         renderItem={({ item }: any) => (
-          <Pressable>
+          <Pressable onPress={() => selectedTab === "surah" && handleSelectSurah(item.number)}>
             <Card style={[styles.itemCard, { ...Shadows.sm, borderLeftColor: theme.primary, borderLeftWidth: 4 }]}>
               <View style={styles.itemRow}>
                 <View style={[styles.numberBox, { backgroundColor: theme.primary + "15" }]}>

@@ -1,0 +1,284 @@
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Pressable, TextInput, ScrollView } from "react-native";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { ScreenKeyboardAwareScrollView } from "@/components/ScreenKeyboardAwareScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { Card } from "@/components/Card";
+import { useAppTheme } from "@/hooks/useAppTheme";
+import { Spacing, Typography, BorderRadius } from "@/constants/theme";
+import { QURAN_SURAHS } from "@/data/quranData";
+import { getAyahsBySurah } from "@/data/quranAyahs";
+import { getQuranPreferences, updateLastRead, addBookmark, removeBookmark, isBookmarked, saveQuranPreferences } from "@/utils/quranReaderPreferences";
+
+interface Props {
+  surahNumber: number;
+}
+
+export default function QuranReaderScreen({ surahNumber }: Props) {
+  const { theme } = useAppTheme();
+  const [textSize, setTextSize] = useState(16);
+  const [displayMode, setDisplayMode] = useState<'arabic-only' | 'with-translation' | 'split'>('with-translation');
+  const [search, setSearch] = useState("");
+  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
+  
+  const surah = QURAN_SURAHS.find(s => s.number === surahNumber);
+  const ayahs = getAyahsBySurah(surahNumber);
+  
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    const prefs = await getQuranPreferences();
+    setTextSize(prefs.textSize);
+    setDisplayMode(prefs.displayMode);
+    const bookmarkSet = new Set(prefs.bookmarks.map(b => `${b.surahNumber}-${b.ayahNumber}`));
+    setBookmarks(bookmarkSet);
+  };
+
+  const handleUpdateLastRead = async (ayahNumber: number) => {
+    await updateLastRead(surahNumber, ayahNumber);
+  };
+
+  const toggleBookmark = async (ayahNumber: number) => {
+    const key = `${surahNumber}-${ayahNumber}`;
+    if (bookmarks.has(key)) {
+      await removeBookmark(surahNumber, ayahNumber);
+      bookmarks.delete(key);
+    } else {
+      await addBookmark(surahNumber, ayahNumber);
+      bookmarks.add(key);
+    }
+    setBookmarks(new Set(bookmarks));
+  };
+
+  const changeTextSize = async (newSize: number) => {
+    setTextSize(newSize);
+    const prefs = await getQuranPreferences();
+    prefs.textSize = newSize;
+    await saveQuranPreferences(prefs);
+  };
+
+  const changeDisplayMode = async (mode: 'arabic-only' | 'with-translation' | 'split') => {
+    setDisplayMode(mode);
+    const prefs = await getQuranPreferences();
+    prefs.displayMode = mode;
+    await saveQuranPreferences(prefs);
+  };
+
+  const filteredAyahs = ayahs.filter(ayah =>
+    ayah.arabic.includes(search) || ayah.bengali.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <ScreenKeyboardAwareScrollView>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+        <View style={styles.headerContent}>
+          <ThemedText style={[styles.surahName, { color: theme.buttonText }]}>
+            {surah?.nameBengali}
+          </ThemedText>
+          <ThemedText style={[styles.surahInfo, { color: theme.buttonText }]}>
+            {surah?.numberOfAyahs} আয়াত • {surah?.revelationTypeBengali}
+          </ThemedText>
+        </View>
+      </View>
+
+      {/* Controls Bar */}
+      <Card style={[styles.controlsCard, { marginHorizontal: Spacing.md, marginTop: Spacing.md }]}>
+        {/* Display Mode Selector */}
+        <View style={styles.modeSelector}>
+          <Pressable
+            style={[styles.modeBtn, displayMode === 'arabic-only' && { backgroundColor: theme.primary }]}
+            onPress={() => changeDisplayMode('arabic-only')}
+          >
+            <ThemedText style={[{ color: displayMode === 'arabic-only' ? theme.buttonText : theme.text, fontSize: 12 }]}>
+              আরবি
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            style={[styles.modeBtn, displayMode === 'with-translation' && { backgroundColor: theme.primary }]}
+            onPress={() => changeDisplayMode('with-translation')}
+          >
+            <ThemedText style={[{ color: displayMode === 'with-translation' ? theme.buttonText : theme.text, fontSize: 12 }]}>
+              অনুবাদ
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            style={[styles.modeBtn, displayMode === 'split' && { backgroundColor: theme.primary }]}
+            onPress={() => changeDisplayMode('split')}
+          >
+            <ThemedText style={[{ color: displayMode === 'split' ? theme.buttonText : theme.text, fontSize: 12 }]}>
+              বিভাজিত
+            </ThemedText>
+          </Pressable>
+        </View>
+
+        {/* Text Size Controls */}
+        <View style={styles.textSizeControl}>
+          <Pressable onPress={() => changeTextSize(Math.max(12, textSize - 2))}>
+            <MaterialIcons name="remove" size={20} color={theme.primary} />
+          </Pressable>
+          <ThemedText style={styles.textSizeValue}>{textSize}px</ThemedText>
+          <Pressable onPress={() => changeTextSize(Math.min(24, textSize + 2))}>
+            <MaterialIcons name="add" size={20} color={theme.primary} />
+          </Pressable>
+        </View>
+      </Card>
+
+      {/* Search Bar */}
+      <View style={[styles.searchBox, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, marginHorizontal: Spacing.md, marginTop: Spacing.md }]}>
+        <Feather name="search" size={16} color={theme.textSecondary} />
+        <TextInput
+          style={[styles.searchInput, { color: theme.text }]}
+          placeholder="আয়াত খুঁজুন..."
+          placeholderTextColor={theme.textSecondary}
+          value={search}
+          onChangeText={setSearch}
+        />
+        {search && (
+          <Pressable onPress={() => setSearch("")}>
+            <Feather name="x" size={16} color={theme.textSecondary} />
+          </Pressable>
+        )}
+      </View>
+
+      {/* Ayahs List */}
+      <View style={styles.ayahsContainer}>
+        {filteredAyahs.map((ayah, index) => (
+          <Pressable
+            key={`${ayah.surahNumber}-${ayah.ayahNumber}`}
+            onPress={() => handleUpdateLastRead(ayah.ayahNumber)}
+          >
+            <Card style={[styles.ayahCard, { borderLeftColor: theme.primary, borderLeftWidth: 3 }]}>
+              {/* Ayah Header */}
+              <View style={styles.ayahHeader}>
+                <View style={[styles.ayahNumber, { backgroundColor: theme.primary + '15' }]}>
+                  <ThemedText style={[styles.ayahNumberText, { color: theme.primary }]}>
+                    {ayah.ayahNumber}
+                  </ThemedText>
+                </View>
+                <Pressable
+                  onPress={() => toggleBookmark(ayah.ayahNumber)}
+                  style={{ marginLeft: 'auto' }}
+                >
+                  <MaterialIcons
+                    name={bookmarks.has(`${ayah.surahNumber}-${ayah.ayahNumber}`) ? 'bookmark' : 'bookmark-outline'}
+                    size={20}
+                    color={bookmarks.has(`${ayah.surahNumber}-${ayah.ayahNumber}`) ? theme.secondary : theme.textSecondary}
+                  />
+                </Pressable>
+              </View>
+
+              {/* Arabic Text */}
+              {(displayMode === 'arabic-only' || displayMode === 'with-translation' || displayMode === 'split') && (
+                <ThemedText style={[styles.arabicText, { fontSize: textSize, color: theme.text, marginTop: Spacing.md }]}>
+                  {ayah.arabic}
+                </ThemedText>
+              )}
+
+              {/* Bengali Translation */}
+              {(displayMode === 'with-translation' || displayMode === 'split') && (
+                <ThemedText style={[styles.bengaliText, { fontSize: textSize - 2, color: theme.textSecondary, marginTop: Spacing.md }]}>
+                  {ayah.bengali}
+                </ThemedText>
+              )}
+            </Card>
+          </Pressable>
+        ))}
+      </View>
+
+      <View style={{ height: Spacing.xl }} />
+    </ScreenKeyboardAwareScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+  },
+  headerContent: {
+    alignItems: 'center',
+  },
+  surahName: {
+    ...Typography.heading1,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
+  },
+  surahInfo: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  controlsCard: {
+    gap: Spacing.md,
+  },
+  modeSelector: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    justifyContent: 'center',
+  },
+  modeBtn: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: '#e0e0e0',
+  },
+  textSizeControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.md,
+  },
+  textSizeValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    gap: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    fontSize: 14,
+  },
+  ayahsContainer: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.lg,
+    gap: Spacing.md,
+  },
+  ayahCard: {
+    padding: Spacing.md,
+  },
+  ayahHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  ayahNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ayahNumberText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  arabicText: {
+    fontWeight: '600',
+    lineHeight: 28,
+    textAlign: 'right',
+  },
+  bengaliText: {
+    lineHeight: 22,
+  },
+});
