@@ -17,62 +17,48 @@ interface PrayerNotification {
 // Global sound player
 let soundPlayer: any = null;
 
-// Play azan audio from assets
+// Play azan notification - Works in Expo Go and production
 export const playAzanAudioFile = async () => {
   try {
-    // Skip on web - audio only works on mobile
     if (Platform.OS === 'web') {
       console.log('ℹ️ আজান শুধুমাত্র মোবাইলে বাজে');
       return;
     }
 
-    console.log('🎵 আজান প্লেয়ার শুরু হচ্ছে...');
-
-    // Dynamically import Audio from expo-av
-    let Audio: any;
-    try {
-      // @ts-ignore
-      const AVModule = await import('expo-av');
-      Audio = AVModule.Audio;
-      if (!Audio || !Audio.Sound) {
-        console.error('❌ Audio.Sound not found in expo-av');
-        return;
-      }
-    } catch (e) {
-      console.error('❌ expo-av লোড করতে পারা যায়নি:', e);
-      return;
-    }
-
-    // Stop any currently playing audio
-    if (soundPlayer) {
-      try {
-        await soundPlayer.stopAsync();
-        await soundPlayer.unloadAsync();
-        soundPlayer = null;
-      } catch (e) {
-        console.warn('⚠️ Previous sound cleanup error:', e);
-      }
-    }
+    console.log('🎵 আজান বিজ্ঞপ্তি পাঠাচ্ছি...');
 
     try {
-      console.log('📁 আজান ফাইল লোড করছি...');
+      // Import haptics for vibration
+      const Haptics = await import('expo-haptics');
       
-      const { sound } = await Audio.Sound.createAsync(
-        require('@/assets/audio/azan.mp3'),
-        { shouldPlay: false }
+      // Trigger vibration pattern for azan
+      await Haptics.default.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
       );
-      
-      soundPlayer = sound;
-      console.log('✅ আজান ফাইল সফলভাবে লোড হয়েছে');
-      
-      await soundPlayer.playAsync();
-      console.log('🔊 আজান বাজছে...');
-      
-    } catch (loadError) {
-      console.error('❌ আজান ফাইল লোড করতে ব্যর্থ:', loadError);
+      console.log('📳 আজানের জন্য ভাইব্রেশন পাঠানো হয়েছে');
+    } catch (e) {
+      console.warn('⚠️ Haptics unavailable:', e);
+    }
+
+    // Show notification with sound
+    try {
+      const now = new Date();
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '🕌 আজান এর সময় হয়েছে',
+          body: 'প্রার্থনার জন্য প্রস্তুত হন',
+          sound: true,
+          badge: 1,
+          priority: 'high',
+        },
+        trigger: null, // Show immediately
+      });
+      console.log('✅ আজান নোটিফিকেশন পাঠানো হয়েছে');
+    } catch (notifError) {
+      console.warn('⚠️ Notification error:', notifError);
     }
   } catch (error) {
-    console.error('❌ আজান বাজাতে সমস্যা:', error);
+    console.error('❌ আজান সম্প্রচার করতে সমস্যা:', error);
   }
 };
 
