@@ -1065,8 +1065,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   prayerTimeSmall: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     marginBottom: 4,
   },
   prayerTimeEditable: {
