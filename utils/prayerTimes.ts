@@ -64,12 +64,51 @@ const calculatePrayerTimesLocal = (
   };
 };
 
-// Fetch prayer times from database, or calculate using Karachi method
+// Get custom prayer times from AsyncStorage
+export const getCustomPrayerTimes = async (): Promise<PrayerTimesData | null> => {
+  try {
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    const saved = await AsyncStorage.getItem('customPrayerTimes');
+    if (saved) {
+      const data = JSON.parse(saved);
+      return {
+        fajr: data.fajr,
+        sunrise: data.sunrise,
+        dhuhr: data.dhuhr,
+        asr: data.asr,
+        maghrib: data.maghrib,
+        isha: data.isha,
+        date: new Date(),
+      };
+    }
+  } catch (error) {
+    console.log('Error fetching custom prayer times:', error);
+  }
+  return null;
+};
+
+// Save custom prayer times to AsyncStorage
+export const saveCustomPrayerTimes = async (times: PrayerTimesData): Promise<void> => {
+  try {
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    await AsyncStorage.setItem('customPrayerTimes', JSON.stringify(times));
+  } catch (error) {
+    console.log('Error saving custom prayer times:', error);
+  }
+};
+
+// Fetch prayer times from database, or calculate using Karachi method, or get custom times
 export const calculatePrayerTimes = async (
   latitude: number,
   longitude: number,
   date: Date = new Date()
 ): Promise<PrayerTimesData> => {
+  // First check for custom prayer times
+  const customTimes = await getCustomPrayerTimes();
+  if (customTimes) {
+    return customTimes;
+  }
+
   try {
     const response = await fetch('http://localhost:3000/api/prayer-times');
     const data = await response.json();
