@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as Audio from 'expo-audio';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -15,14 +16,11 @@ interface PrayerNotification {
 }
 
 // Global sound player
-let soundPlayer: any = null;
+let soundPlayer: Audio.Sound | null = null;
 
 // Play azan audio from assets
 export const playAzanAudioFile = async () => {
   try {
-    const Audio = await import('expo-audio');
-    const SoundModule = Audio.default || Audio;
-    
     // Stop any currently playing audio
     if (soundPlayer) {
       try {
@@ -34,7 +32,7 @@ export const playAzanAudioFile = async () => {
     }
 
     // Create new sound instance
-    soundPlayer = new SoundModule.Sound();
+    soundPlayer = new Audio.Sound();
     // Use asset URI for Expo Go compatibility
     await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
     await soundPlayer.playAsync();
