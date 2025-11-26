@@ -1,5 +1,7 @@
 import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
 
+export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+
 export interface PrayerTimesData {
   fajr: string;
   sunrise: string;

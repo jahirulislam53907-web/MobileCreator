@@ -8,7 +8,7 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useTranslation } from "../src/contexts/LanguageContext";
 import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
-import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, saveCustomPrayerTimes, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo } from "@/utils/prayerTimes";
+import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, saveCustomPrayerTimes, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo, type PrayerName } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
@@ -430,7 +430,8 @@ export default function HomeScreen() {
                         await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
                         
                         if (azanTimes) {
-                          await scheduleAzanNotifications(azanTimes as Record<string, string>, updated);
+                          const { date, ...azanTimesForNotification } = azanTimes;
+                          await scheduleAzanNotifications(azanTimesForNotification as Record<string, string>, updated);
                           setTimeout(() => {
                             getScheduledNotifications();
                           }, 500);
@@ -642,9 +643,10 @@ export default function HomeScreen() {
                     setAzanTimes(updated);
                     
                     // Auto-reschedule notifications if this prayer is enabled
-                    if (enabledPrayers[selectedAzanToEdit as PrayerName]) {
+                    if (enabledPrayers[selectedAzanToEdit as keyof typeof enabledPrayers]) {
                       console.log(`🔄 Rescheduling ${selectedAzanToEdit} with new time: ${newTime}`);
-                      await scheduleAzanNotifications(updated as Record<string, string>, enabledPrayers);
+                      const { date, ...updatedForNotification } = updated;
+                      await scheduleAzanNotifications(updatedForNotification as Record<string, string>, enabledPrayers);
                       setTimeout(() => {
                         getScheduledNotifications();
                       }, 500);
