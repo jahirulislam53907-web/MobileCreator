@@ -14,25 +14,7 @@ interface PrayerNotification {
   enabled: boolean;
 }
 
-// Play notification sound when azan time arrives
-const playAzanAudio = async (prayerName: string) => {
-  try {
-    // Try to play with built-in notification sound
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `${prayerName.toUpperCase()} আজান`,
-        body: 'নামাজের সময় হয়েছে',
-        sound: 'default', // Use device default azan/notification sound
-        badge: 1,
-        priority: 'high',
-      },
-      trigger: null,
-    });
-    console.log(`🔊 আজান বাজানো হয়েছে: ${prayerName}`);
-  } catch (error) {
-    console.error('❌ আজান বাজাতে সমস্যা:', error);
-  }
-};
+// Removed - Azan audio now played from HomeScreen Azan section only
 
 // Initialize notifications
 export const initializeNotifications = async () => {
@@ -111,20 +93,20 @@ export const schedulePrayerTimeNotifications = async (
       const { hour24, minutes } = parsed;
       const timeFormatted = `${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
-      // Start time notification
+      // Silent notification only - no sound (audio plays from HomeScreen)
       notificationList.push({
         id: `${prayer}-start-${Date.now()}`,
         prayer,
         type: 'start',
         scheduledTime: timeFormatted,
-        message: defaultMessages[`${prayer}_start`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} starts`,
+        message: defaultMessages[`${prayer}_start`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} শুরু`,
         enabled: true,
       });
 
       // End time notification
       const endTime = new Date();
       endTime.setHours(hour24, minutes, 0, 0);
-      endTime.setMinutes(endTime.getMinutes() + 40); // Prayer duration ~40 minutes
+      endTime.setMinutes(endTime.getMinutes() + 40);
       
       const endHour24 = endTime.getHours();
       const endMinutes = endTime.getMinutes();
@@ -135,7 +117,7 @@ export const schedulePrayerTimeNotifications = async (
         prayer,
         type: 'end',
         scheduledTime: endTimeFormatted,
-        message: defaultMessages[`${prayer}_end`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} ends`,
+        message: defaultMessages[`${prayer}_end`] || `${prayer.charAt(0).toUpperCase() + prayer.slice(1)} শেষ`,
         enabled: true,
       });
 
