@@ -970,6 +970,7 @@ const styles = StyleSheet.create({
   prayerTimeItem: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 8,
   },
   prayerName: {
@@ -977,11 +978,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ffffff',
     marginBottom: 3,
+    textAlign: 'center',
   },
   prayerTime: {
     fontSize: 13,
     fontWeight: '700',
     color: '#ffffff',
+    textAlign: 'center',
   },
   prayerHeaderInfo: {
     flexDirection: 'row',
@@ -1214,18 +1217,18 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   prayerToggle: {
-    width: 52,
-    height: 32,
-    borderRadius: 16,
-    marginTop: Spacing.md,
+    width: 44,
+    height: 26,
+    borderRadius: 13,
+    marginTop: Spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 2,
   },
   prayerToggleKnob: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#ffffff',
     elevation: 2,
     shadowColor: '#000',
