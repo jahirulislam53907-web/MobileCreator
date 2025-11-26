@@ -1031,4 +1031,76 @@ const styles = StyleSheet.create({
   locationRefresh: {
     padding: 8,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    minWidth: '80%',
+    maxWidth: '90%',
+    borderTopWidth: 4,
+  },
+  modalHeader: {
+    marginBottom: Spacing.lg,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#ffffff',
+  },
+  timeInputContainer: {
+    marginBottom: Spacing.lg,
+  },
+  timeInputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.md,
+  },
+  timeInputField: {
+    width: 50,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  timeColon: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  periodToggle: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  periodText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  modalButtonGroup: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
