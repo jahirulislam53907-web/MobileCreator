@@ -36,12 +36,7 @@ export default function QiblaScreen() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const subscriptionRef = useRef<any>(null);
-
-  const arrowRotation = useSharedValue(0);
-
-  const animatedArrowStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${arrowRotation.value}deg` }],
-  }));
+  const compassRotation = useSharedValue(0);
 
   // Watch device heading (compass)
   useEffect(() => {
@@ -49,10 +44,8 @@ export default function QiblaScreen() {
       try {
         subscriptionRef.current = await Location.watchHeadingAsync((heading) => {
           setDeviceHeading(heading.trueHeading);
-          // Update arrow rotation based on device heading
-          const arrowAngle = qiblaBearing - heading.trueHeading;
-          const normalizedAngle = ((arrowAngle + 360) % 360);
-          arrowRotation.value = withSpring(normalizedAngle > 180 ? normalizedAngle - 360 : normalizedAngle, {
+          // Rotate compass circle so North stays at top
+          compassRotation.value = withSpring(-heading.trueHeading, {
             damping: 15,
             mass: 1,
             stiffness: 120,
@@ -70,7 +63,14 @@ export default function QiblaScreen() {
         subscriptionRef.current.remove();
       }
     };
-  }, [qiblaBearing]);
+  }, []);
+
+  const animatedCompassStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${compassRotation.value}deg` }],
+  }));
+
+  // Arrow is positioned at Qibla bearing angle
+  const arrowAngle = qiblaBearing;
 
   // Get location and calculate Qibla bearing
   useEffect(() => {
@@ -171,11 +171,6 @@ export default function QiblaScreen() {
       setDistance(dist);
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      arrowRotation.value = withSpring(bearing, {
-        damping: 15,
-        mass: 1,
-        stiffness: 120,
-      });
     } catch (error) {
       Alert.alert('ত্রুটি', 'আপডেট করতে সমস্যা হয়েছে');
     } finally {
@@ -197,10 +192,11 @@ export default function QiblaScreen() {
 
           {/* Main Compass Circle */}
           <Card style={[styles.compassCard, { backgroundColor: theme.backgroundDefault }]}>
-            <View
+            <Animated.View
               style={[
                 styles.compassCircle,
                 { borderColor: theme.primary, backgroundColor: theme.backgroundSecondary },
+                animatedCompassStyle,
               ]}
             >
               {/* Cardinal Directions */}
@@ -237,11 +233,13 @@ export default function QiblaScreen() {
                 </ThemedText>
               </View>
 
-              {/* Qibla Arrow - Large and Prominent */}
-              <Animated.View
+              {/* Qibla Arrow - positioned at bearing angle */}
+              <View
                 style={[
                   styles.arrowContainer,
-                  animatedArrowStyle,
+                  {
+                    transform: [{ rotate: `${arrowAngle}deg` }],
+                  },
                 ]}
               >
                 <View style={[styles.arrow, { backgroundColor: theme.primary }]}>
@@ -251,11 +249,11 @@ export default function QiblaScreen() {
                 <ThemedText style={[styles.arrowLabel, { color: theme.primary }]}>
                   কাবা
                 </ThemedText>
-              </Animated.View>
+              </View>
 
               {/* Center Circle */}
               <View style={[styles.centerDot, { backgroundColor: theme.primary }]} />
-            </View>
+            </Animated.View>
           </Card>
 
           {/* Info Cards */}
@@ -314,9 +312,9 @@ export default function QiblaScreen() {
               নির্দেশাবলী
             </ThemedText>
             <ThemedText style={[styles.instructionText, { color: theme.textSecondary }]}>
-              • উপরের তীর কাবার দিক নির্দেশ করে{'\n'}
-              • আপনার ফোন উত্তরের দিকে রাখুন{'\n'}
-              • তীর ঘোরে এবং কাবার দিক দেখায়
+              • কম্পাসটি একটি সাধারণ কম্পাসের মত কাজ করে{'\n'}
+              • আপনার ফোন যেদিকে ঘোরাবেন, কম্পাস সেদিকে ঘোরবে{'\n'}
+              • N সবসময় উপরে থাকবে, তীর কাবার দিক দেখাবে
             </ThemedText>
           </Card>
         </View>
