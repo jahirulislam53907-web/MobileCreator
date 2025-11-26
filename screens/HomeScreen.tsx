@@ -14,6 +14,42 @@ import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
 import { scheduleAzanNotifications, getScheduledNotifications } from "@/utils/notificationService";
 
+// Helper function to convert 12-hour time string to minutes since midnight
+const timeToMinutes = (time12h: string): number => {
+  const [time, period] = time12h.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+  const totalMinutes = (period === 'PM' && hours !== 12 ? hours + 12 : period === 'AM' && hours === 12 ? 0 : hours) * 60 + minutes;
+  return totalMinutes;
+};
+
+// Helper function to convert minutes since midnight to 12-hour time string
+const minutesToTime = (minutes: number): string => {
+  let totalMinutes = minutes;
+  if (totalMinutes < 0) totalMinutes += 24 * 60;
+  if (totalMinutes >= 24 * 60) totalMinutes -= 24 * 60;
+  
+  let hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  const period = hours >= 12 ? 'PM' : 'AM';
+  if (hours > 12) hours -= 12;
+  if (hours === 0) hours = 12;
+  
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${period}`;
+};
+
+// Helper function to get prayer times with start and end times
+const getPrayerTimesWithRange = (prayerTime: string) => {
+  const prayerMinutes = timeToMinutes(prayerTime);
+  const startMinutes = prayerMinutes - 30; // Start 30 minutes before
+  const endMinutes = prayerMinutes + 60; // End 1 hour after
+  
+  return {
+    start: minutesToTime(startMinutes),
+    mosque: prayerTime,
+    end: minutesToTime(endMinutes),
+  };
+};
+
 export default function HomeScreen() {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
@@ -484,19 +520,41 @@ export default function HomeScreen() {
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
-              {prayers.map((prayer) => (
-                <Pressable key={prayer.key} onPress={() => {
-                  const parts = prayer.time.split(' ');
-                  const timeParts = parts[0].split(':');
-                  setSelectedPrayerToEdit(prayer.key);
-                  setEditHours(timeParts[0]);
-                  setEditMinutes(timeParts[1]);
-                  setEditPeriod(parts[1] || 'AM');
-                }} style={styles.prayerTimeItem}>
-                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-                </Pressable>
-              ))}
+              {prayers.map((prayer) => {
+                const prayerRange = getPrayerTimesWithRange(prayer.time);
+                return (
+                  <View key={prayer.key} style={styles.prayerTimeItem}>
+                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                    
+                    {/* করাচি শুরুর সময় */}
+                    <ThemedText style={[styles.prayerTimeSmall, { color: theme.textSecondary }]}>
+                      {prayerRange.start}
+                    </ThemedText>
+
+                    {/* মসজিদ অনুযায়ী সময় - Editable */}
+                    <Pressable
+                      onPress={() => {
+                        const parts = prayerRange.mosque.split(' ');
+                        const timeParts = parts[0].split(':');
+                        setSelectedPrayerToEdit(prayer.key);
+                        setEditHours(timeParts[0]);
+                        setEditMinutes(timeParts[1]);
+                        setEditPeriod(parts[1] || 'AM');
+                      }}
+                      style={[styles.prayerTimeEditable, { borderBottomColor: theme.primary }]}
+                    >
+                      <ThemedText style={[styles.prayerTimeSmall, { color: theme.primary, fontWeight: '600' }]}>
+                        {prayerRange.mosque}
+                      </ThemedText>
+                    </Pressable>
+
+                    {/* করাচি শেষের সময় */}
+                    <ThemedText style={[styles.prayerTimeSmall, { color: theme.textSecondary }]}>
+                      {prayerRange.end}
+                    </ThemedText>
+                  </View>
+                );
+              })}
             </View>
             <View style={styles.prayerInfoBox}>
               <ThemedText style={styles.prayerInfoText}>আপনার পছন্দের মসজিদ বা ব্যক্তিগত সময়সূচী অনুযায়ী নামাজের সময় কাস্টমাইজ করার সুবিধা সংযুক্ত রয়েছে।</ThemedText>
