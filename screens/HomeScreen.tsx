@@ -38,15 +38,23 @@ export default function HomeScreen() {
       if (numericOnly === '') {
         setEditHours('');
       } else {
-        const hours = Math.min(parseInt(numericOnly), 23).toString().padStart(2, '0');
-        setEditHours(hours);
+        const numValue = parseInt(numericOnly, 10);
+        if (numValue <= 23) {
+          setEditHours(numericOnly);
+        } else {
+          setEditHours('23');
+        }
       }
     } else {
       if (numericOnly === '') {
         setEditMinutes('');
       } else {
-        const minutes = Math.min(parseInt(numericOnly), 59).toString().padStart(2, '0');
-        setEditMinutes(minutes);
+        const numValue = parseInt(numericOnly, 10);
+        if (numValue <= 59) {
+          setEditMinutes(numericOnly);
+        } else {
+          setEditMinutes('59');
+        }
       }
     }
   };
@@ -543,7 +551,9 @@ export default function HomeScreen() {
                 style={[styles.modalButton, { backgroundColor: theme.primary }]}
                 onPress={async () => {
                   if (prayerTimes && selectedPrayerToEdit) {
-                    const newTime = `${editHours || '00'}:${editMinutes || '00'} ${editPeriod}`;
+                    const paddedHours = (editHours || '00').padStart(2, '0');
+                    const paddedMinutes = (editMinutes || '00').padStart(2, '0');
+                    const newTime = `${paddedHours}:${paddedMinutes} ${editPeriod}`;
                     const updated = { ...prayerTimes, [selectedPrayerToEdit]: newTime };
                     await saveCustomPrayerTimes(updated);
                     setPrayerTimes(updated);
