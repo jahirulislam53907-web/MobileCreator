@@ -18,23 +18,23 @@ interface PrayerNotification {
 // Global sound player instance
 let soundPlayer: Audio.Sound | null = null;
 
-// Initialize and play azan audio
+// Play azan audio using system notification sound
 const playAzanAudio = async (prayerName: string) => {
   try {
-    // Create a simple beep/notification sound using Notifications
-    // In production, you would use actual azan audio file
+    // Try to play with built-in notification sound
     await Notifications.scheduleNotificationAsync({
       content: {
         title: `${prayerName.toUpperCase()} আজান`,
         body: 'নামাজের সময় হয়েছে',
-        sound: true,
+        sound: 'default', // Use device default azan/notification sound
         badge: 1,
+        priority: 'high',
       },
       trigger: null,
     });
-    console.log(`🔊 Azan played for ${prayerName}`);
+    console.log(`🔊 আজান বাজানো হয়েছে: ${prayerName}`);
   } catch (error) {
-    console.error('❌ Error playing azan:', error);
+    console.error('❌ আজান বাজাতে সমস্যা:', error);
   }
 };
 
