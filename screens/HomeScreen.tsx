@@ -476,29 +476,17 @@ export default function HomeScreen() {
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
-                <View key={prayer.key} style={styles.prayerTimeItem}>
-                  <Pressable onPress={() => {
-                    const parts = prayer.time.split(' ');
-                    const timeParts = parts[0].split(':');
-                    setSelectedPrayerToEdit(prayer.key);
-                    setEditHours(timeParts[0]);
-                    setEditMinutes(timeParts[1]);
-                    setEditPeriod(parts[1] || 'AM');
-                  }}>
-                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                    <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-                  </Pressable>
-                  <Pressable 
-                    onPress={async () => {
-                      const updated = { ...enabledPrayers, [prayer.key]: !enabledPrayers[prayer.key as keyof typeof enabledPrayers] };
-                      setEnabledPrayers(updated);
-                      await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
-                    }}
-                    style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
-                  >
-                    <ThemedText style={styles.prayerToggleText}>{enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? 'ON' : 'OFF'}</ThemedText>
-                  </Pressable>
-                </View>
+                <Pressable key={prayer.key} onPress={() => {
+                  const parts = prayer.time.split(' ');
+                  const timeParts = parts[0].split(':');
+                  setSelectedPrayerToEdit(prayer.key);
+                  setEditHours(timeParts[0]);
+                  setEditMinutes(timeParts[1]);
+                  setEditPeriod(parts[1] || 'AM');
+                }} style={styles.prayerTimeItem}>
+                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
+                </Pressable>
               ))}
             </View>
             <View style={styles.prayerInfoBox}>
@@ -1224,5 +1212,30 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     lineHeight: 18,
     opacity: 0.85,
+  },
+  prayerToggle: {
+    width: 52,
+    height: 32,
+    borderRadius: 16,
+    marginTop: Spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  prayerToggleKnob: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ffffff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  prayerToggleText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });
