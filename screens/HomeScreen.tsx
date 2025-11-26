@@ -379,6 +379,20 @@ export default function HomeScreen() {
             </Pressable>
           </View>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
+            {/* Location & Date Info */}
+            <View style={styles.prayerHeaderInfo}>
+              <View>
+                <ThemedText style={styles.prayerLocationLabel}>{t('home.location') || 'লোকেশন'}</ThemedText>
+                <ThemedText style={styles.prayerLocation}>{location ? `${location.name}, ${location.country}` : 'ঢাকা, বাংলাদেশ'}</ThemedText>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <ThemedText style={styles.prayerDateLabel}>{t('home.date') || 'তারিখ'}</ThemedText>
+                <ThemedText style={styles.prayerDate}>{formattedDate.gregorian}</ThemedText>
+                <ThemedText style={[styles.prayerDate, { fontSize: 11, marginTop: 2 }]}>{formattedDate.hijri}</ThemedText>
+              </View>
+            </View>
+            <View style={[styles.divider, { backgroundColor: theme.backgroundSecondary, marginVertical: 12 }]} />
+            {/* Prayer Times Grid */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
                 <View key={prayer.key} style={styles.prayerTimeItem}>
@@ -788,6 +802,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#ffffff',
+  },
+  prayerHeaderInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  prayerLocationLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffffff',
+    opacity: 0.7,
+    marginBottom: 3,
+  },
+  prayerLocation: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  prayerDateLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffffff',
+    opacity: 0.7,
+    marginBottom: 3,
+  },
+  prayerDate: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  divider: {
+    height: 1,
+    opacity: 0.3,
   },
   trackerGrid: {
     flexDirection: 'row',
