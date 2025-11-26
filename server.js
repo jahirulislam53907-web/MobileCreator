@@ -124,6 +124,18 @@ app.post('/api/prayer-times', async (req, res) => {
 
 // ===== ADMIN AUTH ENDPOINTS =====
 
+// Check if admin exists
+app.get('/api/admin/check', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM admin_users');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ adminExists: count > 0 });
+  } catch (error) {
+    console.error('Admin check error:', error);
+    res.status(500).json({ error: 'Check failed' });
+  }
+});
+
 // Admin login
 app.post('/api/admin/login', async (req, res) => {
   try {

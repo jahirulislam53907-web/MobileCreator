@@ -15,12 +15,15 @@ export default function AdminPanel() {
   const insets = useSafeAreaInsets();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [adminExists, setAdminExists] = useState(true);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Login form
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Notification form
   const [selectedPrayer, setSelectedPrayer] = useState('fajr');
@@ -31,6 +34,63 @@ export default function AdminPanel() {
   const [history, setHistory] = useState<any[]>([]);
 
   const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+
+  // Check if admin exists on mount
+  React.useEffect(() => {
+    checkAdminExists();
+  }, []);
+
+  const checkAdminExists = async () => {
+    try {
+      const response = await fetch(`${API_URL}/admin/check`);
+      const data = await response.json();
+      setAdminExists(data.adminExists);
+      if (!data.adminExists) {
+        setIsRegistering(true);
+      }
+    } catch (error) {
+      console.error('Check failed:', error);
+    }
+  };
+
+  // Admin register (first time)
+  const handleRegister = async () => {
+    if (!username.trim() || !password.trim()) {
+      Alert.alert('ত্রুটি', 'ব্যবহারকারী নাম এবং পাসওয়ার্ড প্রয়োজন');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('ত্রুটি', 'পাসওয়ার্ড মিলছে না');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/admin/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, email: `${username}@smartmuslim.app` })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('সফল', 'প্রশাসক অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন করুন।');
+        setIsRegistering(false);
+        setPassword('');
+        setConfirmPassword('');
+        setAdminExists(true);
+      } else {
+        Alert.alert('ত্রুটি', data.error);
+      }
+    } catch (error) {
+      Alert.alert('ত্রুটি', 'সার্ভার সংযোগ ব্যর্থ');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Admin login
   const handleLogin = async () => {
@@ -121,6 +181,57 @@ export default function AdminPanel() {
   };
 
   if (!isLoggedIn) {
+    if (isRegistering) {
+      return (
+        <ThemedView style={[styles.container, { paddingTop: insets.top + Spacing.lg, paddingBottom: insets.bottom + Spacing.lg }]}>
+          <ThemedText style={styles.title}>প্রশাসক অ্যাকাউন্ট তৈরি করুন</ThemedText>
+
+          <View style={styles.loginForm}>
+            <ThemedText style={styles.label}>ব্যবহারকারী নাম</ThemedText>
+            <TextInput
+              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
+              placeholder="ব্যবহারকারী নাম"
+              placeholderTextColor={theme.placeholder}
+              value={username}
+              onChangeText={setUsername}
+            />
+
+            <ThemedText style={styles.label}>পাসওয়ার্ড</ThemedText>
+            <TextInput
+              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
+              placeholder="পাসওয়ার্ড"
+              placeholderTextColor={theme.placeholder}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+
+            <ThemedText style={styles.label}>পাসওয়ার্ড নিশ্চিত করুন</ThemedText>
+            <TextInput
+              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
+              placeholder="পাসওয়ার্ড পুনরায় দিন"
+              placeholderTextColor={theme.placeholder}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
+
+            <Pressable
+              style={[styles.button, { backgroundColor: theme.primary }]}
+              onPress={handleRegister}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color={theme.surface} />
+              ) : (
+                <ThemedText style={styles.buttonText}>অ্যাকাউন্ট তৈরি করুন</ThemedText>
+              )}
+            </Pressable>
+          </View>
+        </ThemedView>
+      );
+    }
+
     return (
       <ThemedView style={[styles.container, { paddingTop: insets.top + Spacing.lg, paddingBottom: insets.bottom + Spacing.lg }]}>
         <ThemedText style={styles.title}>প্রশাসক প্যানেল</ThemedText>
@@ -129,7 +240,7 @@ export default function AdminPanel() {
           <ThemedText style={styles.label}>ব্যবহারকারী নাম</ThemedText>
           <TextInput
             style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-            placeholder="প্রবেশ করুন"
+            placeholder="ব্যবহারকারী নাম"
             placeholderTextColor={theme.placeholder}
             value={username}
             onChangeText={setUsername}
