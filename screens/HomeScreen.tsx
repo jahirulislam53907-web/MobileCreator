@@ -14,6 +14,20 @@ import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
 import { scheduleAzanNotifications, getScheduledNotifications } from "@/utils/notificationService";
 
+// Helper function to parse time string to Date
+const parseTimeToDate = (timeStr: string): Date => {
+  const [time, period] = timeStr.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  
+  let hour = hours;
+  if (period === 'PM' && hours !== 12) hour += 12;
+  if (period === 'AM' && hours === 12) hour = 0;
+  
+  date.setHours(hour, minutes, 0, 0);
+  return date;
+};
+
 // Helper function to convert 12-hour time string to minutes since midnight
 const timeToMinutes = (time12h: string): number => {
   const [time, period] = time12h.split(' ');
@@ -257,18 +271,54 @@ export default function HomeScreen() {
   }, [location]);
 
   useEffect(() => {
-    const updateNextPrayer = () => {
+    const updateNextPrayer = async () => {
       const lat = location?.latitude || DHAKA_COORDINATES.latitude;
       const lon = location?.longitude || DHAKA_COORDINATES.longitude;
-      const next = getNextPrayer(lat, lon);
-      setNextPrayerInfo(next);
+      
+      // Use custom prayer times if available
+      let timesToUse = prayerTimes;
+      if (!timesToUse) {
+        timesToUse = await calculatePrayerTimes(lat, lon);
+      }
+      
+      // Parse prayer times to calculate next prayer
+      const now = new Date();
+      const prayerList = [
+        { name: 'Fajr', nameBn: 'ফজর', time: parseTimeToDate(timesToUse.fajr) },
+        { name: 'Dhuhr', nameBn: 'যোহর', time: parseTimeToDate(timesToUse.dhuhr) },
+        { name: 'Asr', nameBn: 'আসর', time: parseTimeToDate(timesToUse.asr) },
+        { name: 'Maghrib', nameBn: 'মাগরিব', time: parseTimeToDate(timesToUse.maghrib) },
+        { name: 'Isha', nameBn: 'এশা', time: parseTimeToDate(timesToUse.isha) },
+      ];
+
+      let nextPrayer = prayerList[0];
+      for (const prayer of prayerList) {
+        if (prayer.time > now) {
+          nextPrayer = prayer;
+          break;
+        }
+      }
+
+      const diff = nextPrayer.time.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setNextPrayerInfo({
+        name: nextPrayer.name,
+        nameAr: nextPrayer.name,
+        nameBn: nextPrayer.nameBn,
+        time: nextPrayer.time,
+        timeRemaining: { hours, minutes, seconds },
+      });
+      
       setSunriseSunset(getNextSunriseOrSunset(lat, lon));
       setFormattedDate(formatDate());
     };
     updateNextPrayer();
     const interval = setInterval(updateNextPrayer, 1000);
     return () => clearInterval(interval);
-  }, [location]);
+  }, [location, prayerTimes]);
 
   const quickActionLabels = typeof t('home.quick_actions') === 'string' ? [] : (t('home.quick_actions') || []);
   
