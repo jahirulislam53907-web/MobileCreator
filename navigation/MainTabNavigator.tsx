@@ -7,6 +7,7 @@ import HomeStackNavigator from "@/navigation/HomeStackNavigator";
 import PrayerScreen from "@/screens/PrayerScreen";
 import QuranScreen from "@/screens/QuranScreen";
 import DuaScreen from "@/screens/DuaScreen";
+import QiblaScreen from "@/screens/QiblaScreen";
 import MoreStackNavigator from "@/navigation/MoreStackNavigator";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
@@ -15,6 +16,7 @@ export type MainTabParamList = {
   PrayerTab: undefined;
   QuranTab: undefined;
   DuaTab: undefined;
+  QiblaTab: undefined;
   MoreTab: undefined;
 };
 
@@ -78,6 +80,17 @@ export default function MainTabNavigator() {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="book" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="QiblaTab"
+        component={QiblaScreen}
+        options={{
+          title: "কাবা",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="explore" size={size} color={color} />
           ),
         }}
       />
