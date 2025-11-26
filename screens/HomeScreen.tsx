@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions, Animated, LayoutChangeEvent } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions, Animated, LayoutChangeEvent, Modal } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedText } from "@/components/ThemedText";
@@ -12,6 +12,7 @@ import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COOR
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
+import { PrayerTimesEditScreen } from "@/screens/PrayerTimesEditScreen";
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
@@ -26,6 +27,7 @@ export default function HomeScreen() {
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo>(() => getNextPrayer(defaultLat, defaultLon));
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [formattedDate, setFormattedDate] = useState(formatDate());
+  const [showPrayerTimesEdit, setShowPrayerTimesEdit] = useState(false);
   
   const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -381,8 +383,8 @@ export default function HomeScreen() {
         <View style={{ marginTop: Spacing.lg }}>
           <View style={styles.sectionTitleRow}>
             <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
-            <Pressable>
-              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.full_schedule') || 'সম্পূর্ণ সময়সূচী'}</ThemedText>
+            <Pressable onPress={() => setShowPrayerTimesEdit(true)}>
+              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>সম্পাদনা</ThemedText>
             </Pressable>
           </View>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
@@ -456,6 +458,21 @@ export default function HomeScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+      
+      <Modal
+        visible={showPrayerTimesEdit}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <PrayerTimesEditScreen
+          currentTimes={prayerTimes}
+          onClose={() => setShowPrayerTimesEdit(false)}
+          onSave={(updatedTimes) => {
+            setPrayerTimes(updatedTimes);
+            setShowPrayerTimesEdit(false);
+          }}
+        />
+      </Modal>
     </View>
   );
 }

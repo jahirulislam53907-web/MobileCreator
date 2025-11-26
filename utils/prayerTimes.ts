@@ -33,6 +33,8 @@ export interface SunriseSunsetInfo {
     hours: number;
     minutes: number;
   };
+  label: string;
+  timeString: string;
 }
 
 export const formatTime = (date: Date): string => {
@@ -224,6 +226,15 @@ export const getNextSunriseOrSunset = (latitude: number, longitude: number): Sun
 
   const sunriseDiff = sunrise.getTime() - now.getTime();
   const sunsetDiff = sunset.getTime() - now.getTime();
+  
+  const isBeforeSunrise = sunriseDiff > 0;
+  const label = isBeforeSunrise ? 'সূর্যোদয়' : 'সূর্যাস্ত';
+  const nextEvent = isBeforeSunrise ? sunrise : sunset;
+  const nextDiff = isBeforeSunrise ? sunriseDiff : sunsetDiff;
+  
+  const hours = Math.floor(nextDiff / (1000 * 60 * 60));
+  const minutes = Math.floor((nextDiff % (1000 * 60 * 60)) / (1000 * 60));
+  const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
   return {
     sunrise,
@@ -236,6 +247,8 @@ export const getNextSunriseOrSunset = (latitude: number, longitude: number): Sun
       hours: Math.floor(sunsetDiff / (1000 * 60 * 60)),
       minutes: Math.floor((sunsetDiff % (1000 * 60 * 60)) / (1000 * 60)),
     },
+    label,
+    timeString,
   };
 };
 
