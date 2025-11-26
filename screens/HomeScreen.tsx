@@ -426,12 +426,28 @@ export default function HomeScreen() {
               </ThemedText>
             </View>
             <View style={styles.sunriseSunsetBox}>
-              <Text style={[styles.sunriseSunsetText, { color: theme.secondary }]}>
-                <Text style={styles.sunriseSunsetLabel}>{sunriseSunset.label} </Text>
-                <Text style={[styles.sunriseSunsetTime, { color: theme.secondary }]}>
-                  {sunriseSunset.timeString}
-                </Text>
-              </Text>
+              {sunriseSunset.showSunset && (
+                <View style={styles.sunriseSunsetContent}>
+                  <Text style={[styles.sunriseSunsetText, { color: theme.secondary }]}>
+                    <Text style={styles.sunriseSunsetLabel}>সূর্যাস্ত </Text>
+                    <Text style={[styles.sunriseSunsetTime, { color: theme.secondary }]}>
+                      {sunriseSunset.sunsetTimeString}
+                    </Text>
+                  </Text>
+                  <MaterialIcons name="wb-twilight" size={16} color={theme.secondary} style={{ marginLeft: 6 }} />
+                </View>
+              )}
+              {sunriseSunset.showSunrise && (
+                <View style={styles.sunriseSunsetContent}>
+                  <Text style={[styles.sunriseSunsetText, { color: theme.secondary }]}>
+                    <Text style={styles.sunriseSunsetLabel}>সূর্যোদয় </Text>
+                    <Text style={[styles.sunriseSunsetTime, { color: theme.secondary }]}>
+                      {sunriseSunset.sunriseTimeString}
+                    </Text>
+                  </Text>
+                  <MaterialIcons name="light-mode" size={16} color={theme.secondary} style={{ marginLeft: 6 }} />
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -823,6 +839,13 @@ const styles = StyleSheet.create({
   },
   sunriseSunsetBox: {
     paddingHorizontal: 10,
+    minHeight: 24,
+    justifyContent: 'center',
+  },
+  sunriseSunsetContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   sunriseSunsetText: {
     fontSize: 20,

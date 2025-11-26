@@ -219,12 +219,12 @@ export const getTimeUntilNextPrayer = (prayerTimes: PrayerTimesData): { name: st
   return { name: 'Fajr', nameBn: 'ফজর', hours, minutes };
 };
 
-export const getNextSunriseOrSunset = (latitude: number, longitude: number): SunriseSunsetInfo => {
+export const getNextSunriseOrSunset = (latitude: number, longitude: number): SunriseSunsetInfo & { showSunrise: boolean; showSunset: boolean; sunriseTimeString: string; sunsetTimeString: string } => {
   const now = new Date();
   const sunrise = new Date();
-  sunrise.setHours(6, 30, 0, 0);
+  sunrise.setHours(6, 0, 0, 0); // Default sunrise time
   const sunset = new Date();
-  sunset.setHours(18, 15, 0, 0);
+  sunset.setHours(17, 30, 0, 0); // Default sunset time
 
   const sunriseDiff = sunrise.getTime() - now.getTime();
   const sunsetDiff = sunset.getTime() - now.getTime();
@@ -237,6 +237,31 @@ export const getNextSunriseOrSunset = (latitude: number, longitude: number): Sun
   const hours = Math.floor(nextDiff / (1000 * 60 * 60));
   const minutes = Math.floor((nextDiff % (1000 * 60 * 60)) / (1000 * 60));
   const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+  // Format times for display (12-hour format with AM/PM)
+  const formatTime12Hour = (date: Date): string => {
+    let h = date.getHours();
+    const m = date.getMinutes();
+    const period = h >= 12 ? 'PM' : 'AM';
+    if (h > 12) h -= 12;
+    if (h === 0) h = 12;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}${period}`;
+  };
+
+  const sunriseTimeString = formatTime12Hour(sunrise);
+  const sunsetTimeString = formatTime12Hour(sunset);
+
+  // Visibility logic
+  // Sunrise is visible from (sunrise + 1 hour) to (sunset + 1 hour)
+  const sunriseVisibilityStart = new Date(sunrise.getTime() + 60 * 60 * 1000);
+  const sunriseVisibilityEnd = new Date(sunset.getTime() + 60 * 60 * 1000);
+  
+  // Sunset is visible from (sunset + 1 hour) to (sunrise + 1 hour next day)
+  const sunsetVisibilityStart = new Date(sunset.getTime() + 60 * 60 * 1000);
+  const sunsetVisibilityEnd = new Date(sunrise.getTime() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000);
+
+  const showSunrise = now >= sunriseVisibilityStart && now < sunriseVisibilityEnd;
+  const showSunset = now >= sunsetVisibilityStart || now < new Date(sunset.getTime() + 60 * 60 * 1000) && now >= new Date(sunsetVisibilityStart.getTime() - 24 * 60 * 60 * 1000);
 
   return {
     sunrise,
@@ -251,6 +276,10 @@ export const getNextSunriseOrSunset = (latitude: number, longitude: number): Sun
     },
     label,
     timeString,
+    showSunrise,
+    showSunset,
+    sunriseTimeString,
+    sunsetTimeString,
   };
 };
 
