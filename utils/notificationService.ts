@@ -28,15 +28,14 @@ export const playAzanAudioFile = async () => {
 
     console.log('🎵 আজান প্লেয়ার শুরু হচ্ছে...');
 
-    // Dynamically import Sound from expo-av
-    let Sound: any;
+    // Dynamically import Audio from expo-av
+    let Audio: any;
     try {
       // @ts-ignore
       const AVModule = await import('expo-av');
-      // Try different export patterns for expo-av
-      Sound = AVModule.Sound || AVModule.default?.Sound || AVModule.default;
-      if (!Sound || !Sound.createAsync) {
-        console.error('❌ Sound class not found in expo-av');
+      Audio = AVModule.Audio;
+      if (!Audio || !Audio.Sound) {
+        console.error('❌ Audio.Sound not found in expo-av');
         return;
       }
     } catch (e) {
@@ -58,7 +57,7 @@ export const playAzanAudioFile = async () => {
     try {
       console.log('📁 আজান ফাইল লোড করছি...');
       
-      const { sound } = await Sound.createAsync(
+      const { sound } = await Audio.Sound.createAsync(
         require('@/assets/audio/azan.mp3'),
         { shouldPlay: false }
       );
