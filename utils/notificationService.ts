@@ -4,23 +4,30 @@ import * as Notifications from 'expo-notifications';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
-// Poll server for pending notifications (both immediate and prayer-based)
+// Poll local notifications (from AsyncStorage)
 export const startNotificationPolling = () => {
   const pollInterval = setInterval(async () => {
     try {
       const lastCheck = await AsyncStorage.getItem('lastNotificationCheck');
-      const since = lastCheck ? parseInt(lastCheck, 10) : 0;
+      const sinceTime = lastCheck ? parseInt(lastCheck, 10) : 0;
       
-      const response = await fetch(`http://localhost:3000/api/notifications/pending?since=${since}`);
-      const data = await response.json();
+      // Get notifications from local storage
+      const data = await AsyncStorage.getItem('notifications');
+      const allNotifs = data ? JSON.parse(data) : [];
       
-      if (data.notifications && data.notifications.length > 0) {
+      // Filter for pending notifications
+      const pendingNotifs = allNotifs.filter((n: any) => {
+        const notifTime = new Date(n.created_at).getTime();
+        return notifTime > sinceTime;
+      });
+      
+      if (pendingNotifs.length > 0) {
         // Save new check time
-        await AsyncStorage.setItem('lastNotificationCheck', data.timestamp.toString());
+        await AsyncStorage.setItem('lastNotificationCheck', Date.now().toString());
         
         // Show notification for each pending
-        for (const notif of data.notifications) {
-          // Check if it should be shown (delivery mode and platform check)
+        for (const notif of pendingNotifs) {
+          // Check if it should be shown (delivery mode and prayer time check)
           const shouldShow = notif.delivery_mode === 'immediate' || 
                             (notif.delivery_mode === 'prayer-time' && checkIfPrayerTime(notif.prayer_name));
           
@@ -38,7 +45,7 @@ export const startNotificationPolling = () => {
         }
       }
     } catch (error) {
-      console.log('Polling error (optional):', error);
+      // Silent error handling - app continues working
     }
   }, 5000); // Poll every 5 seconds
   

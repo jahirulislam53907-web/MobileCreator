@@ -7,8 +7,6 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const API_URL = 'http://localhost:3000/api';
-
 export default function AdminPanel() {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -23,7 +21,6 @@ export default function AdminPanel() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [permissionMessages, setPermissionMessages] = useState<any>({});
   
-  // Form states
   const [prayerName, setPrayerName] = useState('fajr');
   const [message, setMessage] = useState('');
   const [deliveryMode, setDeliveryMode] = useState<'prayer-time' | 'immediate'>('immediate');
@@ -33,6 +30,11 @@ export default function AdminPanel() {
   const [editingPermMessage, setEditingPermMessage] = useState('');
 
   const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  const defaultPermissions = {
+    location: 'অবস্থান ব্যবহারের জন্য অনুমতি দিন',
+    notification: 'নোটিফিকেশন পাঠাতে অনুমতি দিন',
+    calendar: 'ক্যালেন্ডার অ্যাক্সেস করতে অনুমতি দিন'
+  };
 
   useEffect(() => {
     checkLoginStatus();
@@ -68,15 +70,17 @@ export default function AdminPanel() {
         if (data.username === username && data.password === password) {
           setAdminId(data.id);
           setIsLoggedIn(true);
+          setPassword('');
         } else {
           Alert.alert('ত্রুটি', 'ইউজারনেম বা পাসওয়ার্ড ভুল');
         }
       } else {
-        // First time - register
-        const newAdmin = { id: Math.random().toString(36).substr(2, 9), username, password };
+        const newAdmin = { id: Date.now().toString(), username, password };
         await AsyncStorage.setItem('adminUser', JSON.stringify(newAdmin));
         setAdminId(newAdmin.id);
         setIsLoggedIn(true);
+        setPassword('');
+        Alert.alert('সফল', 'অ্যাকাউন্ট তৈরি হয়েছে');
       }
     } finally {
       setLoading(false);
@@ -85,9 +89,8 @@ export default function AdminPanel() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`${API_URL}/notifications/all`);
-      const data = await response.json();
-      setNotifications(data.notifications || []);
+      const data = await AsyncStorage.getItem('notifications');
+      setNotifications(data ? JSON.parse(data) : []);
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -95,11 +98,10 @@ export default function AdminPanel() {
 
   const fetchPermissionMessages = async () => {
     try {
-      const response = await fetch(`${API_URL}/permissions/messages`);
-      const data = await response.json();
-      setPermissionMessages(data.messages || {});
+      const data = await AsyncStorage.getItem('permissionMessages');
+      setPermissionMessages(data ? JSON.parse(data) : defaultPermissions);
     } catch (error) {
-      console.error('Fetch error:', error);
+      setPermissionMessages(defaultPermissions);
     }
   };
 
@@ -111,26 +113,26 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/notifications/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          admin_id: adminId,
-          type: tab === 'azan' ? 'azan' : 'custom',
-          prayer_name: tab === 'azan' ? prayerName : null,
-          message,
-          delivery_mode: deliveryMode,
-          target_platform: targetPlatform
-        })
-      });
+      const notif = {
+        id: Date.now().toString(),
+        admin_id: adminId,
+        type: tab === 'azan' ? 'azan' : 'custom',
+        prayer_name: tab === 'azan' ? prayerName : null,
+        message,
+        delivery_mode: deliveryMode,
+        target_platform: targetPlatform,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
 
-      if (response.ok) {
-        Alert.alert('সফল', 'বিজ্ঞপ্তি তৈরি হয়েছে');
-        setMessage('');
-        fetchNotifications();
-      }
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি তৈরিতে ব্যর্থ');
+      const data = await AsyncStorage.getItem('notifications');
+      const notifs = data ? JSON.parse(data) : [];
+      notifs.unshift(notif);
+      await AsyncStorage.setItem('notifications', JSON.stringify(notifs));
+
+      Alert.alert('সফল', 'বিজ্ঞপ্তি তৈরি হয়েছে');
+      setMessage('');
+      fetchNotifications();
     } finally {
       setLoading(false);
     }
@@ -144,25 +146,24 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/notifications/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const data = await AsyncStorage.getItem('notifications');
+      const notifs = data ? JSON.parse(data) : [];
+      const idx = notifs.findIndex((n: any) => n.id === id);
+      
+      if (idx !== -1) {
+        notifs[idx] = {
+          ...notifs[idx],
           message,
           delivery_mode: deliveryMode,
           target_platform: targetPlatform,
           prayer_name: prayerName
-        })
-      });
-
-      if (response.ok) {
+        };
+        await AsyncStorage.setItem('notifications', JSON.stringify(notifs));
         Alert.alert('সফল', 'বিজ্ঞপ্তি আপডেট হয়েছে');
         setMessage('');
         setEditingId(null);
         fetchNotifications();
       }
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'আপডেটে ব্যর্থ');
     } finally {
       setLoading(false);
     }
@@ -174,34 +175,14 @@ export default function AdminPanel() {
       {
         text: 'মুছুন',
         onPress: async () => {
-          try {
-            await fetch(`${API_URL}/notifications/${id}`, { method: 'DELETE' });
-            fetchNotifications();
-          } catch (error) {
-            Alert.alert('ত্রুটি', 'মুছতে ব্যর্থ');
-          }
+          const data = await AsyncStorage.getItem('notifications');
+          let notifs = data ? JSON.parse(data) : [];
+          notifs = notifs.filter((n: any) => n.id !== id);
+          await AsyncStorage.setItem('notifications', JSON.stringify(notifs));
+          fetchNotifications();
         }
       }
     ]);
-  };
-
-  const handleSendNow = async (id: string) => {
-    const notif = notifications.find(n => n.id === id);
-    try {
-      await fetch(`${API_URL}/notifications/send-now`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          notification_id: id,
-          message: notif.message,
-          target_platform: notif.target_platform
-        })
-      });
-      Alert.alert('সফল', 'সব ডিভাইসে পাঠানো হয়েছে');
-      fetchNotifications();
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'পাঠাতে ব্যর্থ');
-    }
   };
 
   const handleUpdatePermission = async (key: string) => {
@@ -211,18 +192,12 @@ export default function AdminPanel() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/permissions/messages/${key}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: editingPermMessage })
-      });
-
-      if (response.ok) {
-        Alert.alert('সফল', 'আপডেট হয়েছে');
-        setEditingPermKey(null);
-        setEditingPermMessage('');
-        fetchPermissionMessages();
-      }
+      const updated = { ...permissionMessages, [key]: editingPermMessage };
+      await AsyncStorage.setItem('permissionMessages', JSON.stringify(updated));
+      Alert.alert('সফল', 'আপডেট হয়েছে');
+      setEditingPermKey(null);
+      setEditingPermMessage('');
+      fetchPermissionMessages();
     } catch (error) {
       Alert.alert('ত্রুটি', 'আপডেটে ব্যর্থ');
     }
@@ -252,7 +227,7 @@ export default function AdminPanel() {
           />
           
           <Pressable style={[styles.button, { backgroundColor: theme.primary }]} onPress={handleLogin} disabled={loading}>
-            {loading ? <ActivityIndicator color={theme.surface} /> : <ThemedText style={styles.buttonText}>লগইন</ThemedText>}
+            {loading ? <ActivityIndicator color={theme.surface} /> : <ThemedText style={styles.buttonText}>লগইন / রেজিস্টার</ThemedText>}
           </Pressable>
         </View>
       </ThemedView>
@@ -403,7 +378,7 @@ export default function AdminPanel() {
 
         {/* Notifications List */}
         <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <ThemedText style={styles.sectionTitle}>বিজ্ঞপ্তির তালিকা</ThemedText>
+          <ThemedText style={styles.sectionTitle}>বিজ্ঞপ্তির তালিকা ({filteredNotifs.length})</ThemedText>
 
           {filteredNotifs.length === 0 ? (
             <ThemedText style={styles.emptyText}>কোনো বিজ্ঞপ্তি নেই</ThemedText>
@@ -423,11 +398,6 @@ export default function AdminPanel() {
                   <Pressable style={[styles.smallButton, { backgroundColor: theme.error }]} onPress={() => handleDeleteNotification(notif.id)}>
                     <ThemedText style={[styles.smallButtonText, { color: theme.surface }]}>মুছুন</ThemedText>
                   </Pressable>
-                  {notif.delivery_mode === 'immediate' && (
-                    <Pressable style={[styles.smallButton, { backgroundColor: '#10b981' }]} onPress={() => handleSendNow(notif.id)}>
-                      <ThemedText style={[styles.smallButtonText, { color: theme.surface }]}>পাঠান</ThemedText>
-                    </Pressable>
-                  )}
                 </View>
               </View>
             ))
@@ -435,7 +405,7 @@ export default function AdminPanel() {
         </View>
 
         {/* Logout */}
-        <Pressable style={[styles.button, { backgroundColor: theme.error }]} onPress={() => { setIsLoggedIn(false); setAdminId(null); }}>
+        <Pressable style={[styles.button, { backgroundColor: theme.error, marginBottom: Spacing.xl }]} onPress={() => { setIsLoggedIn(false); setAdminId(null); setUsername(''); setPassword(''); }}>
           <ThemedText style={styles.buttonText}>লগআউট করুন</ThemedText>
         </Pressable>
       </View>
