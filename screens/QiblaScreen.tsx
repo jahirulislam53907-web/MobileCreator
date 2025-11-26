@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Pressable, Alert, Platform } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  interpolate,
-  Extrapolate,
 } from 'react-native-reanimated';
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
@@ -27,9 +25,11 @@ export default function QiblaScreen() {
   const { theme } = useAppTheme();
   const [userLocation, setUserLocation] = useState<LocationType | null>(null);
   const [qiblaBearing, setQiblaBearing] = useState<number>(0);
+  const [deviceHeading, setDeviceHeading] = useState<number>(0);
   const [distance, setDistance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const subscriptionRef = useRef<any>(null);
 
   const arrowRotation = useSharedValue(0);
 
@@ -37,6 +37,36 @@ export default function QiblaScreen() {
     transform: [{ rotate: `${arrowRotation.value}deg` }],
   }));
 
+  // Watch device heading (compass)
+  useEffect(() => {
+    const watchHeading = async () => {
+      try {
+        subscriptionRef.current = await Location.watchHeadingAsync((heading) => {
+          setDeviceHeading(heading.trueHeading);
+          // Update arrow rotation based on device heading
+          const arrowAngle = qiblaBearing - heading.trueHeading;
+          const normalizedAngle = ((arrowAngle + 360) % 360);
+          arrowRotation.value = withSpring(normalizedAngle > 180 ? normalizedAngle - 360 : normalizedAngle, {
+            damping: 15,
+            mass: 1,
+            stiffness: 120,
+          });
+        });
+      } catch (error) {
+        console.warn('কম্পাস উপলব্ধ নয়:', error);
+      }
+    };
+
+    watchHeading();
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.remove();
+      }
+    };
+  }, [qiblaBearing]);
+
+  // Get location and calculate Qibla bearing
   useEffect(() => {
     const getLocation = async () => {
       try {
@@ -74,13 +104,7 @@ export default function QiblaScreen() {
         });
         setDistance(dist);
 
-        // Animate arrow
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        arrowRotation.value = withSpring(bearing, {
-          damping: 10,
-          mass: 1,
-          stiffness: 100,
-        });
       } catch (error) {
         console.error('অবস্থান পেতে ব্যর্থ:', error);
         setErrorMsg('অবস্থান পেতে ব্যর্থ হয়েছে');
@@ -91,8 +115,8 @@ export default function QiblaScreen() {
 
     getLocation();
 
-    // Update location every 10 seconds
-    const interval = setInterval(getLocation, 10000);
+    // Update location every 15 seconds
+    const interval = setInterval(getLocation, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -185,7 +209,7 @@ export default function QiblaScreen() {
                 </ThemedText>
               </View>
 
-              {/* Qibla Arrow */}
+              {/* Qibla Arrow - Large and Prominent */}
               <Animated.View
                 style={[
                   styles.arrowContainer,
@@ -193,8 +217,12 @@ export default function QiblaScreen() {
                 ]}
               >
                 <View style={[styles.arrow, { backgroundColor: theme.primary }]}>
-                  <Feather name="arrow-up" size={32} color="#fff" />
+                  <MaterialIcons name="arrow-upward" size={56} color="#fff" />
                 </View>
+                {/* Arrow label */}
+                <ThemedText style={[styles.arrowLabel, { color: theme.primary }]}>
+                  কাবা
+                </ThemedText>
               </Animated.View>
 
               {/* Center Circle */}
@@ -286,10 +314,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   compassCircle: {
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    borderWidth: 3,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    borderWidth: 4,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -309,11 +337,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   arrow: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  arrowLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 8,
   },
   centerDot: {
     width: 12,
