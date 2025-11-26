@@ -122,7 +122,7 @@ export default function HomeScreen() {
           <ThemedText style={styles.verseMeta}>আয়াত: {item.ayah}</ThemedText>
         </View>
         <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
-          <ThemedText style={[styles.verseArabic, { color: theme.primary }]}>{item.arabic}</ThemedText>
+          <ThemedText style={[styles.verseArabic, { color: '#ffffff' }]}>{item.arabic}</ThemedText>
         </View>
         <ThemedText style={styles.verseTranslation}>"{item.bengali}"</ThemedText>
         <View style={styles.verseActions}>
