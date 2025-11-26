@@ -60,9 +60,10 @@ export default function HomeScreen() {
       setCurrentVerseIndex(prevIndex => {
         const nextIndex = (prevIndex + 1) % quranVerses.length;
         
-        // Scroll to next verse
-        const itemWidth = screenWidth - 30;
-        const targetOffsetX = nextIndex * itemWidth;
+        // Scroll to next verse - calculate exact offset with padding consideration
+        const ITEM_WIDTH = screenWidth - 30;
+        const PADDING_LEFT = 15;
+        const targetOffsetX = nextIndex * ITEM_WIDTH;
         
         if (flatListRef.current) {
           flatListRef.current.scrollToOffset({ 
@@ -80,12 +81,12 @@ export default function HomeScreen() {
   
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / screenWidth);
+    const ITEM_WIDTH = screenWidth - 30;
+    const currentIndex = Math.round(contentOffsetX / ITEM_WIDTH);
     setCurrentVerseIndex(currentIndex);
     
     // Snap to center - calculate perfect center position
-    const itemWidth = screenWidth - 30;
-    const targetOffsetX = currentIndex * itemWidth;
+    const targetOffsetX = currentIndex * ITEM_WIDTH;
     
     // Scroll to perfectly centered position
     if (flatListRef.current) {
@@ -319,12 +320,14 @@ export default function HomeScreen() {
             renderItem={renderVerseItem}
             keyExtractor={(item) => item.id.toString()}
             horizontal
-            pagingEnabled
             scrollEventThrottle={16}
             onMomentumScrollEnd={handleScrollEnd}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
             decelerationRate="fast"
+            snapToAlignment="start"
+            snapToInterval={screenWidth - 30}
+            disableIntervalMomentum
           />
           
           {/* Dots Indicator */}
