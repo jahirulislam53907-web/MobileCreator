@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as AV from 'expo-av';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -16,9 +15,9 @@ interface PrayerNotification {
 }
 
 // Global sound player
-let soundPlayer: AV.Sound | null = null;
+let soundPlayer: any = null;
 
-// Play azan audio from assets - Updated with expo-av
+// Play azan audio from assets
 export const playAzanAudioFile = async () => {
   try {
     // Skip on web - audio only works on mobile
@@ -28,6 +27,17 @@ export const playAzanAudioFile = async () => {
     }
 
     console.log('🎵 আজান প্লেয়ার শুরু হচ্ছে...');
+
+    // Dynamically import Sound from expo-av
+    let Sound: any;
+    try {
+      // @ts-ignore
+      const AVModule = await import('expo-av');
+      Sound = AVModule.Sound;
+    } catch (e) {
+      console.error('❌ expo-av লোড করতে পারা যায়নি:', e);
+      return;
+    }
 
     // Stop any currently playing audio
     if (soundPlayer) {
@@ -40,11 +50,10 @@ export const playAzanAudioFile = async () => {
       }
     }
 
-    // Create new sound instance using expo-av
     try {
       console.log('📁 আজান ফাইল লোড করছি...');
       
-      const { sound } = await AV.Sound.createAsync(
+      const { sound } = await Sound.createAsync(
         require('@/assets/audio/azan.mp3'),
         { shouldPlay: false }
       );
@@ -52,7 +61,6 @@ export const playAzanAudioFile = async () => {
       soundPlayer = sound;
       console.log('✅ আজান ফাইল সফলভাবে লোড হয়েছে');
       
-      // Play the sound
       await soundPlayer.playAsync();
       console.log('🔊 আজান বাজছে...');
       
