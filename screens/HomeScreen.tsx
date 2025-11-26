@@ -60,10 +60,10 @@ export default function HomeScreen() {
       setCurrentVerseIndex(prevIndex => {
         const nextIndex = (prevIndex + 1) % quranVerses.length;
         
-        // Scroll to next verse - calculate exact offset with padding consideration
-        const ITEM_WIDTH = screenWidth - 30;
-        const PADDING_LEFT = 15;
-        const targetOffsetX = nextIndex * ITEM_WIDTH;
+        // Item width accounts for screen width minus horizontal padding
+        // No margin between items - spacing handled by padding
+        const itemWidth = screenWidth - 30;
+        const targetOffsetX = nextIndex * itemWidth;
         
         if (flatListRef.current) {
           flatListRef.current.scrollToOffset({ 
@@ -81,14 +81,13 @@ export default function HomeScreen() {
   
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const ITEM_WIDTH = screenWidth - 30;
-    const currentIndex = Math.round(contentOffsetX / ITEM_WIDTH);
+    const itemWidth = screenWidth - 30;
+    const currentIndex = Math.round(contentOffsetX / itemWidth);
     setCurrentVerseIndex(currentIndex);
     
-    // Snap to center - calculate perfect center position
-    const targetOffsetX = currentIndex * ITEM_WIDTH;
+    // Snap to perfectly centered position
+    const targetOffsetX = currentIndex * itemWidth;
     
-    // Scroll to perfectly centered position
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ 
         offset: targetOffsetX, 
@@ -320,14 +319,12 @@ export default function HomeScreen() {
             renderItem={renderVerseItem}
             keyExtractor={(item) => item.id.toString()}
             horizontal
+            pagingEnabled={true}
             scrollEventThrottle={16}
             onMomentumScrollEnd={handleScrollEnd}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
-            decelerationRate="fast"
-            snapToAlignment="start"
-            snapToInterval={screenWidth - 30}
-            disableIntervalMomentum
+            decelerationRate="normal"
           />
           
           {/* Dots Indicator */}
@@ -646,10 +643,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   carouselContent: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 0,
   },
   verseCarouselItem: {
-    marginRight: 20,
+    paddingHorizontal: 15,
   },
   dotsContainer: {
     flexDirection: 'row',
