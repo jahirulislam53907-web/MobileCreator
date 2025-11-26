@@ -410,9 +410,9 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Prayer Times */}
-        <View style={{ marginTop: Spacing.lg }}>
+        <View style={{ marginTop: Spacing.xl }}>
           <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
-          <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
+          <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
