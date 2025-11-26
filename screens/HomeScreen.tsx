@@ -429,6 +429,9 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </View>
+            <View style={styles.prayerInfoBox}>
+              <ThemedText style={styles.prayerInfoText}>আপনার পছন্দের মসজিদ বা ব্যক্তিগত সময়সূচী অনুযায়ী নামাজের সময় কাস্টমাইজ করার সুবিধা সংযুক্ত হয়েছে।</ThemedText>
+            </View>
           </View>
         </View>
 
@@ -1121,5 +1124,21 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  prayerInfoBox: {
+    marginTop: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: BorderRadius.md,
+    borderLeftWidth: 3,
+    borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  prayerInfoText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#ffffff',
+    lineHeight: 18,
+    opacity: 0.85,
   },
 });
