@@ -21,6 +21,12 @@ import {
   type Location as LocationType,
 } from '@/utils/qiblaCalculator';
 
+// Dhaka coordinates (default location)
+const DHAKA_LOCATION: LocationType = {
+  latitude: 23.8103,
+  longitude: 90.4125,
+};
+
 export default function QiblaScreen() {
   const { theme } = useAppTheme();
   const [userLocation, setUserLocation] = useState<LocationType | null>(null);
@@ -73,23 +79,29 @@ export default function QiblaScreen() {
         setLoading(true);
         setErrorMsg(null);
 
+        let userLoc: LocationType = DHAKA_LOCATION; // Default to Dhaka
+
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setErrorMsg('অবস্থান অনুমতি দেওয়া হয়নি');
-          setLoading(false);
-          return;
+        if (status === 'granted') {
+          try {
+            // Try to get current location
+            const location = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            });
+
+            userLoc = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            };
+          } catch (locError) {
+            console.warn('অবস্থান পেতে সমস্যা, ঢাকা ব্যবহার করছি:', locError);
+            setErrorMsg('অবস্থান পাওয়া যায়নি, ঢাকা ব্যবহার করছি');
+          }
+        } else {
+          console.warn('অবস্থান অনুমতি দেওয়া হয়নি, ঢাকা ব্যবহার করছি');
+          setErrorMsg('অবস্থান অনুমতি নেই, ঢাকা ব্যবহার করছি');
         }
-
-        // Get current location
-        const location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-
-        const userLoc: LocationType = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
 
         setUserLocation(userLoc);
 
@@ -106,8 +118,17 @@ export default function QiblaScreen() {
 
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch (error) {
-        console.error('অবস্থান পেতে ব্যর্থ:', error);
-        setErrorMsg('অবস্থান পেতে ব্যর্থ হয়েছে');
+        console.error('কাবা দিক নির্ণয়ে ত্রুটি:', error);
+        // Still use Dhaka as fallback
+        setUserLocation(DHAKA_LOCATION);
+        const bearing = calculateQiblaBearing(DHAKA_LOCATION);
+        setQiblaBearing(bearing);
+        const dist = calculateDistance(DHAKA_LOCATION, {
+          latitude: 21.4225,
+          longitude: 39.8262,
+        });
+        setDistance(dist);
+        setErrorMsg('ঢাকা থেকে কাবার দিক দেখাচ্ছি');
       } finally {
         setLoading(false);
       }
@@ -123,14 +144,21 @@ export default function QiblaScreen() {
   const handleRefresh = async () => {
     setLoading(true);
     try {
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      let userLoc: LocationType = DHAKA_LOCATION; // Default to Dhaka
 
-      const userLoc: LocationType = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
+      try {
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+
+        userLoc = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+      } catch (locError) {
+        console.warn('অবস্থান আপডেট ব্যর্থ, ঢাকা ব্যবহার করছি:', locError);
+        setErrorMsg('অবস্থান পাওয়া যায়নি, ঢাকা ব্যবহার করছি');
+      }
 
       setUserLocation(userLoc);
       const bearing = calculateQiblaBearing(userLoc);
@@ -144,12 +172,12 @@ export default function QiblaScreen() {
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       arrowRotation.value = withSpring(bearing, {
-        damping: 10,
+        damping: 15,
         mass: 1,
-        stiffness: 100,
+        stiffness: 120,
       });
     } catch (error) {
-      Alert.alert('ত্রুটি', 'অবস্থান আপডেট করতে ব্যর্থ');
+      Alert.alert('ত্রুটি', 'আপডেট করতে সমস্যা হয়েছে');
     } finally {
       setLoading(false);
     }
