@@ -75,13 +75,13 @@ export const getNextPrayer = (
     const todayTimes = new PrayerTimes(coordinates, now, params);
 
     // Define prayer order and times
-    const prayers: Array<{ key: typeof Prayer; name: string; nameAr: string; nameBn: string; time: Date }> = [
-      { key: Prayer.Fajr, name: 'Fajr', nameAr: 'الفجر', nameBn: 'ফজর', time: todayTimes.fajr },
-      { key: Prayer.Sunrise, name: 'Sunrise', nameAr: 'الشروق', nameBn: 'সূর্যোদয়', time: todayTimes.sunrise },
-      { key: Prayer.Dhuhr, name: 'Dhuhr', nameAr: 'الظهر', nameBn: 'যোহর', time: todayTimes.dhuhr },
-      { key: Prayer.Asr, name: 'Asr', nameAr: 'العصر', nameBn: 'আসর', time: todayTimes.asr },
-      { key: Prayer.Maghrib, name: 'Maghrib', nameAr: 'المغرب', nameBn: 'মাগরিব', time: todayTimes.maghrib },
-      { key: Prayer.Isha, name: 'Isha', nameAr: 'العشاء', nameBn: 'এশা', time: todayTimes.isha },
+    const prayers: Array<{ name: string; nameAr: string; nameBn: string; time: Date }> = [
+      { name: 'Fajr', nameAr: 'الفجر', nameBn: 'ফজর', time: todayTimes.fajr },
+      { name: 'Sunrise', nameAr: 'الشروق', nameBn: 'সূর্যোদয়', time: todayTimes.sunrise },
+      { name: 'Dhuhr', nameAr: 'الظهر', nameBn: 'যোহর', time: todayTimes.dhuhr },
+      { name: 'Asr', nameAr: 'العصر', nameBn: 'আসর', time: todayTimes.asr },
+      { name: 'Maghrib', nameAr: 'المغرب', nameBn: 'ماগرिب', time: todayTimes.maghrib },
+      { name: 'Isha', nameAr: 'العشاء', nameBn: 'এশা', time: todayTimes.isha },
     ];
 
     // Find next prayer today
