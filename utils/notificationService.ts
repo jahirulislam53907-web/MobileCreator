@@ -14,7 +14,33 @@ interface PrayerNotification {
   enabled: boolean;
 }
 
-// Removed - Azan audio now played from HomeScreen Azan section only
+// Global sound player
+let soundPlayer: any = null;
+
+// Play azan audio from assets
+export const playAzanAudioFile = async () => {
+  try {
+    const Audio = require('expo-audio').default;
+    
+    // Stop any currently playing audio
+    if (soundPlayer) {
+      try {
+        await soundPlayer.stopAsync();
+        await soundPlayer.unloadAsync();
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+
+    // Create new sound instance and play
+    soundPlayer = new Audio.Sound();
+    await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
+    await soundPlayer.playAsync();
+    console.log('🔊 আজান বাজছে...');
+  } catch (error) {
+    console.error('❌ আজান বাজাতে সমস্যা:', error);
+  }
+};
 
 // Initialize notifications
 export const initializeNotifications = async () => {
@@ -241,18 +267,18 @@ export const startNotificationPolling = () => {
         }
 
         // Check if current time matches notification time
-        if (notif.scheduledTime === currentTime && notif.enabled) {
-          console.log(`🔔 Azan time triggered: ${notif.prayer} ${notif.type} at ${currentTime}`);
+        if (notif.scheduledTime === currentTime && notif.enabled && notif.type === 'start') {
+          console.log(`🔔 আজান সময়: ${notif.prayer.toUpperCase()} at ${currentTime}`);
           
-          // Play azan audio
-          await playAzanAudio(notif.prayer);
+          // Play azan audio file
+          await playAzanAudioFile();
           
-          // Show notification
+          // Show notification without sound (audio already playing)
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: `${notif.prayer.toUpperCase()} - ${notif.type === 'start' ? 'শুরু' : 'শেষ'}`,
+              title: `${notif.prayer.toUpperCase()} - আজান`,
               body: notif.message,
-              sound: true,
+              sound: false,
               badge: 1,
             },
             trigger: null,
