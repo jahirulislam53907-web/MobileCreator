@@ -20,7 +20,8 @@ let soundPlayer: any = null;
 // Play azan audio from assets
 export const playAzanAudioFile = async () => {
   try {
-    const Audio = require('expo-audio').default;
+    const Audio = await import('expo-audio');
+    const SoundModule = Audio.default || Audio;
     
     // Stop any currently playing audio
     if (soundPlayer) {
@@ -32,8 +33,9 @@ export const playAzanAudioFile = async () => {
       }
     }
 
-    // Create new sound instance and play
-    soundPlayer = new Audio.Sound();
+    // Create new sound instance
+    soundPlayer = new SoundModule.Sound();
+    // Use asset URI for Expo Go compatibility
     await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
     await soundPlayer.playAsync();
     console.log('🔊 আজান বাজছে...');
