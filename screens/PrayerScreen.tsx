@@ -17,6 +17,19 @@ const PRAYER_TIMES = [
   { name: "এশা", karachi_start: "19:00", mosque_time: "19:30", karachi_end: "23:59", completed: false },
 ];
 
+// Helper function to convert 24-hour format to 12-hour AM/PM format
+const convertTo12Hour = (time24: string): string => {
+  const [hours, minutes] = time24.split(':');
+  let hour = parseInt(hours);
+  const isAM = hour < 12;
+  
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  
+  const period = isAM ? 'AM' : 'PM';
+  return `${String(hour).padStart(2, '0')}:${minutes} ${period}`;
+};
+
 export default function PrayerScreen() {
   const { theme } = useAppTheme();
   const [prayerTimes, setPrayerTimes] = useState(PRAYER_TIMES);
@@ -72,11 +85,11 @@ export default function PrayerScreen() {
                 <View style={{ flex: 1 }}>
                   <ThemedText style={[styles.prayerName, { color: theme.primary }]}>{prayer.name}</ThemedText>
                   
-                  {/* তিনটি সময়ের লাইন */}
+                  {/* তিনটি সময়ের লাইন - 12 hour format with AM/PM */}
                   <View style={styles.timeLines}>
                     {/* করাচি শুরুর সময় */}
                     <ThemedText style={[styles.timeLine, { color: theme.textSecondary }]}>
-                      {prayer.karachi_start}
+                      {convertTo12Hour(prayer.karachi_start)}
                     </ThemedText>
 
                     {/* মসজিদ অনুযায়ী সময় - Editable */}
@@ -85,14 +98,14 @@ export default function PrayerScreen() {
                       style={[styles.editableTimeLine, { borderBottomColor: theme.primary }]}
                     >
                       <ThemedText style={[styles.timeLine, { color: theme.primary, fontWeight: '600' }]}>
-                        {prayer.mosque_time}
+                        {convertTo12Hour(prayer.mosque_time)}
                       </ThemedText>
                       <Feather name="edit-2" size={12} color={theme.primary} style={{ marginLeft: Spacing.xs }} />
                     </Pressable>
 
                     {/* করাচি শেষের সময় */}
                     <ThemedText style={[styles.timeLine, { color: theme.textSecondary }]}>
-                      {prayer.karachi_end}
+                      {convertTo12Hour(prayer.karachi_end)}
                     </ThemedText>
                   </View>
                 </View>
