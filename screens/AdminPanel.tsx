@@ -285,7 +285,7 @@ export default function AdminPanel() {
             style={[styles.tabButton, activeTab === tab && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
             onPress={() => setActiveTab(tab)}
           >
-            <Feather name={tab === 'notifications' ? 'bell' : tab === 'filters' ? 'filter' : tab === 'permissions' ? 'lock' : 'history'} size={18} color={activeTab === tab ? theme.primary : theme.text} />
+            <Feather name={tab === 'notifications' ? 'bell' : tab === 'filters' ? 'filter' : tab === 'permissions' ? 'lock' : 'clock'} size={18} color={activeTab === tab ? theme.primary : theme.text} />
             <ThemedText style={[styles.tabText, activeTab === tab && { color: theme.primary, fontWeight: '700' }]}>
               {tab === 'notifications' ? 'বার্তা' : tab === 'filters' ? 'ফিল্টার' : tab === 'permissions' ? 'পারমিশন' : 'ইতিহাস'}
             </ThemedText>
