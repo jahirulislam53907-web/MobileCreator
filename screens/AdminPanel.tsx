@@ -50,6 +50,8 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error('Check failed:', error);
+      // যদি server connect না হয়, registration form দেখান
+      setIsRegistering(true);
     }
   };
 
