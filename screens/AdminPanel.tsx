@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, TextInput, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -42,15 +43,16 @@ export default function AdminPanel() {
 
   const checkAdminExists = async () => {
     try {
-      const response = await fetch(`${API_URL}/admin/check`);
-      const data = await response.json();
-      setAdminExists(data.adminExists);
-      if (!data.adminExists) {
+      const savedAdmin = await AsyncStorage.getItem('adminUser');
+      if (savedAdmin) {
+        setAdminExists(true);
+        setIsRegistering(false);
+      } else {
+        setAdminExists(false);
         setIsRegistering(true);
       }
     } catch (error) {
       console.error('Check failed:', error);
-      // যদি server connect না হয়, registration form দেখান
       setIsRegistering(true);
     }
   };
@@ -69,25 +71,16 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/admin/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, email: `${username}@smartmuslim.app` })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('সফল', 'প্রশাসক অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন করুন।');
-        setIsRegistering(false);
-        setPassword('');
-        setConfirmPassword('');
-        setAdminExists(true);
-      } else {
-        Alert.alert('ত্রুটি', data.error);
-      }
+      const adminData = { username, password, id: Math.random().toString(36).substr(2, 9) };
+      await AsyncStorage.setItem('adminUser', JSON.stringify(adminData));
+      
+      Alert.alert('সফল', 'প্রশাসক অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন করুন।');
+      setIsRegistering(false);
+      setPassword('');
+      setConfirmPassword('');
+      setAdminExists(true);
     } catch (error) {
-      Alert.alert('ত্রুটি', 'সার্ভার সংযোগ ব্যর্থ');
+      Alert.alert('ত্রুটি', 'অ্যাকাউন্ট তৈরিতে ব্যর্থ');
       console.error(error);
     } finally {
       setLoading(false);
@@ -103,24 +96,23 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      const savedAdmin = await AsyncStorage.getItem('adminUser');
+      if (!savedAdmin) {
+        Alert.alert('ত্রুটি', 'কোনো অ্যাকাউন্ট নেই');
+        return;
+      }
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setAdminId(data.adminId);
+      const adminData = JSON.parse(savedAdmin);
+      if (adminData.username === username && adminData.password === password) {
+        setAdminId(adminData.id);
         setIsLoggedIn(true);
         fetchHistory();
         setPassword('');
       } else {
-        Alert.alert('লগইন ব্যর্থ', data.error);
+        Alert.alert('লগইন ব্যর্থ', 'ইউজারনেম বা পাসওয়ার্ড ভুল');
       }
     } catch (error) {
-      Alert.alert('ত্রুটি', 'সার্ভার সংযোগ ব্যর্থ');
+      Alert.alert('ত্রুটি', 'লগইন ব্যর্থ');
       console.error(error);
     } finally {
       setLoading(false);
@@ -136,28 +128,26 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/notifications/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          admin_id: adminId,
-          prayer_name: selectedPrayer,
-          message,
-          target_users: targetUsers
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert('সফল', 'বিজ্ঞপ্তি পাঠানো হয়েছে');
-        setMessage('');
-        fetchHistory();
-      } else {
-        Alert.alert('ত্রুটি', data.error);
-      }
+      const notifications = await AsyncStorage.getItem('notifications') || '[]';
+      const notificationList = JSON.parse(notifications);
+      
+      const newNotification = {
+        id: Math.random().toString(36).substr(2, 9),
+        prayer_name: selectedPrayer,
+        message,
+        target_users: targetUsers,
+        status: 'sent',
+        created_at: new Date().toISOString()
+      };
+      
+      notificationList.unshift(newNotification);
+      await AsyncStorage.setItem('notifications', JSON.stringify(notificationList));
+      
+      Alert.alert('সফল', 'বিজ্ঞপ্তি সংরক্ষিত হয়েছে');
+      setMessage('');
+      fetchHistory();
     } catch (error) {
-      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি পাঠাতে ব্যর্থ');
+      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি সংরক্ষণ ব্যর্থ');
       console.error(error);
     } finally {
       setLoading(false);
@@ -167,9 +157,9 @@ export default function AdminPanel() {
   // Fetch history
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`${API_URL}/notifications/history`);
-      const data = await response.json();
-      setHistory(data);
+      const notifications = await AsyncStorage.getItem('notifications') || '[]';
+      const notificationList = JSON.parse(notifications);
+      setHistory(notificationList);
     } catch (error) {
       console.error('Failed to fetch history:', error);
     }
