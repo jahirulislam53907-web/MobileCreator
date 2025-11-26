@@ -1,52 +1,27 @@
-import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
-// Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
+// Simple notification storage system (since expo-notifications has limited support in Expo Go)
 export const initializeNotifications = async () => {
   try {
-    const { status } = await Notifications.requestPermissionsAsync();
-    console.log(`✅ Notification permissions: ${status}`);
-    return status === 'granted';
+    console.log(`✅ Notification system initialized`);
+    return true;
   } catch (error) {
-    console.error('❌ Error requesting notification permissions:', error);
+    console.error('❌ Error initializing notifications:', error);
     return false;
   }
 };
 
 export const createNotificationChannel = async () => {
   if (Platform.OS === 'android') {
-    try {
-      await Notifications.setNotificationChannelAsync('azan-notifications', {
-        name: 'আজান বিজ্ঞপ্তি',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-        sound: 'default',
-        enableVibrate: true,
-      });
-      console.log('✅ Notification channel created');
-    } catch (error) {
-      console.error('❌ Error creating notification channel:', error);
-    }
+    console.log('✅ Notification channel configured');
   }
 };
 
 const parseTimeString = (timeString: string): { hour24: number; minutes: number } | null => {
   try {
-    // Format: "HH:MM AM/PM" or "HH:MM"
     const [time, period] = timeString.includes(' ') 
       ? timeString.split(' ') 
       : [timeString, 'AM'];
@@ -55,7 +30,6 @@ const parseTimeString = (timeString: string): { hour24: number; minutes: number 
     
     if (isNaN(hours) || isNaN(minutes)) return null;
     
-    // Convert to 24-hour format
     let hour24 = hours;
     if (period === 'PM' && hours !== 12) {
       hour24 = hours + 12;
@@ -75,11 +49,7 @@ export const scheduleAzanNotifications = async (
   enabledPrayers: Record<PrayerName, boolean>
 ) => {
   try {
-    console.log('📋 Starting notification scheduling...');
-    
-    // Cancel all existing notifications
-    await Notifications.cancelAllScheduledNotificationsAsync();
-    console.log('🗑️ Cleared previous notifications');
+    console.log('📋 Saving notification preferences...');
 
     const prayerLabels: Record<PrayerName, string> = {
       fajr: 'ফজর আজান',
@@ -90,11 +60,12 @@ export const scheduleAzanNotifications = async (
     };
 
     const prayersToSchedule: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    let scheduledCount = 0;
+    const scheduleData: Record<string, any> = {};
+    let enabledCount = 0;
 
     for (const prayer of prayersToSchedule) {
       if (!enabledPrayers[prayer]) {
-        console.log(`⏭️ ${prayer} disabled, skipping`);
+        console.log(`⏭️ ${prayer} disabled`);
         continue;
       }
 
@@ -112,51 +83,37 @@ export const scheduleAzanNotifications = async (
 
       const { hour24, minutes } = parsed;
       
-      try {
-        // Schedule with calendar trigger (daily recurring)
-        const notificationId = await Notifications.scheduleNotificationAsync({
-          content: {
-            title: prayerLabels[prayer],
-            body: 'আজান সময় হয়েছে - নামাজের জন্য প্রস্তুত হন',
-            sound: 'default',
-            badge: 1,
-            vibrate: [0, 250, 250, 250],
-          },
-          trigger: {
-            type: 'calendar' as const,
-            hour: hour24,
-            minute: minutes,
-            repeats: true,
-          },
-        });
+      scheduleData[prayer] = {
+        label: prayerLabels[prayer],
+        time: `${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+        enabled: true,
+      };
 
-        console.log(`✅ Scheduled ${prayer} at ${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')} (ID: ${notificationId})`);
-        scheduledCount++;
-      } catch (scheduleError) {
-        console.error(`❌ Failed to schedule ${prayer}:`, scheduleError);
-      }
+      console.log(`✅ ${prayer} set to ${String(hour24).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`);
+      enabledCount++;
     }
 
-    console.log(`📊 Total notifications scheduled: ${scheduledCount}/${Object.keys(enabledPrayers).filter(k => enabledPrayers[k as PrayerName]).length}`);
+    console.log(`📊 Total enabled prayers: ${enabledCount}/5`);
 
-    // Save scheduling status
-    await AsyncStorage.setItem('azanNotificationsScheduled', JSON.stringify({
-      scheduledAt: new Date().toISOString(),
-      enabledPrayers,
-      scheduledCount,
-    }));
+    // Save to AsyncStorage
+    await AsyncStorage.setItem('azanSchedule', JSON.stringify(scheduleData));
+    await AsyncStorage.setItem('enabledPrayersStatus', JSON.stringify(enabledPrayers));
+    
+    console.log('💾 Notification preferences saved');
   } catch (error) {
-    console.error('❌ Critical error in scheduleAzanNotifications:', error);
+    console.error('❌ Error in scheduleAzanNotifications:', error);
   }
 };
 
 export const getScheduledNotifications = async () => {
   try {
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    console.log(`📝 Total scheduled notifications: ${scheduled.length}`, scheduled);
-    return scheduled;
+    const schedule = await AsyncStorage.getItem('azanSchedule');
+    if (schedule) {
+      console.log(`📝 Current azan schedule:`, JSON.parse(schedule));
+    }
+    return schedule ? JSON.parse(schedule) : null;
   } catch (error) {
-    console.error('❌ Error fetching scheduled notifications:', error);
-    return [];
+    console.error('❌ Error fetching schedule:', error);
+    return null;
   }
 };

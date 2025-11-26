@@ -431,11 +431,9 @@ export default function HomeScreen() {
                         
                         if (azanTimes) {
                           await scheduleAzanNotifications(azanTimes as Record<string, string>, updated);
-                          
-                          // Log scheduled notifications for debugging
                           setTimeout(() => {
                             getScheduledNotifications();
-                          }, 1000);
+                          }, 500);
                         }
                       }}
                       style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
@@ -645,7 +643,7 @@ export default function HomeScreen() {
                     
                     // Auto-reschedule notifications if this prayer is enabled
                     if (enabledPrayers[selectedAzanToEdit as PrayerName]) {
-                      console.log(`🔄 Rescheduling notifications for ${selectedAzanToEdit} with new time: ${newTime}`);
+                      console.log(`🔄 Rescheduling ${selectedAzanToEdit} with new time: ${newTime}`);
                       await scheduleAzanNotifications(updated as Record<string, string>, enabledPrayers);
                       setTimeout(() => {
                         getScheduledNotifications();
