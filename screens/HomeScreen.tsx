@@ -74,7 +74,7 @@ export default function HomeScreen() {
         
         return nextIndex;
       });
-    }, 5000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [quranVerses.length, screenWidth]);
