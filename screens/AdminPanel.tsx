@@ -32,6 +32,19 @@ const FILTER_OPTIONS = {
   userStatus: ['সবাই', 'Active', 'Inactive'],
 };
 
+const DEFAULT_PRAYER_NOTIFICATIONS = [
+  { prayer: 'fajr', type: 'start', message: 'ফজরের নামাজের সময় শুরু হয়েছে', number: 1 },
+  { prayer: 'fajr', type: 'end', message: 'ফজরের নামাজের সময় শেষ হয়েছে', number: 2 },
+  { prayer: 'dhuhr', type: 'start', message: 'যোহরের নামাজের সময় শুরু হয়েছে', number: 3 },
+  { prayer: 'dhuhr', type: 'end', message: 'যোহরের নামাজের সময় শেষ হয়েছে', number: 4 },
+  { prayer: 'asr', type: 'start', message: 'আসরের নামাজের সময় শুরু হয়েছে', number: 5 },
+  { prayer: 'asr', type: 'end', message: 'আসরের নামাজের সময় শেষ হয়েছে', number: 6 },
+  { prayer: 'maghrib', type: 'start', message: 'মাগরিবের নামাজের সময় শুরু হয়েছে', number: 7 },
+  { prayer: 'maghrib', type: 'end', message: 'মাগরিবের নামাজের সময় শেষ হয়েছে', number: 8 },
+  { prayer: 'isha', type: 'start', message: 'এশার নামাজের সময় শুরু হয়েছে', number: 9 },
+  { prayer: 'isha', type: 'end', message: 'এশার নামাজের সময় শেষ হয়েছে', number: 10 },
+];
+
 export default function AdminPanel() {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -412,26 +425,35 @@ export default function AdminPanel() {
         {/* Prayer Time Notifications Tab */}
         {activeTab === 'prayer-notifs' && (
           <View style={{ paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }}>
-            <ThemedText style={[styles.cardTitle, { marginBottom: Spacing.lg }]}>নামাজের সময় বিজ্ঞপ্তি</ThemedText>
+            <ThemedText style={[styles.cardTitle, { marginBottom: Spacing.lg }]}>নামাজের সময় বিজ্ঞপ্তি (১০টি)</ThemedText>
+            <ThemedText style={[styles.metaText, { marginBottom: Spacing.lg }]}>প্রতিটি নামাজের শুরু এবং শেষ সময়ের জন্য বিজ্ঞপ্তি বার্তা</ThemedText>
             
-            {prayerNotifications.length === 0 ? (
-              <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <ThemedText style={styles.emptyText}>কোনো নোটিফিকেশন সেট করা নেই</ThemedText>
-              </View>
-            ) : (
-              prayerNotifications.map((notif) => (
-                <View key={notif.id} style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: Spacing.lg }]}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
-                    <View>
-                      <ThemedText style={[styles.cardTitle, { fontSize: 14, marginBottom: 4 }]}>
-                        {notif.prayer.toUpperCase()} - {notif.type === 'start' ? 'শুরু' : 'শেষ'}
-                      </ThemedText>
-                      <ThemedText style={styles.metaText}>সময়: {notif.scheduledTime}</ThemedText>
+            {DEFAULT_PRAYER_NOTIFICATIONS.map((defaultNotif) => {
+              const existingNotif = prayerNotifications.find(
+                (n) => n.prayer === defaultNotif.prayer && n.type === defaultNotif.type
+              );
+              const notifId = existingNotif?.id || `${defaultNotif.prayer}-${defaultNotif.type}`;
+              const currentMessage = existingNotif?.message || defaultNotif.message;
+
+              return (
+                <View key={`${defaultNotif.prayer}-${defaultNotif.type}`} style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: Spacing.lg }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.md }}>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                        <View style={[styles.numberBadge, { backgroundColor: theme.primary }]}>
+                          <ThemedText style={{ color: theme.surface, fontWeight: '700', fontSize: 12 }}>
+                            {defaultNotif.number}
+                          </ThemedText>
+                        </View>
+                        <ThemedText style={[styles.cardTitle, { fontSize: 14, marginLeft: Spacing.md, flex: 1 }]}>
+                          {defaultNotif.prayer.toUpperCase()} - {defaultNotif.type === 'start' ? 'শুরু' : 'শেষ'}
+                        </ThemedText>
+                      </View>
                     </View>
-                    <Feather name={notif.type === 'start' ? 'play-circle' : 'pause-circle'} size={24} color={theme.primary} />
+                    <Feather name={defaultNotif.type === 'start' ? 'play-circle' : 'pause-circle'} size={20} color={theme.primary} />
                   </View>
 
-                  {editingNotifId === notif.id ? (
+                  {editingNotifId === notifId ? (
                     <>
                       <TextInput
                         style={[
@@ -457,7 +479,21 @@ export default function AdminPanel() {
                         <Pressable
                           style={[styles.miniButton, { flex: 1, backgroundColor: theme.primary }]}
                           onPress={async () => {
-                            await updateNotificationMessage(notif.id, editingNotifMessage);
+                            if (existingNotif) {
+                              await updateNotificationMessage(notifId, editingNotifMessage);
+                            } else {
+                              // Save new notification
+                              const newNotifs = await AsyncStorage.getItem('prayerNotifications').then(data => data ? JSON.parse(data) : []);
+                              newNotifs.push({
+                                id: notifId,
+                                prayer: defaultNotif.prayer,
+                                type: defaultNotif.type,
+                                scheduledTime: '00:00',
+                                message: editingNotifMessage,
+                                enabled: true,
+                              });
+                              await AsyncStorage.setItem('prayerNotifications', JSON.stringify(newNotifs));
+                            }
                             await loadAllData();
                             setEditingNotifId(null);
                             setEditingNotifMessage('');
@@ -471,13 +507,13 @@ export default function AdminPanel() {
                   ) : (
                     <>
                       <ThemedText style={[styles.metaText, { marginBottom: Spacing.md, marginTop: Spacing.sm }]}>
-                        {notif.message}
+                        {currentMessage}
                       </ThemedText>
                       <Pressable
                         style={[styles.miniButton, { backgroundColor: theme.primary }]}
                         onPress={() => {
-                          setEditingNotifId(notif.id);
-                          setEditingNotifMessage(notif.message);
+                          setEditingNotifId(notifId);
+                          setEditingNotifMessage(currentMessage);
                         }}
                       >
                         <Feather name="edit" size={14} color={theme.surface} style={{ marginRight: 4 }} />
@@ -486,8 +522,8 @@ export default function AdminPanel() {
                     </>
                   )}
                 </View>
-              ))
-            )}
+              );
+            })}
           </View>
         )}
 
@@ -676,6 +712,7 @@ const styles = StyleSheet.create({
   metaText: { fontSize: 11, opacity: 0.6 },
   actionButtons: { flexDirection: 'row', gap: Spacing.sm },
   miniButton: { width: 40, height: 40, borderRadius: BorderRadius.md, alignItems: 'center', justifyContent: 'center' },
+  numberBadge: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   emptyText: { fontSize: 13, textAlign: 'center', marginVertical: Spacing.lg, opacity: 0.6 },
   filterLabel: { fontSize: 13, fontWeight: '600', marginBottom: Spacing.sm },
   filterButtonsGroup: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
