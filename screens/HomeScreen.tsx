@@ -779,7 +779,7 @@ export default function HomeScreen() {
                     if (enabledPrayers[selectedAzanToEdit as keyof typeof enabledPrayers]) {
                       console.log(`🔄 Rescheduling ${selectedAzanToEdit} with new time: ${newTime}`);
                       const { date, ...updatedForNotification } = updated;
-                      await scheduleAzanNotifications(updatedForNotification as Record<string, string>, enabledPrayers);
+                      await schedulePrayerTimeNotifications(updated, enabledPrayers);
                       setTimeout(() => {
                         getScheduledNotifications();
                       }, 500);

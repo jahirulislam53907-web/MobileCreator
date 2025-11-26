@@ -37,6 +37,10 @@ export interface SunriseSunsetInfo {
   };
   label: string;
   timeString: string;
+  showSunrise?: boolean;
+  showSunset?: boolean;
+  sunriseTimeString?: string;
+  sunsetTimeString?: string;
 }
 
 export const formatTime = (date: Date): string => {

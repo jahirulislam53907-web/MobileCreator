@@ -18,6 +18,7 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { updateNotificationMessage } from '@/utils/notificationService';
 
 const DEFAULT_PERMISSIONS = {
   location: 'অবস্থান ব্যবহারের জন্য অনুমতি দিন',
@@ -43,7 +44,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
 
   // Tab Navigation
-  const [activeTab, setActiveTab] = useState<'notifications' | 'filters' | 'permissions' | 'history'>('notifications');
+  const [activeTab, setActiveTab] = useState<'notifications' | 'prayer-notifs' | 'filters' | 'permissions' | 'history'>('notifications');
 
   // Notifications
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -51,6 +52,11 @@ export default function AdminPanel() {
   const [messageText, setMessageText] = useState('');
   const [selectedPrayer, setSelectedPrayer] = useState('custom');
   const [deliveryMode, setDeliveryMode] = useState<'immediate' | 'scheduled'>('immediate');
+  
+  // Prayer Time Notifications
+  const [prayerNotifications, setPrayerNotifications] = useState<any[]>([]);
+  const [editingNotifId, setEditingNotifId] = useState<string | null>(null);
+  const [editingNotifMessage, setEditingNotifMessage] = useState('');
 
   // User Filters
   const [activeFilters, setActiveFilters] = useState({
@@ -91,16 +97,18 @@ export default function AdminPanel() {
 
   const loadAllData = async () => {
     try {
-      const [notifs, perms, history, filters] = await Promise.all([
+      const [notifs, perms, history, filters, prayerNotifs] = await Promise.all([
         AsyncStorage.getItem('notifications'),
         AsyncStorage.getItem('permissionMessages'),
         AsyncStorage.getItem('deliveryHistory'),
         AsyncStorage.getItem('activeFilters'),
+        AsyncStorage.getItem('prayerNotifications'),
       ]);
 
       setNotifications(notifs ? JSON.parse(notifs) : []);
       setPermissionMessages(perms ? JSON.parse(perms) : DEFAULT_PERMISSIONS);
       setDeliveryHistory(history ? JSON.parse(history) : []);
+      setPrayerNotifications(prayerNotifs ? JSON.parse(prayerNotifs) : []);
       if (filters) setActiveFilters(JSON.parse(filters));
     } catch (error) {
       console.error('Load error:', error);
@@ -279,15 +287,15 @@ export default function AdminPanel() {
 
       {/* Tab Navigation */}
       <View style={[styles.tabNav, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        {(['notifications', 'filters', 'permissions', 'history'] as const).map((tab) => (
+        {(['notifications', 'prayer-notifs', 'filters', 'permissions', 'history'] as const).map((tab) => (
           <Pressable
             key={tab}
             style={[styles.tabButton, activeTab === tab && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => setActiveTab(tab as any)}
           >
-            <Feather name={tab === 'notifications' ? 'bell' : tab === 'filters' ? 'filter' : tab === 'permissions' ? 'lock' : 'clock'} size={18} color={activeTab === tab ? theme.primary : theme.text} />
+            <Feather name={tab === 'notifications' ? 'bell' : tab === 'prayer-notifs' ? 'heart' : tab === 'filters' ? 'filter' : tab === 'permissions' ? 'lock' : 'clock'} size={18} color={activeTab === tab ? theme.primary : theme.text} />
             <ThemedText style={[styles.tabText, activeTab === tab && { color: theme.primary, fontWeight: '700' }]}>
-              {tab === 'notifications' ? 'বার্তা' : tab === 'filters' ? 'ফিল্টার' : tab === 'permissions' ? 'পারমিশন' : 'ইতিহাস'}
+              {tab === 'notifications' ? 'বার্তা' : tab === 'prayer-notifs' ? 'নামাজ' : tab === 'filters' ? 'ফিল্টার' : tab === 'permissions' ? 'পারমিশন' : 'ইতিহাস'}
             </ThemedText>
           </Pressable>
         ))}
@@ -398,6 +406,88 @@ export default function AdminPanel() {
                 ))
               )}
             </View>
+          </View>
+        )}
+
+        {/* Prayer Time Notifications Tab */}
+        {activeTab === 'prayer-notifs' && (
+          <View style={{ paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }}>
+            <ThemedText style={[styles.cardTitle, { marginBottom: Spacing.lg }]}>নামাজের সময় বিজ্ঞপ্তি</ThemedText>
+            
+            {prayerNotifications.length === 0 ? (
+              <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                <ThemedText style={styles.emptyText}>কোনো নোটিফিকেশন সেট করা নেই</ThemedText>
+              </View>
+            ) : (
+              prayerNotifications.map((notif) => (
+                <View key={notif.id} style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: Spacing.lg }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
+                    <View>
+                      <ThemedText style={[styles.cardTitle, { fontSize: 14, marginBottom: 4 }]}>
+                        {notif.prayer.toUpperCase()} - {notif.type === 'start' ? 'শুরু' : 'শেষ'}
+                      </ThemedText>
+                      <ThemedText style={styles.metaText}>সময়: {notif.scheduledTime}</ThemedText>
+                    </View>
+                    <Feather name={notif.type === 'start' ? 'play-circle' : 'pause-circle'} size={24} color={theme.primary} />
+                  </View>
+
+                  {editingNotifId === notif.id ? (
+                    <>
+                      <TextInput
+                        style={[
+                          styles.messageInput,
+                          { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface, marginBottom: Spacing.md },
+                        ]}
+                        placeholder="বার্তা পরিবর্তন করুন..."
+                        placeholderTextColor={theme.placeholder}
+                        value={editingNotifMessage}
+                        onChangeText={setEditingNotifMessage}
+                        multiline
+                      />
+                      <View style={{ flexDirection: 'row', gap: Spacing.md }}>
+                        <Pressable
+                          style={[styles.miniButton, { flex: 1, backgroundColor: theme.error }]}
+                          onPress={() => {
+                            setEditingNotifId(null);
+                            setEditingNotifMessage('');
+                          }}
+                        >
+                          <ThemedText style={{ color: theme.surface, fontWeight: '700' }}>বাতিল</ThemedText>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.miniButton, { flex: 1, backgroundColor: theme.primary }]}
+                          onPress={async () => {
+                            await updateNotificationMessage(notif.id, editingNotifMessage);
+                            await loadAllData();
+                            setEditingNotifId(null);
+                            setEditingNotifMessage('');
+                            Alert.alert('সফল', 'বার্তা আপডেট হয়েছে');
+                          }}
+                        >
+                          <ThemedText style={{ color: theme.surface, fontWeight: '700' }}>সংরক্ষণ</ThemedText>
+                        </Pressable>
+                      </View>
+                    </>
+                  ) : (
+                    <>
+                      <ThemedText style={[styles.metaText, { marginBottom: Spacing.md, marginTop: Spacing.sm }]}>
+                        {notif.message}
+                      </ThemedText>
+                      <Pressable
+                        style={[styles.miniButton, { backgroundColor: theme.primary }]}
+                        onPress={() => {
+                          setEditingNotifId(notif.id);
+                          setEditingNotifMessage(notif.message);
+                        }}
+                      >
+                        <Feather name="edit" size={14} color={theme.surface} style={{ marginRight: 4 }} />
+                        <ThemedText style={{ color: theme.surface, fontWeight: '700' }}>সম্পাদনা</ThemedText>
+                      </Pressable>
+                    </>
+                  )}
+                </View>
+              ))
+            )}
           </View>
         )}
 
