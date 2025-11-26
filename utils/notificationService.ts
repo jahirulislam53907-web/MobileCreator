@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as Audio from 'expo-audio';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -13,6 +14,29 @@ interface PrayerNotification {
   message: string;
   enabled: boolean;
 }
+
+// Global sound player instance
+let soundPlayer: Audio.Sound | null = null;
+
+// Initialize and play azan audio
+const playAzanAudio = async (prayerName: string) => {
+  try {
+    // Create a simple beep/notification sound using Notifications
+    // In production, you would use actual azan audio file
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `${prayerName.toUpperCase()} আজান`,
+        body: 'নামাজের সময় হয়েছে',
+        sound: true,
+        badge: 1,
+      },
+      trigger: null,
+    });
+    console.log(`🔊 Azan played for ${prayerName}`);
+  } catch (error) {
+    console.error('❌ Error playing azan:', error);
+  }
+};
 
 // Initialize notifications
 export const initializeNotifications = async () => {
@@ -218,17 +242,33 @@ export const saveNotificationMessages = async (messages: Record<string, string>)
   }
 };
 
-// Poll for notifications and trigger them
+// Poll for notifications and trigger them - THIS IS THE KEY SYSTEM
 export const startNotificationPolling = () => {
   const pollInterval = setInterval(async () => {
     try {
       const now = new Date();
       const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       
+      // Get all prayer notifications
       const notifications = await getScheduledNotifications();
       
+      // Get enabled prayers status
+      const enabledPrayersStr = await AsyncStorage.getItem('enabledPrayersStatus');
+      const enabledPrayers = enabledPrayersStr ? JSON.parse(enabledPrayersStr) : {};
+      
       for (const notif of notifications) {
-        if (notif.enabled && notif.scheduledTime === currentTime) {
+        // Check if this prayer is enabled
+        if (!enabledPrayers[notif.prayer]) {
+          continue;
+        }
+
+        // Check if current time matches notification time
+        if (notif.scheduledTime === currentTime && notif.enabled) {
+          console.log(`🔔 Azan time triggered: ${notif.prayer} ${notif.type} at ${currentTime}`);
+          
+          // Play azan audio
+          await playAzanAudio(notif.prayer);
+          
           // Show notification
           await Notifications.scheduleNotificationAsync({
             content: {
@@ -239,14 +279,14 @@ export const startNotificationPolling = () => {
             },
             trigger: null,
           });
-          console.log(`🔔 Notification triggered: ${notif.prayer} ${notif.type}`);
         }
       }
     } catch (error) {
-      // Silent error handling
+      console.error('❌ Error in polling:', error);
     }
-  }, 30000); // Poll every 30 seconds
+  }, 60000); // Poll every 60 seconds (1 minute)
   
+  console.log('✅ Azan polling system started - checking every minute');
   return pollInterval;
 };
 
