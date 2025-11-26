@@ -22,7 +22,7 @@ export default function HomeScreen() {
   const defaultLat = DHAKA_COORDINATES.latitude;
   const defaultLon = DHAKA_COORDINATES.longitude;
   
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(() => calculatePrayerTimes(defaultLat, defaultLon));
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo>(() => getNextPrayer(defaultLat, defaultLon));
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [formattedDate, setFormattedDate] = useState(formatDate());
@@ -154,10 +154,17 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    const lat = location?.latitude || DHAKA_COORDINATES.latitude;
-    const lon = location?.longitude || DHAKA_COORDINATES.longitude;
-    const times = calculatePrayerTimes(lat, lon);
-    setPrayerTimes(times);
+    const fetchPrayerTimes = async () => {
+      try {
+        const lat = location?.latitude || DHAKA_COORDINATES.latitude;
+        const lon = location?.longitude || DHAKA_COORDINATES.longitude;
+        const times = await calculatePrayerTimes(lat, lon);
+        setPrayerTimes(times);
+      } catch (error) {
+        console.log('Error fetching prayer times:', error);
+      }
+    };
+    fetchPrayerTimes();
     setFormattedDate(formatDate());
   }, [location]);
 

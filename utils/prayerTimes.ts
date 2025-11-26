@@ -39,17 +39,13 @@ export const formatTime = (date: Date): string => {
   });
 };
 
-export const calculatePrayerTimes = (
+// Fallback to Karachi method if API fails
+const calculatePrayerTimesLocal = (
   latitude: number,
   longitude: number,
-  date: Date = new Date()
+  calculationDate: Date
 ): PrayerTimesData => {
-  // Create a new date object with timezone-aware calculation
-  const calculationDate = new Date(date);
-  calculationDate.setHours(0, 0, 0, 0);
-  
   const coordinates = new Coordinates(latitude, longitude);
-  // Using ISNA method - Most accurate for Bangladesh and South Asia
   const params = CalculationMethod.Karachi();
   const prayerTimes = new PrayerTimes(coordinates, calculationDate, params);
 
@@ -62,6 +58,44 @@ export const calculatePrayerTimes = (
     isha: formatTime(prayerTimes.isha),
     date: calculationDate,
   };
+};
+
+// Fetch prayer times from Aladhan API
+export const calculatePrayerTimes = async (
+  latitude: number,
+  longitude: number,
+  date: Date = new Date()
+): Promise<PrayerTimesData> => {
+  try {
+    const calculationDate = new Date(date);
+    calculationDate.setHours(0, 0, 0, 0);
+    
+    const day = calculationDate.getDate();
+    const month = calculationDate.getMonth() + 1;
+    const year = calculationDate.getFullYear();
+    
+    // Aladhan API endpoint
+    const url = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${latitude}&longitude=${longitude}&method=2&tune=0,-2,4,5,0`;
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('API failed');
+    
+    const data = await response.json();
+    const timings = data.data.timings;
+    
+    return {
+      fajr: timings.Fajr,
+      sunrise: timings.Sunrise,
+      dhuhr: timings.Dhuhr,
+      asr: timings.Asr,
+      maghrib: timings.Maghrib,
+      isha: timings.Isha,
+      date: calculationDate,
+    };
+  } catch (error) {
+    // Fallback to local calculation
+    return calculatePrayerTimesLocal(latitude, longitude, new Date(date));
+  }
 };
 
 export const getNextPrayer = (
