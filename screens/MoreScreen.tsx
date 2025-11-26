@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Pressable, TextInput, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { ScreenScrollView } from "@/components/ScreenScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
@@ -19,6 +20,7 @@ const MORE_FEATURES = [
 
 export default function MoreScreen() {
   const { theme } = useAppTheme();
+  const navigation = useNavigation<any>();
   const [zakatAmount, setZakatAmount] = useState("");
   const [zakatResult, setZakatResult] = useState<number | null>(null);
 
@@ -48,6 +50,21 @@ export default function MoreScreen() {
           </Pressable>
         </View>
       </Card>
+
+      <Pressable onPress={() => navigation.navigate('Admin')}>
+        <Card style={[styles.adminCard, { backgroundColor: theme.primary + '10', borderColor: theme.primary, borderWidth: 1.5 }]}>
+          <View style={styles.adminRow}>
+            <View style={[styles.adminIcon, { backgroundColor: theme.primary }]}>
+              <Feather name="settings" size={20} color="#fff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <ThemedText style={[styles.adminTitle, { color: theme.primary }]}>প্রশাসক প্যানেল</ThemedText>
+              <ThemedText style={[styles.adminSubtitle, { color: theme.textSecondary }]}>বিজ্ঞপ্তি এবং আজান পরিচালনা করুন</ThemedText>
+            </View>
+            <Feather name="chevron-right" size={20} color={theme.primary} />
+          </View>
+        </Card>
+      </Pressable>
 
       <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>প্রধান বৈশিষ্ট্য</ThemedText>
       {MORE_FEATURES.map((feature, idx) => (
@@ -118,6 +135,30 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     fontSize: 12,
+    marginTop: 2,
+  },
+  adminCard: {
+    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.md,
+  },
+  adminRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  adminIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adminTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  adminSubtitle: {
+    fontSize: 11,
     marginTop: 2,
   },
   sectionTitle: {
