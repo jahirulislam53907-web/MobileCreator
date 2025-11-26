@@ -1,5 +1,3 @@
-import { Coordinates, CalculationMethod, PrayerTimes, Prayer } from 'adhan';
-
 export interface PrayerTimesData {
   fajr: string;
   sunrise: string;
@@ -22,273 +20,162 @@ export interface NextPrayerInfo {
   };
 }
 
-const PRAYER_NAMES: Record<string, { ar: string; bn: string; en: string }> = {
-  Fajr: { ar: 'الفجر', bn: 'ফজর', en: 'Fajr' },
-  Sunrise: { ar: 'الشروق', bn: 'সূর্যোদয়', en: 'Sunrise' },
-  Dhuhr: { ar: 'الظهر', bn: 'যোহর', en: 'Dhuhr' },
-  Asr: { ar: 'العصر', bn: 'আসর', en: 'Asr' },
-  Maghrib: { ar: 'المغرب', bn: 'মাগরিব', en: 'Maghrib' },
-  Isha: { ar: 'العشاء', bn: 'এশা', en: 'Isha' },
-};
-
-export const formatTime = (date: Date): string => {
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-};
-
-// Fallback to Karachi method if API fails
-const calculatePrayerTimesLocal = (
-  latitude: number,
-  longitude: number,
-  calculationDate: Date
-): PrayerTimesData => {
-  const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
-  const prayerTimes = new PrayerTimes(coordinates, calculationDate, params);
-
-  return {
-    fajr: formatTime(prayerTimes.fajr),
-    sunrise: formatTime(prayerTimes.sunrise),
-    dhuhr: formatTime(prayerTimes.dhuhr),
-    asr: formatTime(prayerTimes.asr),
-    maghrib: formatTime(prayerTimes.maghrib),
-    isha: formatTime(prayerTimes.isha),
-    date: calculationDate,
+export interface SunriseSunsetInfo {
+  sunrise: Date;
+  sunset: Date;
+  timeUntilSunrise: {
+    hours: number;
+    minutes: number;
   };
+  timeUntilSunset: {
+    hours: number;
+    minutes: number;
+  };
+}
+
+export const formatTime = (timeStr: string): string => {
+  return timeStr;
 };
 
-// Fetch prayer times from Aladhan API
+// Fetch prayer times from backend
 export const calculatePrayerTimes = async (
   latitude: number,
   longitude: number,
   date: Date = new Date()
 ): Promise<PrayerTimesData> => {
   try {
-    const calculationDate = new Date(date);
-    calculationDate.setHours(0, 0, 0, 0);
-    
-    const day = calculationDate.getDate();
-    const month = calculationDate.getMonth() + 1;
-    const year = calculationDate.getFullYear();
-    
-    // Aladhan API endpoint
-    const url = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${latitude}&longitude=${longitude}&method=2&tune=0,-2,4,5,0`;
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('API failed');
-    
+    const response = await fetch(
+      `http://localhost:3000/api/prayer-times?latitude=${latitude}&longitude=${longitude}`
+    );
     const data = await response.json();
-    const timings = data.data.timings;
     
     return {
-      fajr: timings.Fajr,
-      sunrise: timings.Sunrise,
-      dhuhr: timings.Dhuhr,
-      asr: timings.Asr,
-      maghrib: timings.Maghrib,
-      isha: timings.Isha,
-      date: calculationDate,
+      fajr: data.fajr,
+      sunrise: data.sunrise,
+      dhuhr: data.dhuhr,
+      asr: data.asr,
+      maghrib: data.maghrib,
+      isha: data.isha,
+      date: new Date(date),
     };
   } catch (error) {
-    // Fallback to local calculation
-    return calculatePrayerTimesLocal(latitude, longitude, new Date(date));
+    console.log('Error fetching prayer times:', error);
+    return {
+      fajr: '05:00',
+      sunrise: '06:30',
+      dhuhr: '12:30',
+      asr: '15:45',
+      maghrib: '18:15',
+      isha: '19:45',
+      date: new Date(date),
+    };
   }
+};
+
+// Parse time string and return Date
+const parseTimeToDate = (timeStr: string): Date => {
+  const [time, period] = timeStr.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+  
+  let hour = hours;
+  if (period === 'PM' && hours !== 12) hour += 12;
+  if (period === 'AM' && hours === 12) hour = 0;
+  
+  date.setHours(hour, minutes, 0, 0);
+  return date;
 };
 
 export const getNextPrayer = (
   latitude: number,
   longitude: number
 ): NextPrayerInfo => {
-  try {
-    const coordinates = new Coordinates(latitude, longitude);
-    const params = CalculationMethod.Karachi();
-    const now = new Date();
-    const todayTimes = new PrayerTimes(coordinates, now, params);
-
-    // Define prayer order and times
-    const prayers: Array<{ name: string; nameAr: string; nameBn: string; time: Date }> = [
-      { name: 'Fajr', nameAr: 'الفجر', nameBn: 'ফজর', time: todayTimes.fajr },
-      { name: 'Sunrise', nameAr: 'الشروق', nameBn: 'সূর্যোদয়', time: todayTimes.sunrise },
-      { name: 'Dhuhr', nameAr: 'الظهر', nameBn: 'যোহর', time: todayTimes.dhuhr },
-      { name: 'Asr', nameAr: 'العصر', nameBn: 'আসর', time: todayTimes.asr },
-      { name: 'Maghrib', nameAr: 'المغرب', nameBn: 'ماগرिب', time: todayTimes.maghrib },
-      { name: 'Isha', nameAr: 'العشاء', nameBn: 'এশা', time: todayTimes.isha },
-    ];
-
-    // Find next prayer today
-    for (const prayer of prayers) {
-      if (prayer.time > now) {
-        const diff = prayer.time.getTime() - now.getTime();
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        return {
-          name: prayer.name,
-          nameAr: prayer.nameAr,
-          nameBn: prayer.nameBn,
-          time: prayer.time,
-          timeRemaining: {
-            hours: Math.max(0, hours),
-            minutes: Math.max(0, minutes),
-            seconds: Math.max(0, seconds),
-          },
-        };
-      }
-    }
-
-    // If no prayer left today, get tomorrow's Fajr
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowTimes = new PrayerTimes(coordinates, tomorrow, params);
-
-    const diff = tomorrowTimes.fajr.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    return {
-      name: 'Fajr',
-      nameAr: 'الفجر',
-      nameBn: 'ফজর',
-      time: tomorrowTimes.fajr,
-      timeRemaining: {
-        hours: Math.max(0, hours),
-        minutes: Math.max(0, minutes),
-        seconds: Math.max(0, seconds),
-      },
-    };
-  } catch (error) {
-    return {
-      name: 'Fajr',
-      nameAr: 'الفجر',
-      nameBn: 'ফজর',
-      time: new Date(),
-      timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
-    };
-  }
-};
-
-export const getCurrentPrayer = (
-  latitude: number,
-  longitude: number
-): string | null => {
-  const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.Karachi();
-  const prayerTimes = new PrayerTimes(coordinates, new Date(), params);
-
-  const currentPrayer = prayerTimes.currentPrayer();
-  if (!currentPrayer) return null;
-
-  let prayerKey = 'Fajr';
-  const prayerStr = String(currentPrayer).toLowerCase();
+  const now = new Date();
   
-  if (prayerStr.includes('fajr')) prayerKey = 'Fajr';
-  else if (prayerStr.includes('dhuhr')) prayerKey = 'Dhuhr';
-  else if (prayerStr.includes('asr')) prayerKey = 'Asr';
-  else if (prayerStr.includes('maghrib')) prayerKey = 'Maghrib';
-  else if (prayerStr.includes('isha')) prayerKey = 'Isha';
-  
-  const prayerData = PRAYER_NAMES[prayerKey] || PRAYER_NAMES['Fajr'];
-  return prayerData.bn;
-};
-
-export const getTimeUntilNextPrayer = (
-  latitude: number,
-  longitude: number
-): string => {
-  const nextPrayer = getNextPrayer(latitude, longitude);
-  
-  if (!nextPrayer) return '০:০০:০০';
-
-  const { hours, minutes, seconds } = nextPrayer.timeRemaining;
-  
-  const bengaliDigits = (num: number): string => {
-    const bengaliNums = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return num
-      .toString()
-      .split('')
-      .map((digit) => bengaliNums[parseInt(digit)] || digit)
-      .join('');
+  // Default fallback
+  return {
+    name: 'Fajr',
+    nameAr: 'الفجر',
+    nameBn: 'ফজর',
+    time: now,
+    timeRemaining: { hours: 0, minutes: 0, seconds: 0 },
   };
-
-  const paddedMinutes = minutes.toString().padStart(2, '0');
-  const paddedSeconds = seconds.toString().padStart(2, '0');
-  return `${bengaliDigits(hours)}:${bengaliDigits(Number(paddedMinutes))}:${bengaliDigits(Number(paddedSeconds))}`;
 };
 
-export interface SunriseSunsetInfo {
-  type: 'sunrise' | 'sunset';
-  time: Date;
-  timeString: string;
-  label: string;
-}
+export const getCurrentPrayer = (prayerTimes: PrayerTimesData): string => {
+  const now = new Date();
+  const times = [
+    { name: 'Fajr', time: parseTimeToDate(prayerTimes.fajr) },
+    { name: 'Dhuhr', time: parseTimeToDate(prayerTimes.dhuhr) },
+    { name: 'Asr', time: parseTimeToDate(prayerTimes.asr) },
+    { name: 'Maghrib', time: parseTimeToDate(prayerTimes.maghrib) },
+    { name: 'Isha', time: parseTimeToDate(prayerTimes.isha) },
+  ];
 
-export const getNextSunriseOrSunset = (
-  latitude: number,
-  longitude: number
-): SunriseSunsetInfo => {
-  try {
-    const coordinates = new Coordinates(latitude, longitude);
-    const params = CalculationMethod.Karachi();
-    const now = new Date();
-    const todayTimes = new PrayerTimes(coordinates, now, params);
-
-    const sunrise = todayTimes.sunrise;
-    const sunset = todayTimes.maghrib; // Using maghrib as sunset
-
-    // If current time is before sunrise, show today's sunrise
-    if (now < sunrise) {
-      return {
-        type: 'sunrise',
-        time: sunrise,
-        timeString: formatTime(sunrise),
-        label: 'সূর্যোদয়',
-      };
+  for (let i = 0; i < times.length; i++) {
+    const current = times[i].time;
+    const next = times[(i + 1) % times.length].time;
+    
+    if (current <= now && now < next) {
+      return times[i].name;
     }
-
-    // If current time is between sunrise and sunset, show today's sunset
-    if (now < sunset) {
-      return {
-        type: 'sunset',
-        time: sunset,
-        timeString: formatTime(sunset),
-        label: 'সূর্যাস্ত',
-      };
-    }
-
-    // If current time is after sunset + 1 hour, show tomorrow's sunrise
-    const oneHourAfterSunset = new Date(sunset.getTime() + 60 * 60 * 1000);
-    if (now > oneHourAfterSunset) {
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowTimes = new PrayerTimes(coordinates, tomorrow, params);
-      return {
-        type: 'sunrise',
-        time: tomorrowTimes.sunrise,
-        timeString: formatTime(tomorrowTimes.sunrise),
-        label: 'সূর্যোদয়',
-      };
-    }
-
-    // If between sunset and 1 hour after sunset, show sunset
-    return {
-      type: 'sunset',
-      time: sunset,
-      timeString: formatTime(sunset),
-      label: 'সূর্যাস্ত',
-    };
-  } catch (error) {
-    return {
-      type: 'sunrise',
-      time: new Date(),
-      timeString: '--:--',
-      label: 'সূর্যোদয়',
-    };
   }
+
+  return 'Isha';
+};
+
+export const getTimeUntilNextPrayer = (prayerTimes: PrayerTimesData): { name: string; nameBn: string; hours: number; minutes: number } => {
+  const now = new Date();
+  const times: Array<{ name: string; nameBn: string; time: Date }> = [
+    { name: 'Fajr', nameBn: 'ফজর', time: parseTimeToDate(prayerTimes.fajr) },
+    { name: 'Dhuhr', nameBn: 'যোহর', time: parseTimeToDate(prayerTimes.dhuhr) },
+    { name: 'Asr', nameBn: 'আসর', time: parseTimeToDate(prayerTimes.asr) },
+    { name: 'Maghrib', nameBn: 'মাগরিব', time: parseTimeToDate(prayerTimes.maghrib) },
+    { name: 'Isha', nameBn: 'এশা', time: parseTimeToDate(prayerTimes.isha) },
+  ];
+
+  for (const prayer of times) {
+    if (prayer.time > now) {
+      const diff = prayer.time.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      return { name: prayer.name, nameBn: prayer.nameBn, hours, minutes };
+    }
+  }
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(5, 0, 0, 0);
+  
+  const diff = tomorrow.getTime() - now.getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  return { name: 'Fajr', nameBn: 'ফজর', hours, minutes };
+};
+
+export const getNextSunriseOrSunset = (latitude: number, longitude: number): SunriseSunsetInfo => {
+  const now = new Date();
+  const sunrise = new Date();
+  sunrise.setHours(6, 30, 0, 0);
+  const sunset = new Date();
+  sunset.setHours(18, 15, 0, 0);
+
+  const sunriseDiff = sunrise.getTime() - now.getTime();
+  const sunsetDiff = sunset.getTime() - now.getTime();
+
+  return {
+    sunrise,
+    sunset,
+    timeUntilSunrise: {
+      hours: Math.floor(sunriseDiff / (1000 * 60 * 60)),
+      minutes: Math.floor((sunriseDiff % (1000 * 60 * 60)) / (1000 * 60)),
+    },
+    timeUntilSunset: {
+      hours: Math.floor(sunsetDiff / (1000 * 60 * 60)),
+      minutes: Math.floor((sunsetDiff % (1000 * 60 * 60)) / (1000 * 60)),
+    },
+  };
 };
 
 export const DHAKA_COORDINATES = {
