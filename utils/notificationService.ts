@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
@@ -121,12 +121,12 @@ export const scheduleAzanNotifications = async (
             sound: 'default',
             badge: 1,
             vibrate: [0, 250, 250, 250],
-            channelId: 'azan-notifications',
           },
           trigger: {
-            type: 'daily',
+            type: 'calendar' as const,
             hour: hour24,
             minute: minutes,
+            repeats: true,
           },
         });
 
@@ -147,30 +147,6 @@ export const scheduleAzanNotifications = async (
     }));
   } catch (error) {
     console.error('❌ Critical error in scheduleAzanNotifications:', error);
-  }
-};
-
-// Send immediate test notification
-export const sendTestNotification = async (prayerName: string) => {
-  try {
-    const prayerLabels: Record<string, string> = {
-      fajr: 'ফজর আজান',
-      dhuhr: 'যোহর আজান',
-      asr: 'আসর আজান',
-      maghrib: 'মাগরিব আজান',
-      isha: 'ইশা আজান',
-    };
-
-    await Notifications.presentNotificationAsync({
-      title: prayerLabels[prayerName] || prayerName,
-      body: 'এটি একটি পরীক্ষা বিজ্ঞপ্তি',
-      sound: 'default',
-      badge: 1,
-    });
-    
-    console.log(`✅ Test notification sent for ${prayerName}`);
-  } catch (error) {
-    console.error('❌ Error sending test notification:', error);
   }
 };
 
