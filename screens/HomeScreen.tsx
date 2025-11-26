@@ -57,6 +57,18 @@ export default function HomeScreen() {
     const currentIndex = Math.round(contentOffsetX / screenWidth);
     setCurrentVerseIndex(currentIndex);
     
+    // Snap to center - calculate perfect center position
+    const itemWidth = screenWidth - 30;
+    const targetOffsetX = currentIndex * itemWidth;
+    
+    // Scroll to perfectly centered position
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ 
+        offset: targetOffsetX, 
+        animated: true 
+      });
+    }
+    
     // Trigger animation based on current verse height
     const currentHeight = verseHeights[currentIndex] || 0;
     const shouldCollapse = currentHeight <= 200; // small verse = collapse
@@ -304,8 +316,6 @@ export default function HomeScreen() {
             onMomentumScrollEnd={handleScrollEnd}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.carouselContent}
-            snapToAlignment="center"
-            snapToInterval={screenWidth - 30}
             decelerationRate="fast"
           />
           
