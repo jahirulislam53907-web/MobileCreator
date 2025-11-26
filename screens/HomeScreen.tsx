@@ -1073,7 +1073,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingBottom: 4,
-    borderBottomWidth: 1,
   },
   prayerHeaderInfo: {
     flexDirection: 'row',
