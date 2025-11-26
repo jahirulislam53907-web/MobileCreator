@@ -27,7 +27,20 @@ export default function HomeScreen() {
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [formattedDate, setFormattedDate] = useState(formatDate());
   const [selectedPrayerToEdit, setSelectedPrayerToEdit] = useState<string | null>(null);
-  const [editTimeValue, setEditTimeValue] = useState('');
+  const [editHours, setEditHours] = useState('00');
+  const [editMinutes, setEditMinutes] = useState('00');
+  const [editPeriod, setEditPeriod] = useState('AM');
+
+  const handleTimeInput = (value: string, type: 'hours' | 'minutes') => {
+    const numericOnly = value.replace(/[^0-9]/g, '');
+    if (type === 'hours') {
+      const hours = numericOnly ? Math.min(parseInt(numericOnly), 23).toString().padStart(2, '0') : '00';
+      setEditHours(hours);
+    } else {
+      const minutes = numericOnly ? Math.min(parseInt(numericOnly), 59).toString().padStart(2, '0') : '00';
+      setEditMinutes(minutes);
+    }
+  };
   
   const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -387,8 +400,12 @@ export default function HomeScreen() {
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
                 <Pressable key={prayer.key} onPress={() => {
+                  const parts = prayer.time.split(' ');
+                  const timeParts = parts[0].split(':');
                   setSelectedPrayerToEdit(prayer.key);
-                  setEditTimeValue(prayer.time);
+                  setEditHours(timeParts[0]);
+                  setEditMinutes(timeParts[1]);
+                  setEditPeriod(parts[1] || 'AM');
                 }} style={styles.prayerTimeItem}>
                   <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
                   <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
@@ -464,23 +481,46 @@ export default function HomeScreen() {
         onRequestClose={() => setSelectedPrayerToEdit(null)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault }]}>
-            <ThemedText style={styles.modalTitle}>
-              {selectedPrayerToEdit === 'fajr' && 'ফজর'}
-              {selectedPrayerToEdit === 'dhuhr' && 'যোহর'}
-              {selectedPrayerToEdit === 'asr' && 'আসর'}
-              {selectedPrayerToEdit === 'maghrib' && 'মাগরিব'}
-              {selectedPrayerToEdit === 'isha' && 'এশা'}
-              {' এর সময় সম্পাদনা করুন'}
-            </ThemedText>
+          <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
+            <View style={styles.modalHeader}>
+              <ThemedText style={styles.modalTitle}>
+                {selectedPrayerToEdit === 'fajr' && 'ফজর'}
+                {selectedPrayerToEdit === 'dhuhr' && 'যোহর'}
+                {selectedPrayerToEdit === 'asr' && 'আসর'}
+                {selectedPrayerToEdit === 'maghrib' && 'মাগরিব'}
+                {selectedPrayerToEdit === 'isha' && 'এশা'}
+              </ThemedText>
+            </View>
             
-            <TextInput
-              style={[styles.timeInput, { color: theme.text, borderColor: theme.primary }]}
-              value={editTimeValue}
-              onChangeText={setEditTimeValue}
-              placeholder="05:00 AM"
-              placeholderTextColor={theme.textSecondary}
-            />
+            <View style={styles.timeInputContainer}>
+              <View style={styles.timeInputGroup}>
+                <TextInput
+                  style={[styles.timeInputField, { color: theme.text, borderColor: theme.primary }]}
+                  value={editHours}
+                  onChangeText={(val) => handleTimeInput(val, 'hours')}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  placeholder="00"
+                  placeholderTextColor={theme.textSecondary}
+                />
+                <ThemedText style={styles.timeColon}>:</ThemedText>
+                <TextInput
+                  style={[styles.timeInputField, { color: theme.text, borderColor: theme.primary }]}
+                  value={editMinutes}
+                  onChangeText={(val) => handleTimeInput(val, 'minutes')}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  placeholder="00"
+                  placeholderTextColor={theme.textSecondary}
+                />
+                <Pressable
+                  style={styles.periodToggle}
+                  onPress={() => setEditPeriod(editPeriod === 'AM' ? 'PM' : 'AM')}
+                >
+                  <ThemedText style={styles.periodText}>{editPeriod}</ThemedText>
+                </Pressable>
+              </View>
+            </View>
             
             <View style={styles.modalButtonGroup}>
               <Pressable
@@ -494,7 +534,8 @@ export default function HomeScreen() {
                 style={[styles.modalButton, { backgroundColor: theme.primary }]}
                 onPress={async () => {
                   if (prayerTimes && selectedPrayerToEdit) {
-                    const updated = { ...prayerTimes, [selectedPrayerToEdit]: editTimeValue };
+                    const newTime = `${editHours}:${editMinutes} ${editPeriod}`;
+                    const updated = { ...prayerTimes, [selectedPrayerToEdit]: newTime };
                     await saveCustomPrayerTimes(updated);
                     setPrayerTimes(updated);
                     setSelectedPrayerToEdit(null);
