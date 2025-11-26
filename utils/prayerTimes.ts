@@ -1,3 +1,5 @@
+import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
+
 export interface PrayerTimesData {
   fajr: string;
   sunrise: string;
@@ -33,7 +35,36 @@ export interface SunriseSunsetInfo {
   };
 }
 
-// Fetch prayer times from database
+export const formatTime = (date: Date): string => {
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
+// Calculate prayer times using Karachi method
+const calculatePrayerTimesLocal = (
+  latitude: number,
+  longitude: number,
+  calculationDate: Date
+): PrayerTimesData => {
+  const coordinates = new Coordinates(latitude, longitude);
+  const params = CalculationMethod.Karachi();
+  const prayerTimes = new PrayerTimes(coordinates, calculationDate, params);
+
+  return {
+    fajr: formatTime(prayerTimes.fajr),
+    sunrise: formatTime(prayerTimes.sunrise),
+    dhuhr: formatTime(prayerTimes.dhuhr),
+    asr: formatTime(prayerTimes.asr),
+    maghrib: formatTime(prayerTimes.maghrib),
+    isha: formatTime(prayerTimes.isha),
+    date: calculationDate,
+  };
+};
+
+// Fetch prayer times from database, or calculate using Karachi method
 export const calculatePrayerTimes = async (
   latitude: number,
   longitude: number,
@@ -44,7 +75,8 @@ export const calculatePrayerTimes = async (
     const data = await response.json();
     
     if (data.error) {
-      throw new Error(data.error);
+      // If not in DB, calculate using Karachi method
+      return calculatePrayerTimesLocal(latitude, longitude, new Date(date));
     }
     
     return {
@@ -57,8 +89,9 @@ export const calculatePrayerTimes = async (
       date: new Date(date),
     };
   } catch (error) {
-    console.log('Error fetching prayer times:', error);
-    throw error;
+    // Fallback to Karachi method
+    console.log('Error fetching prayer times, using Karachi method:', error);
+    return calculatePrayerTimesLocal(latitude, longitude, new Date(date));
   }
 };
 

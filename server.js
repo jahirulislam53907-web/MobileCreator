@@ -9,7 +9,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 app.use(cors());
 app.use(express.json());
 
-// Init Database - prayer_times table only
+// Init Database - prayer_times table
 pool.query(`
   CREATE TABLE IF NOT EXISTS prayer_times (
     id SERIAL PRIMARY KEY,
@@ -51,7 +51,7 @@ app.get('/api/prayer-times', async (req, res) => {
   }
 });
 
-// Add prayer times (admin endpoint)
+// Add/Update prayer times (admin endpoint)
 app.post('/api/prayer-times', async (req, res) => {
   try {
     const { date, fajr, sunrise, dhuhr, asr, maghrib, isha } = req.body;
