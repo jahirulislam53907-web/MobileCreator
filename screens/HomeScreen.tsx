@@ -27,9 +27,11 @@ export default function HomeScreen() {
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [formattedDate, setFormattedDate] = useState(formatDate());
   const [selectedPrayerToEdit, setSelectedPrayerToEdit] = useState<string | null>(null);
+  const [selectedAzanToEdit, setSelectedAzanToEdit] = useState<string | null>(null);
   const [editHours, setEditHours] = useState('00');
   const [editMinutes, setEditMinutes] = useState('00');
   const [editPeriod, setEditPeriod] = useState('AM');
+  const [azanTimes, setAzanTimes] = useState<PrayerTimesData | null>(null);
 
   const handleTimeInput = (value: string, type: 'hours' | 'minutes') => {
     const numericOnly = value.replace(/[^0-9]/g, '');
@@ -192,6 +194,12 @@ export default function HomeScreen() {
         const lon = location?.longitude || DHAKA_COORDINATES.longitude;
         const times = await calculatePrayerTimes(lat, lon);
         setPrayerTimes(times);
+        const savedAzan = await AsyncStorage.getItem('customAzanTimes');
+        if (savedAzan) {
+          setAzanTimes(JSON.parse(savedAzan));
+        } else {
+          setAzanTimes(times);
+        }
       } catch (error) {
         console.log('Error fetching prayer times:', error);
       }
@@ -388,12 +396,22 @@ export default function HomeScreen() {
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
             {/* Azan Times Grid */}
             <View style={styles.prayerGrid}>
-              {prayers.map((prayer) => (
-                <View key={prayer.key} style={styles.prayerTimeItem}>
-                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
-                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-                </View>
-              ))}
+              {azanTimes && prayers.map((prayer) => {
+                const azanTime = String(azanTimes[prayer.key as keyof PrayerTimesData] || prayer.time);
+                return (
+                  <Pressable key={prayer.key} onPress={() => {
+                    const parts = azanTime.split(' ');
+                    const timeParts = parts[0].split(':');
+                    setSelectedAzanToEdit(prayer.key);
+                    setEditHours(timeParts[0]);
+                    setEditMinutes(timeParts[1]);
+                    setEditPeriod(parts[1] || 'AM');
+                  }} style={styles.prayerTimeItem}>
+                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                    <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{azanTime}</ThemedText>
+                  </Pressable>
+                );
+              })}
             </View>
             <View style={styles.prayerInfoBox}>
               <ThemedText style={styles.prayerInfoText}>প্রতিটি নামাজের আজান শোনার সময় এখানে প্রদর্শিত হয়। আপনার এলাকার মসজিদের আজান সময়সূচী অনুযায়ী কাস্টমাইজ করুন।</ThemedText>
@@ -514,20 +532,23 @@ export default function HomeScreen() {
       </ScrollView>
       
       <Modal
-        visible={selectedPrayerToEdit !== null}
+        visible={selectedPrayerToEdit !== null || selectedAzanToEdit !== null}
         animationType="fade"
         transparent={true}
-        onRequestClose={() => setSelectedPrayerToEdit(null)}
+        onRequestClose={() => {
+          setSelectedPrayerToEdit(null);
+          setSelectedAzanToEdit(null);
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.primary }]}>
             <View style={styles.modalHeader}>
               <ThemedText style={styles.modalTitle}>
-                {selectedPrayerToEdit === 'fajr' && 'ফজর'}
-                {selectedPrayerToEdit === 'dhuhr' && 'যোহর'}
-                {selectedPrayerToEdit === 'asr' && 'আসর'}
-                {selectedPrayerToEdit === 'maghrib' && 'মাগরিব'}
-                {selectedPrayerToEdit === 'isha' && 'এশা'}
+                {(selectedPrayerToEdit === 'fajr' || selectedAzanToEdit === 'fajr') && 'ফজর'}
+                {(selectedPrayerToEdit === 'dhuhr' || selectedAzanToEdit === 'dhuhr') && 'যোহর'}
+                {(selectedPrayerToEdit === 'asr' || selectedAzanToEdit === 'asr') && 'আসর'}
+                {(selectedPrayerToEdit === 'maghrib' || selectedAzanToEdit === 'maghrib') && 'মাগরিব'}
+                {(selectedPrayerToEdit === 'isha' || selectedAzanToEdit === 'isha') && 'এশা'}
               </ThemedText>
             </View>
             
@@ -564,7 +585,10 @@ export default function HomeScreen() {
             <View style={styles.modalButtonGroup}>
               <Pressable
                 style={[styles.modalButton, { backgroundColor: theme.backgroundSecondary }]}
-                onPress={() => setSelectedPrayerToEdit(null)}
+                onPress={() => {
+                  setSelectedPrayerToEdit(null);
+                  setSelectedAzanToEdit(null);
+                }}
               >
                 <ThemedText style={[styles.modalButtonText, { color: theme.primary }]}>বাতিল</ThemedText>
               </Pressable>
@@ -572,14 +596,20 @@ export default function HomeScreen() {
               <Pressable
                 style={[styles.modalButton, { backgroundColor: theme.primary }]}
                 onPress={async () => {
-                  if (prayerTimes && selectedPrayerToEdit) {
-                    const paddedHours = (editHours || '00').padStart(2, '0');
-                    const paddedMinutes = (editMinutes || '00').padStart(2, '0');
-                    const newTime = `${paddedHours}:${paddedMinutes} ${editPeriod}`;
+                  const paddedHours = (editHours || '00').padStart(2, '0');
+                  const paddedMinutes = (editMinutes || '00').padStart(2, '0');
+                  const newTime = `${paddedHours}:${paddedMinutes} ${editPeriod}`;
+                  
+                  if (selectedPrayerToEdit && prayerTimes) {
                     const updated = { ...prayerTimes, [selectedPrayerToEdit]: newTime };
                     await saveCustomPrayerTimes(updated);
                     setPrayerTimes(updated);
                     setSelectedPrayerToEdit(null);
+                  } else if (selectedAzanToEdit && azanTimes) {
+                    const updated = { ...azanTimes, [selectedAzanToEdit]: newTime };
+                    await AsyncStorage.setItem('customAzanTimes', JSON.stringify(updated));
+                    setAzanTimes(updated);
+                    setSelectedAzanToEdit(null);
                   }
                 }}
               >
