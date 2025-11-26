@@ -12,7 +12,7 @@ import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COOR
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
-import { scheduleAzanNotifications } from "@/utils/notificationService";
+import { scheduleAzanNotifications, sendTestNotification, getScheduledNotifications } from "@/utils/notificationService";
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
@@ -425,12 +425,26 @@ export default function HomeScreen() {
                     </Pressable>
                     <Pressable 
                       onPress={async () => {
-                        const updated = { ...enabledPrayers, [prayer.key]: !enabledPrayers[prayer.key as keyof typeof enabledPrayers] };
+                        const isCurrentlyEnabled = enabledPrayers[prayer.key as keyof typeof enabledPrayers];
+                        const updated = { ...enabledPrayers, [prayer.key]: !isCurrentlyEnabled };
                         setEnabledPrayers(updated);
                         await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
+                        
                         if (azanTimes) {
                           await scheduleAzanNotifications(azanTimes as Record<string, string>, updated);
+                          
+                          // Send test notification if turning ON
+                          if (!isCurrentlyEnabled) {
+                            setTimeout(() => {
+                              sendTestNotification(prayer.key);
+                            }, 500);
+                          }
                         }
+                        
+                        // Log scheduled notifications for debugging
+                        setTimeout(() => {
+                          getScheduledNotifications();
+                        }, 1000);
                       }}
                       style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
                     >
