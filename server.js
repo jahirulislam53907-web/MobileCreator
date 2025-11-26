@@ -9,21 +9,43 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 app.use(cors());
 app.use(express.json());
 
+// In-memory storage for notifications (until persistent DB)
+let allNotifications = [];
+let permissionMessages = {
+  location: 'অবস্থান ব্যবহারের জন্য অনুমতি দিন নামাজের সময় পেতে',
+  notification: 'নোটিফিকেশন পাঠাতে অনুমতি দিন',
+  calendar: 'ক্যালেন্ডার অ্যাক্সেস করতে অনুমতি দিন'
+};
+
 // Init Database Tables
 const initDatabase = async () => {
   try {
-    // Prayer times table
+    // All notifications table (unified)
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS prayer_times (
+      CREATE TABLE IF NOT EXISTS all_notifications (
         id SERIAL PRIMARY KEY,
-        date DATE UNIQUE,
-        fajr VARCHAR(10),
-        sunrise VARCHAR(10),
-        dhuhr VARCHAR(10),
-        asr VARCHAR(10),
-        maghrib VARCHAR(10),
-        isha VARCHAR(10),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        notification_id VARCHAR(50) UNIQUE,
+        admin_id VARCHAR(100),
+        type VARCHAR(50),
+        prayer_name VARCHAR(50),
+        message TEXT,
+        delivery_mode VARCHAR(50),
+        target_platform VARCHAR(50),
+        status VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        scheduled_for TIMESTAMP,
+        delivered_at TIMESTAMP
+      );
+    `);
+
+    // Permission messages table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS permission_messages (
+        id SERIAL PRIMARY KEY,
+        key VARCHAR(100) UNIQUE,
+        message_bn TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP
       );
     `);
 
@@ -38,34 +60,6 @@ const initDatabase = async () => {
       );
     `);
 
-    // Manual notifications table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS manual_notifications (
-        id SERIAL PRIMARY KEY,
-        admin_id INTEGER REFERENCES admin_users(id),
-        prayer_name VARCHAR(50),
-        message TEXT,
-        target_users VARCHAR(50),
-        status VARCHAR(20) DEFAULT 'pending',
-        scheduled_time TIMESTAMP,
-        sent_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // User notification preferences table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS user_notification_prefs (
-        id SERIAL PRIMARY KEY,
-        user_id VARCHAR(255),
-        prayer_name VARCHAR(50),
-        automatic_enabled BOOLEAN DEFAULT true,
-        manual_enabled BOOLEAN DEFAULT true,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, prayer_name)
-      );
-    `);
-
     console.log('Database tables initialized');
   } catch (error) {
     console.error('Database init error:', error);
@@ -74,228 +68,192 @@ const initDatabase = async () => {
 
 initDatabase();
 
-// ===== PRAYER TIMES ENDPOINTS =====
-
-// Get prayer times from database
-app.get('/api/prayer-times', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT fajr, sunrise, dhuhr, asr, maghrib, isha FROM prayer_times WHERE date = CURRENT_DATE'
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Prayer times not found for today' });
-    }
-    
-    const times = result.rows[0];
-    res.json({
-      fajr: times.fajr,
-      sunrise: times.sunrise,
-      dhuhr: times.dhuhr,
-      asr: times.asr,
-      maghrib: times.maghrib,
-      isha: times.isha,
-      date: new Date().toISOString().split('T')[0]
-    });
-  } catch (error) {
-    console.error('Prayer times error:', error);
-    res.status(500).json({ error: 'Failed to fetch prayer times' });
-  }
-});
-
-// Add/Update prayer times (admin endpoint)
-app.post('/api/prayer-times', async (req, res) => {
-  try {
-    const { date, fajr, sunrise, dhuhr, asr, maghrib, isha } = req.body;
-    
-    await pool.query(`
-      INSERT INTO prayer_times (date, fajr, sunrise, dhuhr, asr, maghrib, isha)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      ON CONFLICT (date) DO UPDATE SET 
-        fajr=$2, sunrise=$3, dhuhr=$4, asr=$5, maghrib=$6, isha=$7
-    `, [date, fajr, sunrise, dhuhr, asr, maghrib, isha]);
-    
-    res.json({ success: true, message: 'Prayer times saved' });
-  } catch (error) {
-    console.error('Error saving prayer times:', error);
-    res.status(500).json({ error: 'Failed to save prayer times' });
-  }
-});
-
 // ===== ADMIN AUTH ENDPOINTS =====
 
-// Check if admin exists
-app.get('/api/admin/check', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT COUNT(*) as count FROM admin_users');
-    const count = parseInt(result.rows[0].count, 10);
-    res.json({ adminExists: count > 0 });
-  } catch (error) {
-    console.error('Admin check error:', error);
-    res.status(500).json({ error: 'Check failed' });
-  }
-});
-
-// Admin login
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    const result = await pool.query(
+      'SELECT id, username FROM admin_users WHERE username = $1 AND password = $2',
+      [username, password]
+    );
     
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password required' });
+    if (result.rows.length > 0) {
+      res.json({ success: true, admin: result.rows[0] });
+    } else {
+      res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    const result = await pool.query('SELECT id, username FROM admin_users WHERE username = $1 AND password = crypt($2, password)', [username, password]);
-    
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const admin = result.rows[0];
-    res.json({ success: true, adminId: admin.id, username: admin.username });
   } catch (error) {
-    console.error('Admin login error:', error);
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 });
 
-// Create admin user (first time setup)
 app.post('/api/admin/register', async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password } = req.body;
     
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password required' });
+    try {
+      const result = await pool.query(
+        'INSERT INTO admin_users (username, password) VALUES ($1, $2) RETURNING id, username',
+        [username, password]
+      );
+      res.json({ success: true, admin: result.rows[0] });
+    } catch (dbError) {
+      if (dbError.message.includes('duplicate')) {
+        res.status(400).json({ error: 'Username already exists' });
+      } else {
+        throw dbError;
+      }
     }
-
-    const result = await pool.query(
-      'INSERT INTO admin_users (username, password, email) VALUES ($1, crypt($2, gen_salt(\'bf\')), $3) RETURNING id, username',
-      [username, password, email]
-    );
-
-    res.json({ success: true, admin: result.rows[0] });
   } catch (error) {
-    console.error('Admin register error:', error);
+    console.error('Register error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 });
 
-// ===== MANUAL NOTIFICATION ENDPOINTS =====
+// ===== UNIFIED NOTIFICATION ENDPOINTS =====
 
-// Store pending notifications for delivery
-let pendingNotifications = [];
-
-// Send manual notification to all users
-app.post('/api/notifications/send', async (req, res) => {
+// Get all notifications (for dashboard)
+app.get('/api/notifications/all', async (req, res) => {
   try {
-    const { admin_id, prayer_name, message, target_users } = req.body;
-    
-    if (!admin_id || !message) {
-      return res.status(400).json({ error: 'Admin ID and message required' });
-    }
-
-    const notification = {
-      id: Math.random().toString(36).substr(2, 9),
-      admin_id,
-      prayer_name: prayer_name || 'general',
-      message,
-      target_users: target_users || 'all',
-      status: 'sent',
-      created_at: new Date().toISOString(),
-      timestamp: Date.now()
-    };
-
-    // Store in memory for delivery
-    pendingNotifications.push(notification);
-    
-    // Keep only last 100 notifications
-    if (pendingNotifications.length > 100) {
-      pendingNotifications = pendingNotifications.slice(-100);
-    }
-
-    try {
-      const result = await pool.query(
-        `INSERT INTO manual_notifications (admin_id, prayer_name, message, target_users, status)
-         VALUES ($1, $2, $3, $4, 'sent')
-         RETURNING id, message`,
-        [admin_id, prayer_name || 'general', message, target_users || 'all']
-      );
-    } catch (dbError) {
-      console.log('DB write optional:', dbError.message);
-    }
-
-    res.json({ success: true, notification });
+    const notifs = allNotifications.sort((a, b) => b.created_at - a.created_at);
+    res.json({ notifications: notifs });
   } catch (error) {
-    console.error('Notification send error:', error);
-    res.status(500).json({ error: 'Failed to send notification' });
-  }
-});
-
-// Fetch pending notifications for app
-app.get('/api/notifications/pending', async (req, res) => {
-  try {
-    const since = parseInt(req.query.since || '0', 10);
-    const newNotifications = pendingNotifications.filter(n => n.timestamp > since);
-    res.json({ notifications: newNotifications, timestamp: Date.now() });
-  } catch (error) {
-    console.error('Fetch pending error:', error);
     res.status(500).json({ error: 'Failed to fetch' });
   }
 });
 
-// Get sent notifications history
-app.get('/api/notifications/history', async (req, res) => {
+// Create new notification (CRUD: Create)
+app.post('/api/notifications/create', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT id, prayer_name, message, target_users, status, sent_at, created_at 
-       FROM manual_notifications 
-       ORDER BY created_at DESC 
-       LIMIT 50`
-    );
+    const { admin_id, type, prayer_name, message, delivery_mode, target_platform } = req.body;
+    
+    const notification = {
+      id: Math.random().toString(36).substr(2, 9),
+      admin_id,
+      type: type || 'custom',
+      prayer_name: prayer_name || null,
+      message,
+      delivery_mode: delivery_mode || 'immediate',
+      target_platform: target_platform || 'all',
+      status: 'pending',
+      created_at: Date.now(),
+      timestamp: Date.now()
+    };
 
-    res.json(result.rows);
+    allNotifications.push(notification);
+    
+    try {
+      await pool.query(
+        `INSERT INTO all_notifications (notification_id, admin_id, type, prayer_name, message, delivery_mode, target_platform, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
+        [notification.id, admin_id, type, prayer_name, message, delivery_mode, target_platform]
+      );
+    } catch (dbError) {
+      console.log('DB optional:', dbError.message);
+    }
+
+    res.json({ success: true, notification });
   } catch (error) {
-    console.error('History error:', error);
-    res.status(500).json({ error: 'Failed to fetch history' });
+    res.status(500).json({ error: 'Failed to create' });
   }
 });
 
-// ===== USER NOTIFICATION PREFERENCES =====
-
-// Get user notification preferences
-app.get('/api/notifications/preferences/:userId', async (req, res) => {
+// Update notification (CRUD: Update)
+app.put('/api/notifications/:id', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { id } = req.params;
+    const { message, delivery_mode, target_platform, prayer_name } = req.body;
     
-    const result = await pool.query(
-      'SELECT prayer_name, automatic_enabled, manual_enabled FROM user_notification_prefs WHERE user_id = $1',
-      [userId]
-    );
+    const idx = allNotifications.findIndex(n => n.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Not found' });
+    }
 
-    res.json(result.rows);
+    allNotifications[idx] = {
+      ...allNotifications[idx],
+      message: message || allNotifications[idx].message,
+      delivery_mode: delivery_mode || allNotifications[idx].delivery_mode,
+      target_platform: target_platform || allNotifications[idx].target_platform,
+      prayer_name: prayer_name !== undefined ? prayer_name : allNotifications[idx].prayer_name
+    };
+
+    res.json({ success: true, notification: allNotifications[idx] });
   } catch (error) {
-    console.error('Preferences error:', error);
-    res.status(500).json({ error: 'Failed to fetch preferences' });
+    res.status(500).json({ error: 'Failed to update' });
   }
 });
 
-// Update user notification preferences
-app.post('/api/notifications/preferences', async (req, res) => {
+// Delete notification (CRUD: Delete)
+app.delete('/api/notifications/:id', async (req, res) => {
   try {
-    const { user_id, prayer_name, automatic_enabled, manual_enabled } = req.body;
+    const { id } = req.params;
     
-    await pool.query(
-      `INSERT INTO user_notification_prefs (user_id, prayer_name, automatic_enabled, manual_enabled)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id, prayer_name) DO UPDATE SET
-       automatic_enabled = $3, manual_enabled = $4`,
-      [user_id, prayer_name, automatic_enabled, manual_enabled]
-    );
-
-    res.json({ success: true, message: 'Preferences updated' });
+    allNotifications = allNotifications.filter(n => n.id !== id);
+    res.json({ success: true });
   } catch (error) {
-    console.error('Update preferences error:', error);
-    res.status(500).json({ error: 'Failed to update preferences' });
+    res.status(500).json({ error: 'Failed to delete' });
+  }
+});
+
+// Send notification immediately to all devices
+app.post('/api/notifications/send-now', async (req, res) => {
+  try {
+    const { notification_id, message, target_platform } = req.body;
+    
+    const notification = allNotifications.find(n => n.id === notification_id);
+    if (notification) {
+      notification.status = 'sent';
+      notification.delivered_at = Date.now();
+    }
+
+    res.json({ success: true, message: 'Notification queued for delivery' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to send' });
+  }
+});
+
+// Fetch pending notifications for app polling
+app.get('/api/notifications/pending', async (req, res) => {
+  try {
+    const since = parseInt(req.query.since || '0', 10);
+    const pending = allNotifications.filter(n => 
+      n.timestamp > since && 
+      (n.delivery_mode === 'immediate' || n.status === 'sent')
+    );
+    
+    res.json({ notifications: pending, timestamp: Date.now() });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch' });
+  }
+});
+
+// ===== PERMISSION MESSAGES ENDPOINTS =====
+
+// Get all permission messages
+app.get('/api/permissions/messages', async (req, res) => {
+  try {
+    res.json({ messages: permissionMessages });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch' });
+  }
+});
+
+// Update permission message
+app.put('/api/permissions/messages/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    const { message } = req.body;
+    
+    if (permissionMessages.hasOwnProperty(key)) {
+      permissionMessages[key] = message;
+      res.json({ success: true, messages: permissionMessages });
+    } else {
+      res.status(404).json({ error: 'Key not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update' });
   }
 });
 

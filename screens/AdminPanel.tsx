@@ -5,384 +5,437 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
-import { useTranslation } from '@/src/contexts/LanguageContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const API_URL = 'http://localhost:3000/api';
 
 export default function AdminPanel() {
   const { theme } = useAppTheme();
-  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [adminExists, setAdminExists] = useState(true);
-  const [isRegistering, setIsRegistering] = useState(false);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Login form
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Notification form
-  const [selectedPrayer, setSelectedPrayer] = useState('fajr');
+  
+  const [tab, setTab] = useState<'azan' | 'custom' | 'permissions'>('custom');
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [permissionMessages, setPermissionMessages] = useState<any>({});
+  
+  // Form states
+  const [prayerName, setPrayerName] = useState('fajr');
   const [message, setMessage] = useState('');
-  const [targetUsers, setTargetUsers] = useState('all');
-
-  // History
-  const [history, setHistory] = useState<any[]>([]);
+  const [deliveryMode, setDeliveryMode] = useState<'prayer-time' | 'immediate'>('immediate');
+  const [targetPlatform, setTargetPlatform] = useState<'all' | 'ios' | 'android'>('all');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingPermKey, setEditingPermKey] = useState<string | null>(null);
+  const [editingPermMessage, setEditingPermMessage] = useState('');
 
   const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
-  // Check if admin exists on mount
-  React.useEffect(() => {
-    checkAdminExists();
+  useEffect(() => {
+    checkLoginStatus();
   }, []);
 
-  const checkAdminExists = async () => {
-    try {
-      const savedAdmin = await AsyncStorage.getItem('adminUser');
-      if (savedAdmin) {
-        setAdminExists(true);
-        setIsRegistering(false);
-      } else {
-        setAdminExists(false);
-        setIsRegistering(true);
-      }
-    } catch (error) {
-      console.error('Check failed:', error);
-      setIsRegistering(true);
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotifications();
+      fetchPermissionMessages();
+    }
+  }, [isLoggedIn]);
+
+  const checkLoginStatus = async () => {
+    const saved = await AsyncStorage.getItem('adminUser');
+    if (saved) {
+      const data = JSON.parse(saved);
+      setAdminId(data.id);
+      setIsLoggedIn(true);
     }
   };
 
-  // Admin register (first time)
-  const handleRegister = async () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert('ত্রুটি', 'ব্যবহারকারী নাম এবং পাসওয়ার্ড প্রয়োজন');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('ত্রুটি', 'পাসওয়ার্ড মিলছে না');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const adminData = { username, password, id: Math.random().toString(36).substr(2, 9) };
-      await AsyncStorage.setItem('adminUser', JSON.stringify(adminData));
-      
-      Alert.alert('সফল', 'প্রশাসক অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন করুন।');
-      setIsRegistering(false);
-      setPassword('');
-      setConfirmPassword('');
-      setAdminExists(true);
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'অ্যাকাউন্ট তৈরিতে ব্যর্থ');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Admin login
   const handleLogin = async () => {
-    if (!password.trim()) {
-      Alert.alert('ত্রুটি', 'পাসওয়ার্ড প্রয়োজন');
+    if (!username.trim() || !password.trim()) {
+      Alert.alert('ত্রুটি', 'সব ফিল্ড পূরণ করুন');
       return;
     }
 
     setLoading(true);
     try {
-      const savedAdmin = await AsyncStorage.getItem('adminUser');
-      if (!savedAdmin) {
-        Alert.alert('ত্রুটি', 'কোনো অ্যাকাউন্ট নেই');
-        return;
-      }
-
-      const adminData = JSON.parse(savedAdmin);
-      if (adminData.username === username && adminData.password === password) {
-        setAdminId(adminData.id);
-        setIsLoggedIn(true);
-        fetchHistory();
-        setPassword('');
-      } else {
-        Alert.alert('লগইন ব্যর্থ', 'ইউজারনেম বা পাসওয়ার্ড ভুল');
-      }
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'লগইন ব্যর্থ');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Send notification
-  const handleSendNotification = async () => {
-    if (!message.trim()) {
-      Alert.alert('ত্রুটি', 'বার্তা প্রয়োজন');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Try server first
-      try {
-        const response = await fetch(`${API_URL}/notifications/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            admin_id: adminId,
-            prayer_name: selectedPrayer,
-            message,
-            target_users: targetUsers
-          })
-        });
-
-        if (response.ok) {
-          Alert.alert('সফল', 'বিজ্ঞপ্তি সব ইউজারের কাছে পাঠানো হয়েছে');
+      const saved = await AsyncStorage.getItem('adminUser');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.username === username && data.password === password) {
+          setAdminId(data.id);
+          setIsLoggedIn(true);
+        } else {
+          Alert.alert('ত্রুটি', 'ইউজারনেম বা পাসওয়ার্ড ভুল');
         }
-      } catch (serverError) {
-        // Fallback to local storage
-        const notifications = await AsyncStorage.getItem('notifications') || '[]';
-        const notificationList = JSON.parse(notifications);
-        
-        const newNotification = {
-          id: Math.random().toString(36).substr(2, 9),
-          prayer_name: selectedPrayer,
-          message,
-          target_users: targetUsers,
-          status: 'sent',
-          created_at: new Date().toISOString()
-        };
-        
-        notificationList.unshift(newNotification);
-        await AsyncStorage.setItem('notifications', JSON.stringify(notificationList));
-        
-        Alert.alert('সফল', 'বিজ্ঞপ্তি সংরক্ষিত হয়েছে');
+      } else {
+        // First time - register
+        const newAdmin = { id: Math.random().toString(36).substr(2, 9), username, password };
+        await AsyncStorage.setItem('adminUser', JSON.stringify(newAdmin));
+        setAdminId(newAdmin.id);
+        setIsLoggedIn(true);
       }
-      
-      setMessage('');
-      fetchHistory();
-    } catch (error) {
-      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি পাঠাতে ব্যর্থ');
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch history
-  const fetchHistory = async () => {
+  const fetchNotifications = async () => {
     try {
-      const notifications = await AsyncStorage.getItem('notifications') || '[]';
-      const notificationList = JSON.parse(notifications);
-      setHistory(notificationList);
+      const response = await fetch(`${API_URL}/notifications/all`);
+      const data = await response.json();
+      setNotifications(data.notifications || []);
     } catch (error) {
-      console.error('Failed to fetch history:', error);
+      console.error('Fetch error:', error);
     }
   };
 
-  // Logout
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setAdminId(null);
-    setPassword('');
+  const fetchPermissionMessages = async () => {
+    try {
+      const response = await fetch(`${API_URL}/permissions/messages`);
+      const data = await response.json();
+      setPermissionMessages(data.messages || {});
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  };
+
+  const handleCreateNotification = async () => {
+    if (!message.trim()) {
+      Alert.alert('ত্রুটি', 'বার্তা লিখুন');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/notifications/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          admin_id: adminId,
+          type: tab === 'azan' ? 'azan' : 'custom',
+          prayer_name: tab === 'azan' ? prayerName : null,
+          message,
+          delivery_mode: deliveryMode,
+          target_platform: targetPlatform
+        })
+      });
+
+      if (response.ok) {
+        Alert.alert('সফল', 'বিজ্ঞপ্তি তৈরি হয়েছে');
+        setMessage('');
+        fetchNotifications();
+      }
+    } catch (error) {
+      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি তৈরিতে ব্যর্থ');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateNotification = async (id: string) => {
+    if (!message.trim()) {
+      Alert.alert('ত্রুটি', 'বার্তা লিখুন');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/notifications/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          delivery_mode: deliveryMode,
+          target_platform: targetPlatform,
+          prayer_name: prayerName
+        })
+      });
+
+      if (response.ok) {
+        Alert.alert('সফল', 'বিজ্ঞপ্তি আপডেট হয়েছে');
+        setMessage('');
+        setEditingId(null);
+        fetchNotifications();
+      }
+    } catch (error) {
+      Alert.alert('ত্রুটি', 'আপডেটে ব্যর্থ');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    Alert.alert('নিশ্চিত করুন', 'এটি মুছে দিতে চান?', [
+      { text: 'বাতিল' },
+      {
+        text: 'মুছুন',
+        onPress: async () => {
+          try {
+            await fetch(`${API_URL}/notifications/${id}`, { method: 'DELETE' });
+            fetchNotifications();
+          } catch (error) {
+            Alert.alert('ত্রুটি', 'মুছতে ব্যর্থ');
+          }
+        }
+      }
+    ]);
+  };
+
+  const handleSendNow = async (id: string) => {
+    const notif = notifications.find(n => n.id === id);
+    try {
+      await fetch(`${API_URL}/notifications/send-now`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notification_id: id,
+          message: notif.message,
+          target_platform: notif.target_platform
+        })
+      });
+      Alert.alert('সফল', 'সব ডিভাইসে পাঠানো হয়েছে');
+      fetchNotifications();
+    } catch (error) {
+      Alert.alert('ত্রুটি', 'পাঠাতে ব্যর্থ');
+    }
+  };
+
+  const handleUpdatePermission = async (key: string) => {
+    if (!editingPermMessage.trim()) {
+      Alert.alert('ত্রুটি', 'বার্তা লিখুন');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/permissions/messages/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: editingPermMessage })
+      });
+
+      if (response.ok) {
+        Alert.alert('সফল', 'আপডেট হয়েছে');
+        setEditingPermKey(null);
+        setEditingPermMessage('');
+        fetchPermissionMessages();
+      }
+    } catch (error) {
+      Alert.alert('ত্রুটি', 'আপডেটে ব্যর্থ');
+    }
   };
 
   if (!isLoggedIn) {
-    if (isRegistering) {
-      return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + Spacing.lg, paddingBottom: insets.bottom + Spacing.lg }]}>
-          <ThemedText style={styles.title}>প্রশাসক অ্যাকাউন্ট তৈরি করুন</ThemedText>
-
-          <View style={styles.loginForm}>
-            <ThemedText style={styles.label}>ব্যবহারকারী নাম</ThemedText>
-            <TextInput
-              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="ব্যবহারকারী নাম"
-              placeholderTextColor={theme.placeholder}
-              value={username}
-              onChangeText={setUsername}
-            />
-
-            <ThemedText style={styles.label}>পাসওয়ার্ড</ThemedText>
-            <TextInput
-              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="পাসওয়ার্ড"
-              placeholderTextColor={theme.placeholder}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-
-            <ThemedText style={styles.label}>পাসওয়ার্ড নিশ্চিত করুন</ThemedText>
-            <TextInput
-              style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-              placeholder="পাসওয়ার্ড পুনরায় দিন"
-              placeholderTextColor={theme.placeholder}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
-
-            <Pressable
-              style={[styles.button, { backgroundColor: theme.primary }]}
-              onPress={handleRegister}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={theme.surface} />
-              ) : (
-                <ThemedText style={styles.buttonText}>অ্যাকাউন্ট তৈরি করুন</ThemedText>
-              )}
-            </Pressable>
-          </View>
-        </ThemedView>
-      );
-    }
-
     return (
       <ThemedView style={[styles.container, { paddingTop: insets.top + Spacing.lg, paddingBottom: insets.bottom + Spacing.lg }]}>
         <ThemedText style={styles.title}>প্রশাসক প্যানেল</ThemedText>
-
-        <View style={styles.loginForm}>
-          <ThemedText style={styles.label}>ব্যবহারকারী নাম</ThemedText>
+        
+        <View style={styles.form}>
           <TextInput
-            style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-            placeholder="ব্যবহারকারী নাম"
+            style={[styles.input, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
+            placeholder="ইউজারনেম"
             placeholderTextColor={theme.placeholder}
             value={username}
             onChangeText={setUsername}
           />
-
-          <ThemedText style={styles.label}>পাসওয়ার্ড</ThemedText>
+          
           <TextInput
-            style={[styles.input, { color: theme.text, borderColor: theme.border }]}
+            style={[styles.input, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
             placeholder="পাসওয়ার্ড"
             placeholderTextColor={theme.placeholder}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
           />
-
-          <Pressable
-            style={[styles.button, { backgroundColor: theme.primary }]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={theme.surface} />
-            ) : (
-              <ThemedText style={styles.buttonText}>লগইন করুন</ThemedText>
-            )}
+          
+          <Pressable style={[styles.button, { backgroundColor: theme.primary }]} onPress={handleLogin} disabled={loading}>
+            {loading ? <ActivityIndicator color={theme.surface} /> : <ThemedText style={styles.buttonText}>লগইন</ThemedText>}
           </Pressable>
         </View>
       </ThemedView>
     );
   }
 
+  const filteredNotifs = notifications.filter(n => {
+    if (tab === 'azan') return n.type === 'azan';
+    if (tab === 'custom') return n.type === 'custom';
+    return true;
+  });
+
   return (
     <ScrollView style={[styles.container, { paddingTop: insets.top + Spacing.lg }]}>
       <View style={{ paddingHorizontal: Spacing.lg, paddingBottom: insets.bottom + Spacing.lg }}>
         <ThemedText style={styles.title}>প্রশাসক প্যানেল</ThemedText>
 
-        {/* Send Notification */}
-        <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <ThemedText style={styles.sectionTitle}>বিজ্ঞপ্তি পাঠান</ThemedText>
-
-          <ThemedText style={styles.label}>নামাজ নির্বাচন করুন</ThemedText>
-          <View style={styles.prayerGrid}>
-            {prayers.map(prayer => (
-              <Pressable
-                key={prayer}
-                style={[
-                  styles.prayerButton,
-                  selectedPrayer === prayer && { backgroundColor: theme.primary }
-                ]}
-                onPress={() => setSelectedPrayer(prayer)}
-              >
-                <ThemedText style={[
-                  styles.prayerButtonText,
-                  selectedPrayer === prayer && { color: theme.surface }
-                ]}>
-                  {prayer.toUpperCase()}
-                </ThemedText>
-              </Pressable>
-            ))}
-          </View>
-
-          <ThemedText style={styles.label}>বার্তা</ThemedText>
-          <TextInput
-            style={[styles.messageInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
-            placeholder="আপনার বার্তা লিখুন..."
-            placeholderTextColor={theme.placeholder}
-            value={message}
-            onChangeText={setMessage}
-            multiline
-            numberOfLines={4}
-          />
-
-          <ThemedText style={styles.label}>লক্ষ্য ব্যবহারকারী</ThemedText>
-          <View style={styles.targetGrid}>
-            {['all', 'android', 'ios'].map(target => (
-              <Pressable
-                key={target}
-                style={[
-                  styles.targetButton,
-                  targetUsers === target && { backgroundColor: theme.primary }
-                ]}
-                onPress={() => setTargetUsers(target)}
-              >
-                <ThemedText style={[
-                  styles.targetButtonText,
-                  targetUsers === target && { color: theme.surface }
-                ]}>
-                  {target === 'all' ? 'সকল' : target.toUpperCase()}
-                </ThemedText>
-              </Pressable>
-            ))}
-          </View>
-
-          <Pressable
-            style={[styles.sendButton, { backgroundColor: theme.primary }]}
-            onPress={handleSendNotification}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={theme.surface} />
-            ) : (
-              <ThemedText style={styles.buttonText}>পাঠান</ThemedText>
-            )}
-          </Pressable>
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          {(['custom', 'azan', 'permissions'] as const).map(t => (
+            <Pressable
+              key={t}
+              style={[styles.tab, tab === t && { backgroundColor: theme.primary }]}
+              onPress={() => setTab(t)}
+            >
+              <ThemedText style={[styles.tabText, tab === t && { color: theme.surface }]}>
+                {t === 'custom' ? 'কাস্টম' : t === 'azan' ? 'আজান' : 'পারমিশন'}
+              </ThemedText>
+            </Pressable>
+          ))}
         </View>
 
-        {/* History */}
-        <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <ThemedText style={styles.sectionTitle}>পাঠানোর ইতিহাস</ThemedText>
+        {/* Create/Edit Form */}
+        {(tab === 'custom' || tab === 'azan') && (
+          <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <ThemedText style={styles.sectionTitle}>
+              {editingId ? 'বিজ্ঞপ্তি সম্পাদন করুন' : 'নতুন বিজ্ঞপ্তি তৈরি করুন'}
+            </ThemedText>
 
-          {history.length === 0 ? (
-            <ThemedText style={styles.emptyText}>কোনো ইতিহাস নেই</ThemedText>
+            {tab === 'azan' && (
+              <>
+                <ThemedText style={styles.label}>নামাজ নির্বাচন করুন</ThemedText>
+                <View style={styles.grid}>
+                  {prayers.map(p => (
+                    <Pressable
+                      key={p}
+                      style={[styles.gridButton, prayerName === p && { backgroundColor: theme.primary }]}
+                      onPress={() => setPrayerName(p)}
+                    >
+                      <ThemedText style={[styles.gridButtonText, prayerName === p && { color: theme.surface }]}>
+                        {p.toUpperCase()}
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            )}
+
+            <ThemedText style={styles.label}>বার্তা</ThemedText>
+            <TextInput
+              style={[styles.messageInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
+              placeholder="বার্তা লিখুন..."
+              placeholderTextColor={theme.placeholder}
+              value={message}
+              onChangeText={setMessage}
+              multiline
+              numberOfLines={3}
+            />
+
+            <ThemedText style={styles.label}>ডেলিভারি মোড</ThemedText>
+            <View style={styles.grid}>
+              {(['immediate', 'prayer-time'] as const).map(m => (
+                <Pressable
+                  key={m}
+                  style={[styles.gridButton, deliveryMode === m && { backgroundColor: theme.primary }]}
+                  onPress={() => setDeliveryMode(m)}
+                >
+                  <ThemedText style={[styles.gridButtonText, deliveryMode === m && { color: theme.surface }]}>
+                    {m === 'immediate' ? 'এখনই' : 'নামাজে'}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </View>
+
+            <ThemedText style={styles.label}>প্ল্যাটফর্ম</ThemedText>
+            <View style={styles.grid}>
+              {(['all', 'ios', 'android'] as const).map(p => (
+                <Pressable
+                  key={p}
+                  style={[styles.gridButton, targetPlatform === p && { backgroundColor: theme.primary }]}
+                  onPress={() => setTargetPlatform(p)}
+                >
+                  <ThemedText style={[styles.gridButtonText, targetPlatform === p && { color: theme.surface }]}>
+                    {p === 'all' ? 'সবই' : p.toUpperCase()}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable
+              style={[styles.button, { backgroundColor: theme.primary }]}
+              onPress={() => editingId ? handleUpdateNotification(editingId) : handleCreateNotification()}
+              disabled={loading}
+            >
+              {loading ? <ActivityIndicator color={theme.surface} /> : <ThemedText style={styles.buttonText}>{editingId ? 'আপডেট করুন' : 'তৈরি করুন'}</ThemedText>}
+            </Pressable>
+
+            {editingId && (
+              <Pressable style={[styles.button, { backgroundColor: theme.error }]} onPress={() => { setEditingId(null); setMessage(''); }}>
+                <ThemedText style={styles.buttonText}>বাতিল করুন</ThemedText>
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {/* Permissions Management */}
+        {tab === 'permissions' && (
+          <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <ThemedText style={styles.sectionTitle}>পারমিশন বার্তা সম্পাদন করুন</ThemedText>
+
+            {Object.entries(permissionMessages).map(([key, msg]) => (
+              <View key={key} style={{ marginBottom: Spacing.lg }}>
+                <ThemedText style={styles.label}>{key}</ThemedText>
+                {editingPermKey === key ? (
+                  <>
+                    <TextInput
+                      style={[styles.messageInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
+                      value={editingPermMessage}
+                      onChangeText={setEditingPermMessage}
+                      multiline
+                    />
+                    <Pressable style={[styles.button, { backgroundColor: theme.primary }]} onPress={() => handleUpdatePermission(key)}>
+                      <ThemedText style={styles.buttonText}>সংরক্ষণ করুন</ThemedText>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <ThemedText style={{ fontSize: 13, marginVertical: Spacing.sm }}>{msg as string}</ThemedText>
+                    <Pressable style={[styles.button, { backgroundColor: theme.primary }]} onPress={() => { setEditingPermKey(key); setEditingPermMessage(msg as string); }}>
+                      <ThemedText style={styles.buttonText}>সম্পাদন করুন</ThemedText>
+                    </Pressable>
+                  </>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Notifications List */}
+        <View style={[styles.section, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <ThemedText style={styles.sectionTitle}>বিজ্ঞপ্তির তালিকা</ThemedText>
+
+          {filteredNotifs.length === 0 ? (
+            <ThemedText style={styles.emptyText}>কোনো বিজ্ঞপ্তি নেই</ThemedText>
           ) : (
-            history.slice(0, 10).map(item => (
-              <View key={item.id} style={[styles.historyItem, { borderBottomColor: theme.border }]}>
-                <ThemedText style={styles.historyPrayer}>{item.prayer_name?.toUpperCase()}</ThemedText>
-                <ThemedText style={styles.historyMessage}>{item.message}</ThemedText>
-                <ThemedText style={styles.historyTime}>
-                  {new Date(item.created_at).toLocaleString('bn-BD')}
+            filteredNotifs.map(notif => (
+              <View key={notif.id} style={[styles.notifItem, { borderBottomColor: theme.border }]}>
+                <ThemedText style={{ fontSize: 13, fontWeight: '600' }}>{notif.prayer_name?.toUpperCase() || 'কাস্টম'}</ThemedText>
+                <ThemedText style={{ fontSize: 12, marginVertical: Spacing.xs }}>{notif.message}</ThemedText>
+                <ThemedText style={{ fontSize: 11, opacity: 0.7 }}>
+                  {notif.delivery_mode === 'immediate' ? 'এখনই' : 'নামাজে'} • {notif.target_platform}
                 </ThemedText>
+
+                <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md }}>
+                  <Pressable style={[styles.smallButton, { backgroundColor: theme.primary }]} onPress={() => { setEditingId(notif.id); setMessage(notif.message); setPrayerName(notif.prayer_name); setDeliveryMode(notif.delivery_mode); setTargetPlatform(notif.target_platform); }}>
+                    <ThemedText style={[styles.smallButtonText, { color: theme.surface }]}>সম্পাদন</ThemedText>
+                  </Pressable>
+                  <Pressable style={[styles.smallButton, { backgroundColor: theme.error }]} onPress={() => handleDeleteNotification(notif.id)}>
+                    <ThemedText style={[styles.smallButtonText, { color: theme.surface }]}>মুছুন</ThemedText>
+                  </Pressable>
+                  {notif.delivery_mode === 'immediate' && (
+                    <Pressable style={[styles.smallButton, { backgroundColor: '#10b981' }]} onPress={() => handleSendNow(notif.id)}>
+                      <ThemedText style={[styles.smallButtonText, { color: theme.surface }]}>পাঠান</ThemedText>
+                    </Pressable>
+                  )}
+                </View>
               </View>
             ))
           )}
         </View>
 
         {/* Logout */}
-        <Pressable
-          style={[styles.logoutButton, { backgroundColor: theme.error }]}
-          onPress={handleLogout}
-        >
+        <Pressable style={[styles.button, { backgroundColor: theme.error }]} onPress={() => { setIsLoggedIn(false); setAdminId(null); }}>
           <ThemedText style={styles.buttonText}>লগআউট করুন</ThemedText>
         </Pressable>
       </View>
@@ -391,128 +444,24 @@ export default function AdminPanel() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: Spacing.lg,
-  },
-  loginForm: {
-    marginHorizontal: Spacing.lg,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: Spacing.md,
-    marginBottom: Spacing.sm,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    fontSize: 14,
-  },
-  messageInput: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    fontSize: 14,
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  button: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    alignItems: 'center',
-  },
-  sendButton: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    alignItems: 'center',
-  },
-  logoutButton: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  section: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: Spacing.md,
-  },
-  prayerGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginBottom: Spacing.md,
-  },
-  prayerButton: {
-    flex: 1,
-    minWidth: '30%',
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  prayerButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  targetGrid: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginBottom: Spacing.md,
-  },
-  targetButton: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  targetButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginVertical: Spacing.lg,
-  },
-  historyItem: {
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-  },
-  historyPrayer: {
-    fontSize: 12,
-    fontWeight: '700',
-    marginBottom: Spacing.xs,
-  },
-  historyMessage: {
-    fontSize: 13,
-    marginBottom: Spacing.xs,
-  },
-  historyTime: {
-    fontSize: 11,
-    opacity: 0.7,
-  },
+  container: { flex: 1 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: Spacing.lg },
+  form: { marginHorizontal: Spacing.lg },
+  input: { borderWidth: 1, borderRadius: BorderRadius.md, padding: Spacing.md, marginVertical: Spacing.sm },
+  messageInput: { borderWidth: 1, borderRadius: BorderRadius.md, padding: Spacing.md, height: 80, textAlignVertical: 'top', marginVertical: Spacing.sm },
+  button: { paddingVertical: Spacing.md, borderRadius: BorderRadius.lg, alignItems: 'center', marginTop: Spacing.md },
+  buttonText: { fontSize: 16, fontWeight: '600' },
+  smallButton: { flex: 1, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, alignItems: 'center' },
+  smallButtonText: { fontSize: 12, fontWeight: '600' },
+  section: { borderWidth: 1, borderRadius: BorderRadius.lg, padding: Spacing.lg, marginBottom: Spacing.lg },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: Spacing.md },
+  label: { fontSize: 14, fontWeight: '600', marginTop: Spacing.md, marginBottom: Spacing.sm },
+  tabsContainer: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
+  tab: { flex: 1, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, alignItems: 'center', borderWidth: 1, borderColor: '#ccc' },
+  tabText: { fontSize: 12, fontWeight: '600' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
+  gridButton: { flex: 1, minWidth: '48%', paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, alignItems: 'center', borderWidth: 1, borderColor: '#ccc' },
+  gridButtonText: { fontSize: 12, fontWeight: '600' },
+  emptyText: { fontSize: 14, textAlign: 'center', marginVertical: Spacing.lg },
+  notifItem: { paddingVertical: Spacing.md, borderBottomWidth: 1 }
 });

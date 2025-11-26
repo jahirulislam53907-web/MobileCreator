@@ -4,7 +4,7 @@ import * as Notifications from 'expo-notifications';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
-// Poll server for pending notifications
+// Poll server for pending notifications (both immediate and prayer-based)
 export const startNotificationPolling = () => {
   const pollInterval = setInterval(async () => {
     try {
@@ -20,23 +20,53 @@ export const startNotificationPolling = () => {
         
         // Show notification for each pending
         for (const notif of data.notifications) {
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: `${notif.prayer_name?.toUpperCase() || 'বিজ্ঞপ্তি'}`,
-              body: notif.message,
-              sound: true,
-              badge: 1,
-            },
-            trigger: null,
-          });
+          // Check if it should be shown (delivery mode and platform check)
+          const shouldShow = notif.delivery_mode === 'immediate' || 
+                            (notif.delivery_mode === 'prayer-time' && checkIfPrayerTime(notif.prayer_name));
+          
+          if (shouldShow) {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: `${notif.prayer_name?.toUpperCase() || 'বিজ্ঞপ্তি'}`,
+                body: notif.message,
+                sound: true,
+                badge: 1,
+              },
+              trigger: null,
+            });
+          }
         }
       }
     } catch (error) {
-      // Server not available - continue polling
+      console.log('Polling error (optional):', error);
     }
   }, 5000); // Poll every 5 seconds
   
   return pollInterval;
+};
+
+// Helper to check if current time is prayer time
+const checkIfPrayerTime = (prayerName?: string): boolean => {
+  if (!prayerName) return false;
+  
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  
+  // Approximate prayer times (can be customized based on actual prayer times)
+  const prayerTimes: Record<string, [number, number]> = {
+    fajr: [4, 30],
+    dhuhr: [12, 0],
+    asr: [15, 30],
+    maghrib: [17, 45],
+    isha: [20, 0]
+  };
+  
+  const [hour, minute] = prayerTimes[prayerName] || [0, 0];
+  const withinWindow = (currentHour === hour && currentMinute >= minute && currentMinute < minute + 15) ||
+                       (currentHour === hour && currentMinute < minute);
+  
+  return withinWindow;
 };
 
 // Simple notification storage system (since expo-notifications has limited support in Expo Go)
