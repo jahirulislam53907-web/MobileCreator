@@ -68,24 +68,6 @@ export default function HomeScreen() {
         animated: true 
       });
     }
-    
-    // Trigger animation based on current verse height
-    const currentHeight = verseHeights[currentIndex] || 0;
-    const shouldCollapse = currentHeight <= 200; // small verse = collapse
-    
-    // Auto animate Quick Actions height based on verse size (independent of items toggle)
-    Animated.parallel([
-      Animated.timing(dotsPositionAnim, {
-        toValue: shouldCollapse ? -50 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(quickActionsHeightAnim, {
-        toValue: shouldCollapse ? 0 : quickActionsFullHeight,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start();
   };
 
   const handleVerseLayout = (event: LayoutChangeEvent, index: number) => {
