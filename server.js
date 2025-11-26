@@ -182,6 +182,9 @@ app.post('/api/admin/register', async (req, res) => {
 
 // ===== MANUAL NOTIFICATION ENDPOINTS =====
 
+// Store pending notifications for delivery
+let pendingNotifications = [];
+
 // Send manual notification to all users
 app.post('/api/notifications/send', async (req, res) => {
   try {
@@ -191,17 +194,52 @@ app.post('/api/notifications/send', async (req, res) => {
       return res.status(400).json({ error: 'Admin ID and message required' });
     }
 
-    const result = await pool.query(
-      `INSERT INTO manual_notifications (admin_id, prayer_name, message, target_users, status)
-       VALUES ($1, $2, $3, $4, 'sent')
-       RETURNING id, message`,
-      [admin_id, prayer_name || 'general', message, target_users || 'all']
-    );
+    const notification = {
+      id: Math.random().toString(36).substr(2, 9),
+      admin_id,
+      prayer_name: prayer_name || 'general',
+      message,
+      target_users: target_users || 'all',
+      status: 'sent',
+      created_at: new Date().toISOString(),
+      timestamp: Date.now()
+    };
 
-    res.json({ success: true, notification: result.rows[0] });
+    // Store in memory for delivery
+    pendingNotifications.push(notification);
+    
+    // Keep only last 100 notifications
+    if (pendingNotifications.length > 100) {
+      pendingNotifications = pendingNotifications.slice(-100);
+    }
+
+    try {
+      const result = await pool.query(
+        `INSERT INTO manual_notifications (admin_id, prayer_name, message, target_users, status)
+         VALUES ($1, $2, $3, $4, 'sent')
+         RETURNING id, message`,
+        [admin_id, prayer_name || 'general', message, target_users || 'all']
+      );
+    } catch (dbError) {
+      console.log('DB write optional:', dbError.message);
+    }
+
+    res.json({ success: true, notification });
   } catch (error) {
     console.error('Notification send error:', error);
     res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+// Fetch pending notifications for app
+app.get('/api/notifications/pending', async (req, res) => {
+  try {
+    const since = parseInt(req.query.since || '0', 10);
+    const newNotifications = pendingNotifications.filter(n => n.timestamp > since);
+    res.json({ notifications: newNotifications, timestamp: Date.now() });
+  } catch (error) {
+    console.error('Fetch pending error:', error);
+    res.status(500).json({ error: 'Failed to fetch' });
   }
 });
 

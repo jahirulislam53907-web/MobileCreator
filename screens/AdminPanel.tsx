@@ -128,26 +128,46 @@ export default function AdminPanel() {
 
     setLoading(true);
     try {
-      const notifications = await AsyncStorage.getItem('notifications') || '[]';
-      const notificationList = JSON.parse(notifications);
+      // Try server first
+      try {
+        const response = await fetch(`${API_URL}/notifications/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            admin_id: adminId,
+            prayer_name: selectedPrayer,
+            message,
+            target_users: targetUsers
+          })
+        });
+
+        if (response.ok) {
+          Alert.alert('সফল', 'বিজ্ঞপ্তি সব ইউজারের কাছে পাঠানো হয়েছে');
+        }
+      } catch (serverError) {
+        // Fallback to local storage
+        const notifications = await AsyncStorage.getItem('notifications') || '[]';
+        const notificationList = JSON.parse(notifications);
+        
+        const newNotification = {
+          id: Math.random().toString(36).substr(2, 9),
+          prayer_name: selectedPrayer,
+          message,
+          target_users: targetUsers,
+          status: 'sent',
+          created_at: new Date().toISOString()
+        };
+        
+        notificationList.unshift(newNotification);
+        await AsyncStorage.setItem('notifications', JSON.stringify(notificationList));
+        
+        Alert.alert('সফল', 'বিজ্ঞপ্তি সংরক্ষিত হয়েছে');
+      }
       
-      const newNotification = {
-        id: Math.random().toString(36).substr(2, 9),
-        prayer_name: selectedPrayer,
-        message,
-        target_users: targetUsers,
-        status: 'sent',
-        created_at: new Date().toISOString()
-      };
-      
-      notificationList.unshift(newNotification);
-      await AsyncStorage.setItem('notifications', JSON.stringify(notificationList));
-      
-      Alert.alert('সফল', 'বিজ্ঞপ্তি সংরক্ষিত হয়েছে');
       setMessage('');
       fetchHistory();
     } catch (error) {
-      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি সংরক্ষণ ব্যর্থ');
+      Alert.alert('ত্রুটি', 'বিজ্ঞপ্তি পাঠাতে ব্যর্থ');
       console.error(error);
     } finally {
       setLoading(false);

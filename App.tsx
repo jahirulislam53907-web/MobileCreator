@@ -13,7 +13,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider } from "./src/contexts/LanguageContext";
 import { LocationProvider } from "./src/contexts/LocationContext";
 import { DraggableFAB } from "@/components/DraggableFAB";
-import { initializeNotifications, createNotificationChannel } from "@/utils/notificationService";
+import { initializeNotifications, createNotificationChannel, startNotificationPolling } from "@/utils/notificationService";
 
 function AppContent() {
   const colorScheme = useColorScheme();
@@ -22,8 +22,17 @@ function AppContent() {
     const setupNotifications = async () => {
       await initializeNotifications();
       await createNotificationChannel();
+      
+      // Start polling for server notifications
+      const pollInterval = startNotificationPolling();
+      
+      return () => clearInterval(pollInterval);
     };
-    setupNotifications();
+    
+    const cleanup = setupNotifications();
+    return () => {
+      cleanup?.then(fn => fn?.());
+    };
   }, []);
 
   return (

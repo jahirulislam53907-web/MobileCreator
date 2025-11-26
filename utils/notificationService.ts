@@ -1,7 +1,43 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+
+// Poll server for pending notifications
+export const startNotificationPolling = () => {
+  const pollInterval = setInterval(async () => {
+    try {
+      const lastCheck = await AsyncStorage.getItem('lastNotificationCheck');
+      const since = lastCheck ? parseInt(lastCheck, 10) : 0;
+      
+      const response = await fetch(`http://localhost:3000/api/notifications/pending?since=${since}`);
+      const data = await response.json();
+      
+      if (data.notifications && data.notifications.length > 0) {
+        // Save new check time
+        await AsyncStorage.setItem('lastNotificationCheck', data.timestamp.toString());
+        
+        // Show notification for each pending
+        for (const notif of data.notifications) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `${notif.prayer_name?.toUpperCase() || 'বিজ্ঞপ্তি'}`,
+              body: notif.message,
+              sound: true,
+              badge: 1,
+            },
+            trigger: null,
+          });
+        }
+      }
+    } catch (error) {
+      // Server not available - continue polling
+    }
+  }, 5000); // Poll every 5 seconds
+  
+  return pollInterval;
+};
 
 // Simple notification storage system (since expo-notifications has limited support in Expo Go)
 export const initializeNotifications = async () => {
