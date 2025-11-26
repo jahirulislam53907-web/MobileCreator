@@ -12,6 +12,7 @@ import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COOR
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
+import { scheduleAzanNotifications } from "@/utils/notificationService";
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
@@ -427,6 +428,9 @@ export default function HomeScreen() {
                         const updated = { ...enabledPrayers, [prayer.key]: !enabledPrayers[prayer.key as keyof typeof enabledPrayers] };
                         setEnabledPrayers(updated);
                         await AsyncStorage.setItem('enabledPrayers', JSON.stringify(updated));
+                        if (azanTimes) {
+                          await scheduleAzanNotifications(azanTimes as Record<string, string>, updated);
+                        }
                       }}
                       style={[styles.prayerToggle, { backgroundColor: enabledPrayers[prayer.key as keyof typeof enabledPrayers] ? theme.primary : theme.backgroundSecondary }]}
                     >

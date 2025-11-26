@@ -10,6 +10,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -85,13 +87,12 @@ export const scheduleAzanNotifications = async (
           sound: 'default',
           priority: 'max',
           badge: 1,
-          _displayInForeground: true,
         },
         trigger: {
-          type: 'daily',
+          type: 'calendar',
           hour: hour24,
           minute: minutes,
-          channelId: 'azan-notifications',
+          repeats: true,
         },
       });
 
@@ -127,8 +128,7 @@ export const createNotificationChannel = async () => {
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
         sound: 'default',
-        enableLED: true,
-        enableVibration: true,
+        enableVibrate: true,
       });
     } catch (error) {
       console.error('Error creating notification channel:', error);

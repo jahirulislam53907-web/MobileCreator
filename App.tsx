@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -13,9 +13,18 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider } from "./src/contexts/LanguageContext";
 import { LocationProvider } from "./src/contexts/LocationContext";
 import { DraggableFAB } from "@/components/DraggableFAB";
+import { initializeNotifications, createNotificationChannel } from "@/utils/notificationService";
 
 function AppContent() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    const setupNotifications = async () => {
+      await initializeNotifications();
+      await createNotificationChannel();
+    };
+    setupNotifications();
+  }, []);
 
   return (
     <ErrorBoundary>
