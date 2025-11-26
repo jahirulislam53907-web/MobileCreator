@@ -430,7 +430,7 @@ export default function HomeScreen() {
               ))}
             </View>
             <View style={styles.prayerInfoBox}>
-              <ThemedText style={styles.prayerInfoText}>আপনার পছন্দের মসজিদ বা ব্যক্তিগত সময়সূচী অনুযায়ী নামাজের সময় কাস্টমাইজ করার সুবিধা সংযুক্ত হয়েছে।</ThemedText>
+              <ThemedText style={styles.prayerInfoText}>আপনার পছন্দের মসজিদ বা ব্যক্তিগত সময়সূচী অনুযায়ী নামাজের সময় কাস্টমাইজ করার সুবিধা সংযুক্ত রয়েছে।</ThemedText>
             </View>
           </View>
         </View>
