@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Audio from 'expo-audio';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -15,12 +14,29 @@ interface PrayerNotification {
   enabled: boolean;
 }
 
-// Global sound player
-let soundPlayer: Audio.Sound | null = null;
+// Global sound player - typed as any for web compatibility
+let soundPlayer: any = null;
 
 // Play azan audio from assets
 export const playAzanAudioFile = async () => {
   try {
+    // Skip on web - audio only works on mobile
+    if (Platform.OS === 'web') {
+      console.log('ℹ️ আজান শুধুমাত্র মোবাইলে বাজে');
+      return;
+    }
+
+    // Dynamically import Audio - only available on native
+    let Audio: any;
+    try {
+      Audio = await import('expo-audio');
+    } catch (e) {
+      console.error('❌ expo-audio লোড করতে পারা যায়নি:', e);
+      return;
+    }
+
+    const SoundModule = Audio.default || Audio;
+
     // Stop any currently playing audio
     if (soundPlayer) {
       try {
@@ -32,7 +48,7 @@ export const playAzanAudioFile = async () => {
     }
 
     // Create new sound instance
-    soundPlayer = new Audio.Sound();
+    soundPlayer = new SoundModule.Sound();
     // Use asset URI for Expo Go compatibility
     await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
     await soundPlayer.playAsync();
