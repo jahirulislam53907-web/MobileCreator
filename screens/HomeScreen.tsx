@@ -291,18 +291,27 @@ export default function HomeScreen() {
         { name: 'Isha', nameBn: 'এশা', time: parseTimeToDate(timesToUse.isha) },
       ];
 
-      let nextPrayer = prayerList[0];
+      let nextPrayer = null;
+      
+      // Find next prayer today
       for (const prayer of prayerList) {
         if (prayer.time > now) {
           nextPrayer = prayer;
           break;
         }
       }
+      
+      // If no prayer found today, use tomorrow's Fajr
+      if (!nextPrayer) {
+        const tomorrowFajr = parseTimeToDate(timesToUse.fajr);
+        tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
+        nextPrayer = { name: 'Fajr', nameBn: 'ফজর', time: tomorrowFajr };
+      }
 
       const diff = nextPrayer.time.getTime() - now.getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      const hours = Math.floor(Math.abs(diff) / (1000 * 60 * 60));
+      const minutes = Math.floor((Math.abs(diff) % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((Math.abs(diff) % (1000 * 60)) / 1000);
 
       setNextPrayerInfo({
         name: nextPrayer.name,
