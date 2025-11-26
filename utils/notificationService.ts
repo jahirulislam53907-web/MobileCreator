@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as AV from 'expo-av';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -14,10 +15,10 @@ interface PrayerNotification {
   enabled: boolean;
 }
 
-// Global sound player - typed as any for web compatibility
-let soundPlayer: any = null;
+// Global sound player
+let soundPlayer: AV.Sound | null = null;
 
-// Play azan audio from assets
+// Play azan audio from assets - Updated with expo-av
 export const playAzanAudioFile = async () => {
   try {
     // Skip on web - audio only works on mobile
@@ -28,40 +29,33 @@ export const playAzanAudioFile = async () => {
 
     console.log('🎵 আজান প্লেয়ার শুরু হচ্ছে...');
 
-    // Dynamically import Audio - only available on native
-    let Audio: any;
-    try {
-      // @ts-ignore - Dynamic import for runtime availability check
-      Audio = await import('expo-audio');
-    } catch (e) {
-      console.error('❌ expo-audio লোড করতে পারা যায়নি:', e);
-      return;
-    }
-
-    const SoundModule = Audio.default || Audio;
-
     // Stop any currently playing audio
     if (soundPlayer) {
       try {
         await soundPlayer.stopAsync();
         await soundPlayer.unloadAsync();
+        soundPlayer = null;
       } catch (e) {
-        // Ignore cleanup errors
+        console.warn('⚠️ Previous sound cleanup error:', e);
       }
     }
 
-    // Create new sound instance
-    soundPlayer = new SoundModule.Sound();
-    
-    // Load audio directly - require resolves to URI in Expo Go
+    // Create new sound instance using expo-av
     try {
       console.log('📁 আজান ফাইল লোড করছি...');
-      const audioModule = require('@/assets/audio/azan.mp3');
-      await soundPlayer.loadAsync(audioModule);
+      
+      const { sound } = await AV.Sound.createAsync(
+        require('@/assets/audio/azan.mp3'),
+        { shouldPlay: false }
+      );
+      
+      soundPlayer = sound;
       console.log('✅ আজান ফাইল সফলভাবে লোড হয়েছে');
       
+      // Play the sound
       await soundPlayer.playAsync();
       console.log('🔊 আজান বাজছে...');
+      
     } catch (loadError) {
       console.error('❌ আজান ফাইল লোড করতে ব্যর্থ:', loadError);
     }
