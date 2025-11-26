@@ -17,7 +17,7 @@ interface Language {
 }
 
 export interface TopNavigationBarProps {
-  activeTab?: 'Home' | 'Prayer' | 'Quran' | 'Dua' | 'Qibla' | 'More';
+  activeTab?: 'Home' | 'Prayer' | 'Quran' | 'Dua' | 'More';
 }
 
 export const TopNavigationBar: React.FC<TopNavigationBarProps> = ({ activeTab = 'Home' }) => {
