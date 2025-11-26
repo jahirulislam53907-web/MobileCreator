@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Asset from 'expo-asset';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -54,19 +53,18 @@ export const playAzanAudioFile = async () => {
     // Create new sound instance
     soundPlayer = new SoundModule.Sound();
     
-    // Load audio using Asset module for proper URI resolution in Expo Go
+    // Load audio directly - require resolves to URI in Expo Go
     try {
-      const audioAsset = await Asset.fromModule(require('@/assets/audio/azan.mp3')).downloadAsync();
-      console.log('📁 আজান ফাইল লোডেড:', audioAsset.localUri);
-      await soundPlayer.loadAsync({ uri: audioAsset.localUri });
-    } catch (assetError) {
-      console.warn('⚠️ Asset loading failed, trying direct require:', assetError);
-      // Fallback to direct require
-      await soundPlayer.loadAsync(require('@/assets/audio/azan.mp3'));
+      console.log('📁 আজান ফাইল লোড করছি...');
+      const audioModule = require('@/assets/audio/azan.mp3');
+      await soundPlayer.loadAsync(audioModule);
+      console.log('✅ আজান ফাইল সফলভাবে লোড হয়েছে');
+      
+      await soundPlayer.playAsync();
+      console.log('🔊 আজান বাজছে...');
+    } catch (loadError) {
+      console.error('❌ আজান ফাইল লোড করতে ব্যর্থ:', loadError);
     }
-    
-    await soundPlayer.playAsync();
-    console.log('🔊 আজান বাজছে...');
   } catch (error) {
     console.error('❌ আজান বাজাতে সমস্যা:', error);
   }
