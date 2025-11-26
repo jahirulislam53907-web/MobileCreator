@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions, Animated, LayoutChangeEvent, Modal } from "react-native";
+import { View, StyleSheet, Pressable, ScrollView, Alert, Image, Text, FlatList, NativeSyntheticEvent, NativeScrollEvent, Dimensions, Animated, LayoutChangeEvent, Modal, TextInput, TouchableOpacity } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedText } from "@/components/ThemedText";
@@ -8,11 +8,10 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useTranslation } from "../src/contexts/LanguageContext";
 import { useLocation } from "@/src/hooks/useLocation";
 import { Spacing, BorderRadius } from "@/constants/theme";
-import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo } from "@/utils/prayerTimes";
+import { calculatePrayerTimes, getNextPrayer, getNextSunriseOrSunset, DHAKA_COORDINATES, saveCustomPrayerTimes, type PrayerTimesData, type NextPrayerInfo, type SunriseSunsetInfo } from "@/utils/prayerTimes";
 import { formatDate } from "@/utils/dateUtils";
 import { MENU_ICONS } from "@/constants/menuIcons";
 import { getQuranVerses, type QuranVerse } from "@/utils/quranData";
-import { PrayerTimesEditScreen } from "@/screens/PrayerTimesEditScreen";
 
 export default function HomeScreen() {
   const { theme } = useAppTheme();
@@ -27,7 +26,8 @@ export default function HomeScreen() {
   const [nextPrayerInfo, setNextPrayerInfo] = useState<NextPrayerInfo>(() => getNextPrayer(defaultLat, defaultLon));
   const [sunriseSunset, setSunriseSunset] = useState<SunriseSunsetInfo>(() => getNextSunriseOrSunset(defaultLat, defaultLon));
   const [formattedDate, setFormattedDate] = useState(formatDate());
-  const [showPrayerTimesEdit, setShowPrayerTimesEdit] = useState(false);
+  const [selectedPrayerToEdit, setSelectedPrayerToEdit] = useState<string | null>(null);
+  const [editTimeValue, setEditTimeValue] = useState('');
   
   const [quranVerses, setQuranVerses] = useState<QuranVerse[]>(getQuranVerses());
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -381,20 +381,18 @@ export default function HomeScreen() {
 
         {/* Prayer Times */}
         <View style={{ marginTop: Spacing.lg }}>
-          <View style={styles.sectionTitleRow}>
-            <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
-            <Pressable onPress={() => setShowPrayerTimesEdit(true)}>
-              <ThemedText style={[styles.seeAll, { color: theme.primary }]}>সম্পাদনা</ThemedText>
-            </Pressable>
-          </View>
+          <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
-                <View key={prayer.key} style={styles.prayerTimeItem}>
+                <Pressable key={prayer.key} onPress={() => {
+                  setSelectedPrayerToEdit(prayer.key);
+                  setEditTimeValue(prayer.time);
+                }} style={styles.prayerTimeItem}>
                   <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
                   <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
-                </View>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -460,18 +458,54 @@ export default function HomeScreen() {
       </ScrollView>
       
       <Modal
-        visible={showPrayerTimesEdit}
-        animationType="slide"
-        presentationStyle="fullScreen"
+        visible={selectedPrayerToEdit !== null}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setSelectedPrayerToEdit(null)}
       >
-        <PrayerTimesEditScreen
-          currentTimes={prayerTimes}
-          onClose={() => setShowPrayerTimesEdit(false)}
-          onSave={(updatedTimes) => {
-            setPrayerTimes(updatedTimes);
-            setShowPrayerTimesEdit(false);
-          }}
-        />
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.backgroundDefault }]}>
+            <ThemedText style={styles.modalTitle}>
+              {selectedPrayerToEdit === 'fajr' && 'ফজর'}
+              {selectedPrayerToEdit === 'dhuhr' && 'যোহর'}
+              {selectedPrayerToEdit === 'asr' && 'আসর'}
+              {selectedPrayerToEdit === 'maghrib' && 'মাগরিব'}
+              {selectedPrayerToEdit === 'isha' && 'এশা'}
+              {' এর সময় সম্পাদনা করুন'}
+            </ThemedText>
+            
+            <TextInput
+              style={[styles.timeInput, { color: theme.text, borderColor: theme.primary }]}
+              value={editTimeValue}
+              onChangeText={setEditTimeValue}
+              placeholder="05:00 AM"
+              placeholderTextColor={theme.textSecondary}
+            />
+            
+            <View style={styles.modalButtonGroup}>
+              <Pressable
+                style={[styles.modalButton, { backgroundColor: theme.backgroundSecondary }]}
+                onPress={() => setSelectedPrayerToEdit(null)}
+              >
+                <ThemedText style={[styles.modalButtonText, { color: theme.primary }]}>বাতিল</ThemedText>
+              </Pressable>
+              
+              <Pressable
+                style={[styles.modalButton, { backgroundColor: theme.primary }]}
+                onPress={async () => {
+                  if (prayerTimes && selectedPrayerToEdit) {
+                    const updated = { ...prayerTimes, [selectedPrayerToEdit]: editTimeValue };
+                    await saveCustomPrayerTimes(updated);
+                    setPrayerTimes(updated);
+                    setSelectedPrayerToEdit(null);
+                  }
+                }}
+              >
+                <ThemedText style={[styles.modalButtonText, { color: '#fff' }]}>সংরক্ষণ করুন</ThemedText>
+              </Pressable>
+            </View>
+          </View>
+        </View>
       </Modal>
     </View>
   );
