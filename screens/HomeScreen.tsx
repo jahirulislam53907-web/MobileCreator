@@ -642,6 +642,16 @@ export default function HomeScreen() {
                     const updated = { ...azanTimes, [selectedAzanToEdit]: newTime };
                     await AsyncStorage.setItem('customAzanTimes', JSON.stringify(updated));
                     setAzanTimes(updated);
+                    
+                    // Auto-reschedule notifications if this prayer is enabled
+                    if (enabledPrayers[selectedAzanToEdit as PrayerName]) {
+                      console.log(`🔄 Rescheduling notifications for ${selectedAzanToEdit} with new time: ${newTime}`);
+                      await scheduleAzanNotifications(updated as Record<string, string>, enabledPrayers);
+                      setTimeout(() => {
+                        getScheduledNotifications();
+                      }, 500);
+                    }
+                    
                     setSelectedAzanToEdit(null);
                   }
                 }}
