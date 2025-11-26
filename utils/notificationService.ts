@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Audio from 'expo-audio';
 import { PrayerTimesData } from './prayerTimes';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -15,10 +14,7 @@ interface PrayerNotification {
   enabled: boolean;
 }
 
-// Global sound player instance
-let soundPlayer: Audio.Sound | null = null;
-
-// Play azan audio using system notification sound
+// Play notification sound when azan time arrives
 const playAzanAudio = async (prayerName: string) => {
   try {
     // Try to play with built-in notification sound
