@@ -382,6 +382,25 @@ export default function HomeScreen() {
           </Animated.View>
         </View>
 
+        {/* Azan Section */}
+        <View style={{ marginTop: Spacing.xl }}>
+          <ThemedText style={styles.sectionTitle}>{t('home.azan') || 'আজান'}</ThemedText>
+          <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
+            {/* Azan Times Grid */}
+            <View style={styles.prayerGrid}>
+              {prayers.map((prayer) => (
+                <View key={prayer.key} style={styles.prayerTimeItem}>
+                  <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                  <ThemedText style={[styles.prayerTime, { color: theme.primary }]}>{prayer.time}</ThemedText>
+                </View>
+              ))}
+            </View>
+            <View style={styles.prayerInfoBox}>
+              <ThemedText style={styles.prayerInfoText}>প্রতিটি নামাজের আজান শোনার সময় এখানে প্রদর্শিত হয়। আপনার এলাকার মসজিদের আজান সময়সূচী অনুযায়ী কাস্টমাইজ করুন।</ThemedText>
+            </View>
+          </View>
+        </View>
+
         {/* Quick Actions */}
         <Animated.View style={{ height: quickActionsHeightAnim, overflow: 'hidden' }}>
           <View onLayout={handleQuickActionsLayout}>
