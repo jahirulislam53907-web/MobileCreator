@@ -44,9 +44,14 @@ export const calculatePrayerTimes = (
   longitude: number,
   date: Date = new Date()
 ): PrayerTimesData => {
+  // Create a new date object with timezone-aware calculation
+  const calculationDate = new Date(date);
+  calculationDate.setHours(0, 0, 0, 0);
+  
   const coordinates = new Coordinates(latitude, longitude);
+  // Using Karachi method - appropriate for Bangladesh (South Asia)
   const params = CalculationMethod.Karachi();
-  const prayerTimes = new PrayerTimes(coordinates, date, params);
+  const prayerTimes = new PrayerTimes(coordinates, calculationDate, params);
 
   return {
     fajr: formatTime(prayerTimes.fajr),
@@ -55,7 +60,7 @@ export const calculatePrayerTimes = (
     asr: formatTime(prayerTimes.asr),
     maghrib: formatTime(prayerTimes.maghrib),
     isha: formatTime(prayerTimes.isha),
-    date: date,
+    date: calculationDate,
   };
 };
 
@@ -70,7 +75,7 @@ export const getNextPrayer = (
     const todayTimes = new PrayerTimes(coordinates, now, params);
 
     // Define prayer order and times
-    const prayers: Array<{ key: Prayer; name: string; nameAr: string; nameBn: string; time: Date }> = [
+    const prayers: Array<{ key: typeof Prayer; name: string; nameAr: string; nameBn: string; time: Date }> = [
       { key: Prayer.Fajr, name: 'Fajr', nameAr: 'الفجر', nameBn: 'ফজর', time: todayTimes.fajr },
       { key: Prayer.Sunrise, name: 'Sunrise', nameAr: 'الشروق', nameBn: 'সূর্যোদয়', time: todayTimes.sunrise },
       { key: Prayer.Dhuhr, name: 'Dhuhr', nameAr: 'الظهر', nameBn: 'যোহর', time: todayTimes.dhuhr },

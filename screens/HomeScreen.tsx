@@ -379,20 +379,7 @@ export default function HomeScreen() {
             </Pressable>
           </View>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault }]}>
-            {/* Location & Date Info */}
-            <View style={styles.prayerHeaderInfo}>
-              <View>
-                <ThemedText style={styles.prayerLocationLabel}>{t('home.location') || 'লোকেশন'}</ThemedText>
-                <ThemedText style={styles.prayerLocation}>{location ? `${location.name}, ${location.country}` : 'ঢাকা, বাংলাদেশ'}</ThemedText>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <ThemedText style={styles.prayerDateLabel}>{t('home.date') || 'তারিখ'}</ThemedText>
-                <ThemedText style={styles.prayerDate}>{formattedDate.gregorian}</ThemedText>
-                <ThemedText style={[styles.prayerDate, { fontSize: 11, marginTop: 2 }]}>{formattedDate.hijri}</ThemedText>
-              </View>
-            </View>
-            <View style={[styles.divider, { backgroundColor: theme.backgroundSecondary, marginVertical: 12 }]} />
-            {/* Prayer Times Grid */}
+            {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
               {prayers.map((prayer) => (
                 <View key={prayer.key} style={styles.prayerTimeItem}>
