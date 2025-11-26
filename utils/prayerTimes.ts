@@ -33,21 +33,19 @@ export interface SunriseSunsetInfo {
   };
 }
 
-export const formatTime = (timeStr: string): string => {
-  return timeStr;
-};
-
-// Fetch prayer times from backend
+// Fetch prayer times from database
 export const calculatePrayerTimes = async (
   latitude: number,
   longitude: number,
   date: Date = new Date()
 ): Promise<PrayerTimesData> => {
   try {
-    const response = await fetch(
-      `http://localhost:3000/api/prayer-times?latitude=${latitude}&longitude=${longitude}`
-    );
+    const response = await fetch('http://localhost:3000/api/prayer-times');
     const data = await response.json();
+    
+    if (data.error) {
+      throw new Error(data.error);
+    }
     
     return {
       fajr: data.fajr,
@@ -60,19 +58,11 @@ export const calculatePrayerTimes = async (
     };
   } catch (error) {
     console.log('Error fetching prayer times:', error);
-    return {
-      fajr: '05:00',
-      sunrise: '06:30',
-      dhuhr: '12:30',
-      asr: '15:45',
-      maghrib: '18:15',
-      isha: '19:45',
-      date: new Date(date),
-    };
+    throw error;
   }
 };
 
-// Parse time string and return Date
+// Parse time string to Date
 const parseTimeToDate = (timeStr: string): Date => {
   const [time, period] = timeStr.split(' ');
   const [hours, minutes] = time.split(':').map(Number);
@@ -92,7 +82,6 @@ export const getNextPrayer = (
 ): NextPrayerInfo => {
   const now = new Date();
   
-  // Default fallback
   return {
     name: 'Fajr',
     nameAr: 'الفجر',
