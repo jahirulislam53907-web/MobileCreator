@@ -9,13 +9,97 @@
       "revelationType": "Meccan",
       "revelationTypeBengali": "মক্কী",
       "ayahs": [
-        {"number": 1, "arabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "bengali": "শুরু করছি আল্লাহর নামে যিনি অত্যন্ত করুণাময়, দয়াশীল"},
-        {"number": 2, "arabic": "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", "bengali": "সমস্ত প্রশংসা আল্লাহর জন্য যিনি বিশ্বজাহানের প্রতিপালক"},
-        {"number": 3, "arabic": "الرَّحْمَٰنِ الرَّحِيمِ", "bengali": "অত্যন্ত করুণাময়, দয়াশীল"},
-        {"number": 4, "arabic": "مَالِكِ يَوْمِ الدِّينِ", "bengali": "বিচার দিনের মালিক"},
-        {"number": 5, "arabic": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", "bengali": "আমরা শুধু তোমারই ইবাদত করি এবং শুধু তোমারই কাছে সাহায্য চাই"},
-        {"number": 6, "arabic": "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", "bengali": "আমাদের সঠিক পথ দেখাও"},
-        {"number": 7, "arabic": "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ", "bengali": "যাদের উপর তুমি অনুগ্রহ করেছো তাদের পথ, যাদের উপর রোষ করেছো না এবং যারা পথভ্রষ্ট নয় তাদের পথ"}
+        {
+          "number": 1,
+          "arabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+          "bengali": "শুরু করছি আল্লাহর নামে যিনি অত্যন্ত করুণাময়, দয়াশীল",
+          "english": "In the name of Allah, the Most Gracious, the Most Merciful",
+          "urdu": "اللہ کے نام سے شروع کرتا ہوں جو بہت ہی رحم والا ہے",
+          "hindi": "अल्लाह के नाम से शुरुआत करता हूँ जो बेहद दयालु है",
+          "turkish": "Rahmetli, Merhametli Allah'ın adıyla başlarız",
+          "indonesian": "Dengan nama Allah yang Maha Pengasih lagi Maha Penyayang",
+          "malay": "Dengan nama Allah Yang Maha Pemurah lagi Maha Penyayang",
+          "pashto": "د الله نومه سره پیل کوم چې ډیر رحم والی او مهربان دی",
+          "somali": "Bismillaahi Arrahmani Arraheem"
+        },
+        {
+          "number": 2,
+          "arabic": "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+          "bengali": "সমস্ত প্রশংসা আল্লাহর জন্য যিনি বিশ্বজাহানের প্রতিপালক",
+          "english": "All praise is due to Allah, Lord of the worlds",
+          "urdu": "تمام تعریف اللہ کے لیے ہے جو تمام دنیا والوں کا رب ہے",
+          "hindi": "सभी प्रशंसा अल्लाह के लिए है जो सभी दुनिया के रब हैं",
+          "turkish": "Bütün hamdolsun, bütün iyilikler Alemlerin Rabbi olan Allah'a",
+          "indonesian": "Segala puji bagi Allah, Tuhan semesta alam",
+          "malay": "Segala puji bagi Allah, Tuhan semesta alam",
+          "pashto": "ټول ستایني د الله لپاره دی چې د تمام جهان رب ده",
+          "somali": "Alhamdulillaahi Rabbi al-aalameen"
+        },
+        {
+          "number": 3,
+          "arabic": "الرَّحْمَٰنِ الرَّحِيمِ",
+          "bengali": "অত্যন্ত করুণাময়, দয়াশীল",
+          "english": "The Most Gracious, the Most Merciful",
+          "urdu": "بہت ہی رحم والا اور مہربان",
+          "hindi": "बेहद दयालु और कृपालु",
+          "turkish": "Çok Rahmetli, Çok Merhametli",
+          "indonesian": "Yang Maha Pengasih lagi Maha Penyayang",
+          "malay": "Yang Maha Pemurah lagi Maha Penyayang",
+          "pashto": "ډیر رحم والی او مهربان",
+          "somali": "Ar-Rahmani Ar-Raheem"
+        },
+        {
+          "number": 4,
+          "arabic": "مَالِكِ يَوْمِ الدِّينِ",
+          "bengali": "বিচার দিনের মালিক",
+          "english": "Master of the Day of Judgment",
+          "urdu": "بادشاہ روز جزا کے",
+          "hindi": "न्याय के दिन का मालिक",
+          "turkish": "Dinin gününün Sahibi",
+          "indonesian": "Pemilik hari pembalasan",
+          "malay": "Pemilik hari pembalasan",
+          "pashto": "د دين ورځې مالک",
+          "somali": "Malik Yawm ad-Deen"
+        },
+        {
+          "number": 5,
+          "arabic": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+          "bengali": "আমরা শুধু তোমারই ইবাদত করি এবং শুধু তোমারই কাছে সাহায্য চাই",
+          "english": "You alone we worship and You alone we ask for help",
+          "urdu": "ہم صرف تیری ہی عبادت کرتے ہیں اور صرف تجھ سے مدد مانگتے ہیں",
+          "hindi": "हम केवल तुम्हारी ही पूजा करते हैं और केवल तुमसे मदद मांगते हैं",
+          "turkish": "Yalnız Seni ibadет ederiz ve yalnız Senden yardım isteriz",
+          "indonesian": "Hanya kepada Engkau kami menyembah dan hanya kepada Engkau kami mohon pertolongan",
+          "malay": "Hanya kepada Engkau kami beribadat dan hanya kepada Engkau kami memohon pertolongan",
+          "pashto": "موږ صرف تا ته عبادت کوو او صرف له تا سره مدد غوښتو",
+          "somali": "Iyyaka na'budu wa iyyaka nasta'een"
+        },
+        {
+          "number": 6,
+          "arabic": "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
+          "bengali": "আমাদের সঠিক পথ দেখাও",
+          "english": "Guide us to the straight path",
+          "urdu": "ہمیں سیدھے راستے پر لگا دے",
+          "hindi": "हमें सीधे रास्ते पर चला",
+          "turkish": "Bizi doğru yola ilet",
+          "indonesian": "Tunjukilah kami jalan yang lurus",
+          "malay": "Tunjukilah kami jalan yang lurus",
+          "pashto": "موږ ته سیدې لاري ښودونکی شه",
+          "somali": "Ihdina as-sirat al-mustaqeem"
+        },
+        {
+          "number": 7,
+          "arabic": "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+          "bengali": "যাদের উপর তুমি অনুগ্রহ করেছো তাদের পথ, যাদের উপর রোষ করেছো না এবং যারা পথভ্রষ্ট নয় তাদের পথ",
+          "english": "The path of those upon whom You have bestowed favor, not of those who have evoked angering, nor of those who are astray",
+          "urdu": "ان لوگوں کا راستہ جن پر تو نے احسان کیا ہے، ان لوگوں کا نہیں جن پر غضب کیا گیا اور نہ ہی گمراہوں کا",
+          "hindi": "उन लोगों का रास्ता जिनपर तूने एहसान किया है, न उन लोगों का जिनपर क्रोध किया गया और न ही भटकाए हुओं का",
+          "turkish": "Kendilerine nimet verdiğin kimselerin yolunu, gazaba uğrayanların ve sapıtanların yolunu değil",
+          "indonesian": "Jalan orang-orang yang telah Engkau beri nikmat kepada mereka, bukan jalan mereka yang dimurkai dan bukan pula jalan mereka yang sesat",
+          "malay": "Jalan orang-orang yang telah Engkau beri nikmat kepada mereka, bukan jalan mereka yang dimurkai dan bukan pula jalan mereka yang sesat",
+          "pashto": "د هغو کسانو لاره چې تا ورته احسان کړې، نه د غصبیدو لاره او نه د ګمراهو لاره",
+          "somali": "Sirat al-ladheen an'amta alayim ghayril maghdoobi alayim wala ad-daalin"
+        }
       ]
     },
     {
@@ -26,52 +110,45 @@
       "revelationType": "Medinan",
       "revelationTypeBengali": "মাদানী",
       "ayahs": [
-        {"number": 1, "arabic": "الم", "bengali": "আলিফ লাম মিম"},
-        {"number": 2, "arabic": "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ", "bengali": "এটি সেই কিতাব যার মধ্যে কোনো সন্দেহ নেই, এটি তাকওয়াশীলদের জন্য হিদায়াত"},
-        {"number": 3, "arabic": "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ", "bengali": "যারা অদৃশ্যে বিশ্বাস করে, নামাজ প্রতিষ্ঠা করে এবং আমরা তাদের যা দিয়েছি তা থেকে খরচ করে"}
-      ]
-    },
-    {
-      "number": 3,
-      "name": "Ali Imran",
-      "nameBengali": "সূরা আলে ইমরান",
-      "numberOfAyahs": 200,
-      "revelationType": "Medinan",
-      "revelationTypeBengali": "মাদানী",
-      "ayahs": [
-        {"number": 1, "arabic": "الم", "bengali": "আলিফ লাম মিম"},
-        {"number": 2, "arabic": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ", "bengali": "আল্লাহ, তিনি ছাড়া কোনো উপাস্য নেই, তিনি চিরঞ্জীব, স্বয়ংসম্পূর্ণ"}
-      ]
-    },
-    {
-      "number": 4,
-      "name": "An-Nisa",
-      "nameBengali": "সূরা নিসা",
-      "numberOfAyahs": 176,
-      "revelationType": "Medinan",
-      "revelationTypeBengali": "মাদানী",
-      "ayahs": []
-    },
-    {
-      "number": 5,
-      "name": "Al-Maidah",
-      "nameBengali": "সূরা মায়েদা",
-      "numberOfAyahs": 120,
-      "revelationType": "Medinan",
-      "revelationTypeBengali": "মাদানী",
-      "ayahs": []
-    },
-    {
-      "number": 114,
-      "name": "An-Nas",
-      "nameBengali": "সূরা নাস",
-      "numberOfAyahs": 6,
-      "revelationType": "Meccan",
-      "revelationTypeBengali": "মক্কী",
-      "ayahs": [
-        {"number": 1, "arabic": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ", "bengali": "বল, আমি মানুষের প্রতিপালকের কাছে আশ্রয় চাই"},
-        {"number": 2, "arabic": "مَلِكِ النَّاسِ", "bengali": "মানুষের বাদশাহের কাছে"},
-        {"number": 3, "arabic": "إِلَٰهِ النَّاسِ", "bengali": "মানুষের উপাস্যের কাছে"}
+        {
+          "number": 1,
+          "arabic": "الم",
+          "bengali": "আলিফ লাম মিম",
+          "english": "Alif, Lam, Meem",
+          "urdu": "الف لام میم",
+          "hindi": "अलिफ लाम मीम",
+          "turkish": "Elif Lam Mim",
+          "indonesian": "Alif Lam Mim",
+          "malay": "Alif Lam Mim",
+          "pashto": "الف لام میم",
+          "somali": "Alif Lam Meem"
+        },
+        {
+          "number": 2,
+          "arabic": "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ",
+          "bengali": "এটি সেই কিতাব যার মধ্যে কোনো সন্দেহ নেই, এটি তাকওয়াশীলদের জন্য হিদায়াত",
+          "english": "This is the Book about which there is no doubt, a guidance for those conscious of Allah",
+          "urdu": "یہ وہ کتاب ہے جس میں کوئی شک نہیں ہے۔ متقین کے لیے ہدایت ہے",
+          "hindi": "यह वह किताब है जिसमें कोई संदेह नहीं है, मुत्तकियों के लिए हिदायत है",
+          "turkish": "İşte bu kitap, şüphe yok ki içinde hidayet vardır, takva sahiplerinin için",
+          "indonesian": "Kitab itu tidak ada keraguan padanya, ia adalah petunjuk bagi mereka yang takut kepada Allah",
+          "malay": "Kitab itu tidak ada keraguan padanya, ia adalah petunjuk bagi mereka yang takut kepada Allah",
+          "pashto": "دا هغه کتاب دی چې په کې کوم ترديد نه شته، د متقین لپاره هدایت دی",
+          "somali": "Dhaalikum al-kitab la rayba fee, hudan lil-muttaqeen"
+        },
+        {
+          "number": 3,
+          "arabic": "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ",
+          "bengali": "যারা অদৃশ্যে বিশ্বাস করে, নামাজ প্রতিষ্ঠা করে এবং আমরা তাদের যা দিয়েছি তা থেকে খরচ করে",
+          "english": "Who believe in the unseen, and who establish prayer, and from what We have provided them, they spend",
+          "urdu": "جو غیب پر ایمان رکھتے ہیں اور نماز قائم کرتے ہیں اور جو ہم نے ان کو دیا ہے اس میں سے خرچ کرتے ہیں",
+          "hindi": "जो अदृश्य में विश्वास करते हैं, नमाज क़ायम करते हैं और जो हमने उन्हें दिया है उससे खर्च करते हैं",
+          "turkish": "Gaybı tasdik edenler, namaz kılanlar ve biz onlara verdiğimizden infak edenler",
+          "indonesian": "Mereka yang beriman kepada yang gaib, mendirikan salat, dan menafkahkan sebagian dari rezeki yang Kami berikan kepada mereka",
+          "malay": "Mereka yang beriman kepada yang gaib, mendirikan solat, dan menafkahkan sebagian dari rezeki yang Kami berikan kepada mereka",
+          "pashto": "هغه کسان چې په غیب ایمان لري، نماز قام کوي او د هغه څخه چې موږ ورته ورکړو خرچ کوي",
+          "somali": "Al-ladheen yu'minoon bil-ghayb wa yuqeemoon as-salat wa mimma razaqnahum yunfiqoon"
+        }
       ]
     }
   ]
