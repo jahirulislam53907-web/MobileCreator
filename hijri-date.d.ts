@@ -6,3 +6,4 @@ declare module 'hijri-date' {
   }
   export default HijriDate;
 }
+
