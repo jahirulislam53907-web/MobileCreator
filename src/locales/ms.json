@@ -45,5 +45,15 @@
     "indonesian": "Indonesia",
     "punjabi": "Punjabi",
     "persian": "Parsi"
+  },
+  "quran": {
+    "selectLanguage": "Pilih Bahasa:",
+    "downloadLanguage": "Muat Turun",
+    "downloading": "Sedang Memuat Turun...",
+    "offlineMode": "📱 Mod Luar Talian - Menunjukkan Data Tempatan",
+    "noVerses": "Tiada ayat ditemui",
+    "success": "Berjaya",
+    "error": "Ralat",
+    "downloadSuccess": "Dimuat Turun Dengan Jayanya"
   }
 }

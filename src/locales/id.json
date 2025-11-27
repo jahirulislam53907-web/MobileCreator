@@ -45,5 +45,15 @@
     "indonesian": "Indonesia",
     "punjabi": "Punjabi",
     "persian": "Persia"
+  },
+  "quran": {
+    "selectLanguage": "Pilih Bahasa:",
+    "downloadLanguage": "Unduh",
+    "downloading": "Mengunduh...",
+    "offlineMode": "📱 Mode Luring - Menampilkan Data Lokal",
+    "noVerses": "Tidak ada ayat ditemukan",
+    "success": "Berhasil",
+    "error": "Kesalahan",
+    "downloadSuccess": "Berhasil Diunduh"
   }
 }

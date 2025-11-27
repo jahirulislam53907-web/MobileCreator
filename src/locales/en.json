@@ -93,5 +93,15 @@
     "indonesian": "Indonesian",
     "punjabi": "Punjabi",
     "persian": "Persian"
+  },
+  "quran": {
+    "selectLanguage": "Select Language:",
+    "downloadLanguage": "Download",
+    "downloading": "Downloading...",
+    "offlineMode": "📱 Offline Mode - Showing local data",
+    "noVerses": "No verses found",
+    "success": "Success",
+    "error": "Error",
+    "downloadSuccess": "Downloaded successfully"
   }
 }

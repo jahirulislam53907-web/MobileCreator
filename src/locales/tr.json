@@ -45,5 +45,15 @@
     "indonesian": "Endonezce",
     "punjabi": "Pencapça",
     "persian": "Farsça"
+  },
+  "quran": {
+    "selectLanguage": "Dili Seçin:",
+    "downloadLanguage": "İndir",
+    "downloading": "İndiriliyor...",
+    "offlineMode": "📱 Çevrimdışı Mod - Yerel Veri Gösteriliyor",
+    "noVerses": "Ayet bulunamadı",
+    "success": "Başarılı",
+    "error": "Hata",
+    "downloadSuccess": "Başarıyla İndirildi"
   }
 }
