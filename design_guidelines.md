@@ -1,193 +1,215 @@
-# Islamic Super App - Design Guidelines
+# Smart Muslim - Premium Islamic Super App Design Guidelines
 
-## Platform & Language
-- **Primary Platform**: iOS (with Android considerations)
-- **Primary Language**: Bengali (বাংলা)
-- **Secondary Language**: English support in settings
+## Platform & Core Architecture
 
-## Authentication Architecture
-**Authentication Required** - The app includes:
-- User profiles for tracking ibadah (worship) progress
-- Data sync across devices
-- Future community features
+**Platform**: iOS primary (with Android Material Design variant)
+**Languages**: Bengali primary, Arabic (Quranic text), 10 translation languages (English, Urdu, Hindi, Turkish, French, Malay, Indonesian, Spanish, German, Chinese)
+
+### Authentication
+**Required** - Multi-device sync, progress tracking, cloud bookmarks, audio downloads
 
 **Implementation**:
-- Apple Sign-In (iOS requirement)
+- Apple Sign-In (iOS)
 - Google Sign-In (cross-platform)
-- Email/password as fallback
-- Privacy policy and terms in Bengali
+- Email/password fallback
+- Privacy policy and terms in Bengali/English
 - Account management: Profile > Settings > Account > Delete Account (double confirmation)
+- Profile includes: customizable geometric pattern avatar (6 presets), display name, sync status
 
-## Navigation Structure
-**Root Navigation**: Tab Bar (5 tabs)
+### Navigation Structure
+**Tab Bar Navigation** (5 tabs, center focus on Quran)
 
-1. **হোম (Home)** - Dashboard with prayer times, countdown, daily verse
-2. **নামাজ (Prayer)** - Prayer tracking, Qibla compass, prayer learning
-3. **কুরআন (Quran)** - Center tab with prominent icon
-4. **দুয়া (Dua)** - Daily duas and dhikr collection
-5. **আরও (More)** - Calendar, Zakat calculator, Ramadan tracker, settings
+1. **হোম (Home)** - Dashboard, prayer times, daily insights
+2. **নামাজ (Prayer)** - Tracking, Qibla, learning resources
+3. **কুরআন (Quran)** - Center tab, larger icon, primary feature
+4. **দুয়া (Dua)** - Collections, favorites
+5. **আরও (More)** - Tools, calendar, settings
+
+**Stack-based modals**: Audio player, translation comparison, download manager, Qibla compass
+
+## Premium Liquid Glass UI Philosophy
+
+**Visual Language**: Translucent surfaces, depth through layering, subtle motion, purposeful spacing
+- Frosted glass effects on floating elements
+- Hierarchical blur intensity (light blur for backgrounds, no blur for primary content)
+- Depth through shadow elevation, not heavy borders
+- Color fills with 5-10% opacity for subtle backgrounds
+- Premium spacing: minimum 24px between major sections, 16px within cards
+
+**Animation Principles**:
+- Spring physics for all transitions (damping: 0.8, stiffness: 100)
+- Stagger animations for list items (50ms delay between items)
+- Meaningful motion: elements slide from their logical origin
+- Smooth opacity fades (300ms) paired with transforms
+- Interactive feedback: scale (0.96) + opacity (0.7) on press
+
+**Touch Feedback**: All interactive elements use subtle scale + opacity. Never use flat color overlays.
 
 ## Screen Specifications
 
-### 1. Home Dashboard
-- **Header**: Transparent with location selector (left) and notification bell (right)
-- **Layout**: Scrollable vertical stack
-- **Safe Area**: Top: headerHeight + Spacing.xl, Bottom: tabBarHeight + Spacing.xl
+### Home Dashboard
+- **Header**: Transparent frosted glass with location (left), notifications (right)
+- **Layout**: Scrollable vertical with card-based sections
+- **Safe Area**: Top: headerHeight + 32px, Bottom: tabBarHeight + 32px
 - **Components**:
-  - Current location display with edit button
-  - Dual date card (Hijri + Gregorian)
-  - Large countdown timer to next prayer (prominent card)
-  - Daily Quranic verse card with Bengali translation
-  - Prayer times grid (5 prayers with checkmarks for completed)
-  - Quick action shortcuts (6 icon buttons in 3x2 grid)
-  - Ibadah progress chart (weekly view)
+  - Hero card: Next prayer countdown with circular progress ring, gradient background
+  - Dual calendar card: Hijri/Gregorian dates with subtle separator
+  - Daily verse card: Arabic + Bengali, frosted background, bookmark icon
+  - Prayer grid: 5 prayers, checkmark animations when marked complete
+  - Quick actions: 6 glass-morphism buttons in 3x2 grid
+  - Progress insights: Weekly ibadah chart with smooth curve interpolation
 
-### 2. Prayer (নামাজ) Screen
-- **Header**: Default with title, Qibla button (right)
-- **Layout**: Scrollable with floating Qibla compass button
-- **Safe Area**: Top: Spacing.xl, Bottom: tabBarHeight + Spacing.xl
+### Prayer (নামাজ) Screen
+- **Header**: Default with Qibla button (compass icon, right)
+- **Layout**: Scrollable with floating Qibla button (bottom-right if needed)
+- **Safe Area**: Top: 24px, Bottom: tabBarHeight + 24px
 - **Components**:
-  - Today's prayer timetable (list with prayer status)
-  - Qibla compass (modal screen when tapped)
-  - Prayer tracking switches for each prayer
-  - Reminder settings card
-  - "Learn Prayer" section with step-by-step guides
-  - Prayer niyyah (intentions) reference
+  - Timeline view: Vertical prayer list with connection lines, current prayer highlighted
+  - Toggle switches: Custom design with smooth animation, primary color fill
+  - Reminder settings: Expandable card with notification preferences
+  - Learning section: Expandable step-by-step prayer guide with illustrations
 
-### 3. Quran (কুরআন) Screen
-- **Header**: Custom with search bar, bookmark icon (right)
-- **Layout**: List view (Surah list or Para list toggle)
-- **Safe Area**: Top: headerHeight + Spacing.xl, Bottom: tabBarHeight + Spacing.xl
+### Quran (কুরআন) Screen - Premium Feature
+- **Header**: Custom translucent bar with search (frosted pill), bookmark/settings icons
+- **Layout**: List view with segmented control (Surah/Juz/Bookmarks)
+- **Safe Area**: Top: headerHeight + 24px, Bottom: tabBarHeight + 24px
 - **Components**:
-  - Segmented control (Surah / Para / Bookmarks)
-  - Last read position card (resume reading)
-  - List items with Surah name (Arabic + Bengali), revelation location, verse count
-  - Reader screen: Full-screen scrollable with Arabic text, Bengali translation, audio player controls
+  - Resume reading card: Last position with progress percentage, smooth gradient
+  - Surah/Juz list: Arabic name (right-aligned), Bengali (left), verse count, revelation badge
+  - **Reader View** (dedicated screen):
+    - Full-screen immersive mode, collapsible header
+    - Arabic text: 28px, high contrast, ample line-height (1.8)
+    - Per-Ayah touch targets for audio playback
+    - Translation pills: Swipeable horizontal scroll, currently selected language highlighted
+    - Floating audio player: Bottom sheet, translucent background
+    - Audio controls: Play/pause (center), skip Ayah (sides), speed selector (0.5x-2x), progress scrubber
+    - Bookmark integration: Long-press Ayah shows contextual menu
+  - **Translation Comparison**: Modal sheet, split-view with 2-3 languages side-by-side, synchronized scrolling
+  - **Download Manager**: Modal with language selection, storage indicators, pause/resume per language
 
-### 4. Dua (দুয়া) Screen
+### Dua (দুয়া) Screen
 - **Header**: Default with search icon (right)
-- **Layout**: Categorized list
-- **Safe Area**: Top: Spacing.xl, Bottom: tabBarHeight + Spacing.xl
+- **Layout**: Categorized vertical list
+- **Safe Area**: Top: 24px, Bottom: tabBarHeight + 24px
 - **Components**:
-  - Category cards (Morning/Evening, After Prayer, Before Eating, etc.)
-  - Dua detail screen: Arabic text (larger font), Bengali transliteration, Bengali meaning, share button
-  - Favorites section at top
+  - Category cards: Frosted background, rounded corners (16px), subtle shadow
+  - Favorites section: Horizontal scroll at top
+  - Detail view: Arabic (28px), transliteration (16px italic), Bengali meaning, audio playback, share
 
-### 5. More (আরও) Screen
-- **Header**: Default with profile avatar (right)
-- **Layout**: Scrollable grouped list
-- **Safe Area**: Top: Spacing.xl, Bottom: tabBarHeight + Spacing.xl
+### More (আরও) Screen
+- **Header**: Default with profile avatar (right, tappable)
+- **Layout**: Grouped list with section headers
+- **Safe Area**: Top: 24px, Bottom: tabBarHeight + 24px
 - **Components**:
-  - Islamic Calendar tile
-  - Zakat Calculator tile
-  - Ramadan Tracker tile
-  - Settings tile
-  - Profile tile
-  - About & Help tiles
+  - Tools section: Calendar, Zakat Calculator, Ramadan Tracker
+  - Account section: Profile, Settings, Data Sync Status
+  - Support section: Help, About, Rate App
 
 ### Modal Screens
-- **Qibla Compass**: Full-screen modal with compass visualization, location display, distance to Kaaba
-- **Zakat Calculator**: Form with numeric inputs, calculate button in header
-- **Settings**: Grouped list with theme, language, notification preferences, data backup
+- **Qibla Compass**: Full-screen, animated compass with smooth rotation, distance to Kaaba, accuracy indicator
+- **Zakat Calculator**: Form-based with currency selector, real-time calculation, share results
+- **Settings**: Language selector (10 languages), theme toggle (light/dark/auto), prayer calculation method (Karachi), notification preferences, storage management, app lock
 
 ## Design System
 
 ### Color Palette
-**Primary**: Islamic Green
-- Primary: #2D6A4F (deep Islamic green)
-- Primary Light: #52B788
-- Primary Dark: #1B4332
+**Light Mode**:
+- Primary: #1B7F5C (Islamic green, vibrant)
+- Secondary: #C9A961 (refined gold)
+- Background: #F5F5F7 (iOS system gray 6)
+- Surface: #FFFFFF with 60% opacity for frosted glass
+- Text Primary: #1D1D1F
+- Text Secondary: #6E6E73
 
-**Secondary**: Golden/Amber
-- Secondary: #D4A574 (golden)
-- Secondary Light: #E9C992
-- Secondary Dark: #B8860B
+**Dark Mode**:
+- Primary: #34C779 (brighter green for OLED)
+- Secondary: #D4A574
+- Background: #000000
+- Surface: #1C1C1E with 60% opacity for frosted glass
+- Text Primary: #F5F5F7
+- Text Secondary: #98989D
 
-**Neutrals**:
-- Background: #F8F9FA (light mode), #1A1A1A (dark mode)
-- Surface: #FFFFFF (light), #2A2A2A (dark)
-- Text Primary: #212529 (light), #F8F9FA (dark)
-- Text Secondary: #6C757D (light), #ADB5BD (dark)
-
-**Semantic**:
-- Success: #40916C (prayer completed)
-- Warning: #F4A261 (prayer time approaching)
-- Error: #E76F51
+**Gradients**:
+- Prayer gradient: Primary to Primary Light (120deg)
+- Card overlays: Black with 5% opacity to transparent
 
 ### Typography
-**Bengali Font**: Noto Sans Bengali (system font support)
-**Arabic Font**: Traditional Arabic or Scheherazade New (for Quranic text)
+**System**: SF Pro (iOS), Roboto (Android)
+**Arabic**: Traditional Arabic (system), fallback to Scheherazade New
+**Bengali**: Noto Sans Bengali
 
-**Scale**:
-- Display: 32px, Bold (Countdown timer)
-- H1: 24px, SemiBold (Screen titles)
-- H2: 20px, SemiBold (Card headers)
-- H3: 18px, Medium (Section titles)
-- Body: 16px, Regular (Main content)
-- Body Small: 14px, Regular (Secondary info)
-- Caption: 12px, Regular (Timestamps, metadata)
-- Arabic Large: 28px (Quranic verses, Duas)
+**Scale** (iOS Dynamic Type support):
+- Display: 36px, Bold (Countdown, hero text)
+- H1: 28px, Semibold (Screen titles)
+- H2: 22px, Semibold (Section headers)
+- H3: 18px, Medium (Card titles)
+- Body: 17px, Regular (Main content)
+- Subheadline: 15px, Regular (Secondary info)
+- Caption: 13px, Regular (Metadata)
+- Arabic Display: 32px, Regular (Quran, Duas)
 
 ### Component Specifications
 
-**Prayer Time Card**:
-- Rounded corners: 12px
-- Padding: 16px
-- Background: Surface color with subtle gradient
-- Border: 1px solid with 10% primary color opacity
-- Active prayer: Primary color border, bold text
+**Frosted Glass Cards**:
+- Background: Surface color with 60% opacity + blur(20px)
+- Border: 1px solid with 10% white (light mode) or 20% white (dark mode)
+- Corner radius: 16px (standard), 24px (hero cards)
+- Padding: 20px
+- Shadow: elevation 2 (light: 0 2px 8px rgba(0,0,0,0.08), dark: 0 2px 12px rgba(0,0,0,0.4))
 
-**Action Buttons**:
-- Primary: Filled with primary color, white text, 12px radius
-- Secondary: Outlined with primary color, primary text, 12px radius
-- Icon buttons: 44x44 minimum touch target
-- Visual feedback: 20% opacity overlay when pressed
+**Primary Button**:
+- Background: Primary color
+- Text: White, 17px Semibold
+- Corner radius: 12px
+- Padding: 16px vertical, 32px horizontal
+- Minimum height: 50px
+- Press state: scale(0.96) + opacity(0.9)
 
-**Floating Qibla Button** (if used):
-- Position: Bottom right, 16px from edges
-- Size: 56x56
-- Background: Primary gradient
-- Icon: White compass icon
-- Shadow: width: 0, height: 2, opacity: 0.10, radius: 2
+**Icon Buttons**:
+- Size: 44x44 minimum
+- Background: Glass effect or transparent
+- Icon: 24x24 (Feather icons)
+- Press: scale(0.9) + opacity(0.6)
 
-**Navigation Icons**:
-- Use Feather icons from @expo/vector-icons
+**Floating Audio Player**:
+- Position: Bottom sheet, above tab bar
+- Background: Frosted glass with strong blur
+- Height: 80px collapsed, 300px expanded
+- Corner radius: 24px (top corners only)
+- Shadow: width: 0, height: -2, opacity: 0.15, radius: 8
+- Swipe down to dismiss
+
+**Tab Bar Icons** (Feather):
 - Home: home
 - Prayer: clock
-- Quran: book-open
-- Dua: book
-- More: menu
+- Quran: book-open (larger, 28x28)
+- Dua: heart
+- More: grid
 
-### Visual Assets
-**Critical Assets**:
-1. **Qibla Compass**: Custom compass rose with Kaaba icon at north
-2. **Islamic Patterns**: Subtle geometric patterns for card backgrounds (2-3 variations)
-3. **Prayer Icons**: 5 unique icons representing each prayer time
-4. **Profile Avatars**: 6 Islamic geometric pattern-based avatars (no human/animal forms)
-
-**DO NOT use**:
-- Emojis
-- Human or animal imagery (Islamic guidelines)
-- Overly decorative elements that distract from content
+### Critical Assets
+1. **Qibla Compass**: Circular rose with directional markers, Kaaba indicator, smooth rotation animation
+2. **Islamic Patterns**: 3 geometric patterns for avatar backgrounds (no animate forms), subtle tile patterns for card decorations
+3. **Prayer Icons**: 5 minimalist line icons for each prayer
+4. **Download Indicators**: Progress rings with percentage, pause/download icons
 
 ### Accessibility
-- Minimum text size: 14px (adjustable in settings to 18px)
-- High contrast mode for elderly users
-- Bengali voice-over support for screen readers
-- Large touch targets (minimum 44x44)
-- Clear visual hierarchy with proper spacing
-- Prayer time notifications with vibration patterns
+- Dynamic Type support (up to XXL)
+- VoiceOver: Bengali and Arabic support
+- High contrast mode (increase border opacity to 40%)
+- Reduce motion: disable spring animations, use simple fades
+- Minimum touch targets: 44x44
+- Color is never the only differentiator
 
-### Interaction Design
-- All touchable elements: 20% opacity feedback on press
-- Smooth transitions between screens (300ms ease)
-- Pull-to-refresh on main content screens
-- Haptic feedback on prayer check completion
-- Swipe gestures for Quran navigation (next/previous Surah)
+### Interaction Standards
+- All gestures must have haptic feedback (light impact for selections, medium for completions)
+- Pull-to-refresh on scrollable lists
+- Long-press for contextual menus (bookmark Ayah, share Dua)
+- Swipe navigation in Quran reader (previous/next Surah)
+- Loading states: Shimmer effect on skeleton cards, never use spinners alone
+- Empty states: Friendly illustration + helpful text + action button
 
-### Offline Functionality
-- Indicator in header when offline (small cloud icon)
-- Prayer times calculated locally
-- Quran fully cached after first download
-- Duas available offline
-- Calendar pre-loaded for current year
+### Offline Behavior
+- Offline indicator: Small cloud icon with slash in header (when detected)
+- Graceful degradation: Show cached content, disable streaming features
+- Download manager: Clear storage usage, allow selective deletion
+- Sync indicator: Animated icon when uploading/downloading data
