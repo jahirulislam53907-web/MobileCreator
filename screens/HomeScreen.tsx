@@ -216,7 +216,9 @@ export default function HomeScreen() {
         <View style={[styles.verseBg, { backgroundColor: theme.backgroundSecondary }]}>
           <ThemedText style={[styles.verseArabic, { color: '#ffffff' }]}>{item.arabic}</ThemedText>
         </View>
-        <ThemedText style={styles.verseTranslation}>"{item.bengali}"</ThemedText>
+        <View style={[styles.verseBengaliBox, { backgroundColor: theme.backgroundSecondary }]}>
+          <ThemedText style={[styles.verseBengali, { color: '#ffffff' }]}>{item.bengali}</ThemedText>
+        </View>
         <View style={styles.verseActions}>
           <Pressable style={[styles.verseBtn, { backgroundColor: theme.primary }]}>
             <MaterialIcons name="play-arrow" size={14} color={theme.buttonText} />
