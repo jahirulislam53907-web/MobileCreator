@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import localQuranData from '@/data/quranComplete.json';
 
-// Production URL সাথে fallback থাকবে
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 export interface QuranSurah {
@@ -38,15 +38,29 @@ export const useQuranAPI = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/quran/surahs`);
-      if (!response.ok) throw new Error('Failed to fetch surahs');
+      // Try online first, fallback to local
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/quran/surahs`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.surahs || [];
+        }
+      } catch (e) {
+        // Fallback to local
+      }
       
-      const data = await response.json();
-      return data.surahs || [];
+      // Local fallback
+      return (localQuranData as any).surahs?.map((s: any) => ({
+        number: s.number,
+        name: s.name,
+        nameBengali: s.nameBengali,
+        numberOfAyahs: s.numberOfAyahs,
+        revelationType: s.revelationType,
+        revelationTypeBengali: s.revelationTypeBengali
+      })) || [];
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setError(message);
-      console.error('Fetch surahs error:', message);
+      const message = err instanceof Error ? err.message : 'Using local data';
+      console.log('Using local Quran data');
       return [];
     } finally {
       setLoading(false);
@@ -58,15 +72,33 @@ export const useQuranAPI = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/quran/surah/${surahNumber}`);
-      if (!response.ok) throw new Error('Failed to fetch surah');
+      // Try online first
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/quran/surah/${surahNumber}`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.surah || null;
+        }
+      } catch (e) {
+        // Fallback to local
+      }
       
-      const data = await response.json();
-      return data.surah || null;
+      // Local fallback
+      const surah = (localQuranData as any).surahs?.find((s: any) => s.number === surahNumber);
+      if (surah) {
+        return {
+          number: surah.number,
+          name: surah.name,
+          nameBengali: surah.nameBengali,
+          numberOfAyahs: surah.numberOfAyahs,
+          revelationType: surah.revelationType,
+          revelationTypeBengali: surah.revelationTypeBengali,
+          ayahs: surah.ayahs || []
+        };
+      }
+      return null;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setError(message);
-      console.error('Fetch surah error:', message);
+      console.log('Using local Quran data for Surah', surahNumber);
       return null;
     } finally {
       setLoading(false);
@@ -78,15 +110,13 @@ export const useQuranAPI = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/quran/ayah/${surah}/${ayah}`);
-      if (!response.ok) throw new Error('Failed to fetch ayah');
+      // Local data
+      const surahData = (localQuranData as any).surahs?.find((s: any) => s.number === surah);
+      const ayahData = surahData?.ayahs?.find((a: any) => a.number === ayah);
       
-      const data = await response.json();
-      return data;
+      return ayahData || null;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setError(message);
-      console.error('Fetch ayah error:', message);
+      console.log('Error fetching ayah');
       return null;
     } finally {
       setLoading(false);
@@ -98,15 +128,11 @@ export const useQuranAPI = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/quran/surah/${surahNumber}/ayahs`);
-      if (!response.ok) throw new Error('Failed to fetch surah ayahs');
-      
-      const data = await response.json();
-      return data.ayahs || [];
+      // Local data
+      const surah = (localQuranData as any).surahs?.find((s: any) => s.number === surahNumber);
+      return surah?.ayahs || [];
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setError(message);
-      console.error('Fetch ayahs error:', message);
+      console.log('Error fetching ayahs');
       return [];
     } finally {
       setLoading(false);
