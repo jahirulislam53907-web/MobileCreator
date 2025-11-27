@@ -242,7 +242,7 @@ export default function HomeScreen() {
     if (!success) {
       Alert.alert(
         'লোকেশন পারমিশন',
-        'আপনার ডিভাইসের লোকেশন এক্সেস করতে পারমিশন প্রয়োজন। সঠিক প্রার্থনার সময় এর জন্য আপনার বর্তমান অবস্থান আমাদের প্রয়োজন।'
+        'সঠিক নামাজের সময় পেতে লোকেশন পারমিশন প্রয়োজন।'
       );
     }
   };
@@ -421,7 +421,7 @@ export default function HomeScreen() {
             </Pressable>
             <View style={{ flex: 1 }}>
               <ThemedText style={styles.locationTitle}>
-                {location ? `${location.name}, ${location.country}` : 'লোকেশন যুক্ত করুন'}
+                {location ? `${location.name}, ${location.country}` : 'সঠিক সময় পেতে লোকেশন যুক্ত করুন'}
               </ThemedText>
               <ThemedText style={styles.locationSubtitle}>
                 {locationLoading ? 'লোকেশন প্রাপ্ত হচ্ছে...' : (location ? 'আপনার বর্তমান লোকেশন' : 'ক্লিক করে অনুমতি দিন')}
@@ -467,13 +467,13 @@ export default function HomeScreen() {
 
           <View style={[styles.nextPrayerCard, { backgroundColor: theme.backgroundDefault }]}>
             <View style={styles.prayerInfoLine}>
-              <ThemedText style={styles.prayerLabelSmall}>{t('home.next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
+              <ThemedText style={styles.prayerLabelSmall}>{t('next_prayer') || 'পরবর্তী নামাজ'}</ThemedText>
               <ThemedText style={[styles.prayerNameSmall, { color: '#ffffff', flex: 1, textAlign: 'right' }]}>
                 {nextPrayerInfo.nameBn}
               </ThemedText>
             </View>
             <View style={styles.prayerInfoLine}>
-              <ThemedText style={styles.prayerLabelSmall}>{t('home.time_remaining') || 'বাকি আছে'}</ThemedText>
+              <ThemedText style={styles.prayerLabelSmall}>{t('Time Remaining') || 'বাকি আছে'}</ThemedText>
               <ThemedText style={[styles.countdownSmall, { color: theme.secondary, flex: 1, textAlign: 'right' }]}>
                 {`${String(nextPrayerInfo.timeRemaining.hours).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.minutes).padStart(2, '0')}:${String(nextPrayerInfo.timeRemaining.seconds).padStart(2, '0')}`}
               </ThemedText>
@@ -483,7 +483,7 @@ export default function HomeScreen() {
 
         {/* Quran Carousel */}
         <View style={styles.carouselContainer}>
-          <ThemedText style={styles.carouselTitle}>{t('home.verse_of_day') || 'কোরআন শরীফ'}</ThemedText>
+          <ThemedText style={styles.carouselTitle}>{t('verse_of_day') || 'কোরআন শরীফ'}</ThemedText>
           
           <FlatList
             ref={flatListRef}
@@ -517,7 +517,7 @@ export default function HomeScreen() {
 
         {/* Azan Section */}
         <View style={{ marginTop: Spacing.xl }}>
-          <ThemedText style={styles.sectionTitle}>{t('home.azan') || 'আজান'}</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('Azan') || 'আজান'}</ThemedText>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
             {/* Azan Times Grid */}
             <View style={styles.prayerGrid}>
@@ -568,10 +568,10 @@ export default function HomeScreen() {
         <Animated.View style={{ height: quickActionsHeightAnim, overflow: 'hidden' }}>
           <View onLayout={handleQuickActionsLayout}>
             <View style={styles.sectionTitleRow}>
-              <ThemedText style={styles.sectionTitle}>{t('home.quick_access') || 'দ্রুত এক্সেস'}</ThemedText>
+              <ThemedText style={styles.sectionTitle}>{t('Quick Access') || 'দ্রুত এক্সেস'}</ThemedText>
               <Pressable onPress={toggleQuickActionsExpand}>
                 <ThemedText style={[styles.seeAll, { color: theme.primary }]}>
-                  {isQuickActionsExpanded ? (t('home.see_less') || 'কম দেখুন') : (t('home.see_all') || 'সব দেখুন')}
+                  {isQuickActionsExpanded ? (t('See less') || 'কম দেখুন') : (t('See all') || 'সব দেখুন')}
                 </ThemedText>
               </Pressable>
             </View>
@@ -593,7 +593,7 @@ export default function HomeScreen() {
 
         {/* Prayer Times */}
         <View style={{ marginTop: Spacing.xl }}>
-          <ThemedText style={styles.sectionTitle}>{t('home.prayer_schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('Prayer Schedule') || 'আজকের নামাজের সময়সূচী'}</ThemedText>
           <View style={[styles.prayerTimesCard, { backgroundColor: theme.backgroundDefault, marginTop: Spacing.md }]}>
             {/* Prayer Times Grid - Location and date used in background for accurate calculation */}
             <View style={styles.prayerGrid}>
@@ -641,9 +641,9 @@ export default function HomeScreen() {
 
         {/* Tracker Section */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>{t('home.worship_tracker') || 'আপনার ইবাদত ট্র্যাকার'}</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('Worship Tracker') || 'আপনার ইবাদত ট্র্যাকার'}</ThemedText>
           <Pressable>
-            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.view_details') || 'বিস্তারিত'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('View Details') || 'বিস্তারিত'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.trackerGrid}>
@@ -677,9 +677,9 @@ export default function HomeScreen() {
 
         {/* Features Grid */}
         <View style={styles.sectionTitleRow}>
-          <ThemedText style={styles.sectionTitle}>{t('home.features_title') || 'বিশেষ ফিচারসমূহ'}</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('Features title') || 'বিশেষ ফিচারসমূহ'}</ThemedText>
           <Pressable>
-            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('home.see_all') || 'সব দেখুন'}</ThemedText>
+            <ThemedText style={[styles.seeAll, { color: theme.primary }]}>{t('See all') || 'সব দেখুন'}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.featuresGrid}>
