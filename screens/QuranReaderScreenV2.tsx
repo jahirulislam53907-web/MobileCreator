@@ -6,13 +6,19 @@ import { Card } from '@/components/Card';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useQuranAPI } from '@/hooks/useQuranAPI';
 import { useQuranTranslations } from '@/hooks/useQuranTranslations';
+import { useTranslation } from '@/src/contexts/LanguageContext';
 import { Spacing } from '@/constants/theme';
 
 interface Props {
   surahNumber?: number;
 }
 
-const LANGUAGES = [
+interface LanguageItem {
+  code: 'bn' | 'en' | 'ur' | 'hi' | 'tr' | 'id' | 'ms' | 'ps' | 'so';
+  name: string;
+}
+
+const LANGUAGES: LanguageItem[] = [
   { code: 'bn', name: 'Bengali' },
   { code: 'en', name: 'English' },
   { code: 'ur', name: 'Urdu' },
@@ -28,12 +34,18 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
   const { theme } = useAppTheme();
   const { fetchSurah } = useQuranAPI();
   const { fetchTranslations, downloadSurah, loading: translationLoading } = useQuranTranslations();
+  const { language } = useTranslation();
 
   const [surahData, setSurahData] = useState<any>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState('bn');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
   const [translations, setTranslations] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const [downloading, setDownloading] = useState(false);
+
+  // Update selectedLanguage when app language changes
+  useEffect(() => {
+    setSelectedLanguage(language);
+  }, [language]);
 
   // Load Arabic
   useEffect(() => {
@@ -115,7 +127,11 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
       {/* Language Selector */}
       <Card style={{ marginHorizontal: Spacing.md, marginVertical: Spacing.md }}>
         <ThemedText style={{ fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm }}>
-          ভাষা নির্বাচন করুন:
+          {selectedLanguage === 'bn' ? 'ভাষা নির্বাচন করুন:' : 
+           selectedLanguage === 'en' ? 'Select Language:' :
+           selectedLanguage === 'ur' ? 'زبان منتخب کریں:' :
+           selectedLanguage === 'hi' ? 'भाषा चुनें:' :
+           'Select Language:'}
         </ThemedText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {LANGUAGES.map(lang => (
@@ -162,13 +178,18 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
         >
           <Feather name="download" size={16} color={theme.buttonText} style={{ marginRight: Spacing.sm }} />
           <ThemedText style={{ color: theme.buttonText, fontWeight: '600' }}>
-            {downloading ? 'ডাউনলোড হচ্ছে...' : `${languageName} ডাউনলোড করুন`}
+            {downloading ? 
+              (selectedLanguage === 'bn' ? 'ডাউনলোড হচ্ছে...' : 
+               selectedLanguage === 'en' ? 'Downloading...' : 'Downloading...') : 
+              `${languageName} ${selectedLanguage === 'bn' ? 'ডাউনলোড করুন' : selectedLanguage === 'en' ? 'Download' : 'Download'}`}
           </ThemedText>
         </Pressable>
 
         {!isOnline && (
           <ThemedText style={{ marginTop: Spacing.sm, fontSize: 12, color: '#FF9500' }}>
-            📱 অফলাইন মোড - স্থানীয় ডেটা দেখাচ্ছে
+            {selectedLanguage === 'bn' ? '📱 অফলাইন মোড - স্থানীয় ডেটা দেখাচ্ছে' : 
+             selectedLanguage === 'en' ? '📱 Offline Mode - Showing local data' : 
+             '📱 Offline Mode - Showing local data'}
           </ThemedText>
         )}
       </Card>
@@ -208,7 +229,9 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
             </Card>
           )) : (
             <ThemedText style={{ textAlign: 'center', marginTop: Spacing.lg }}>
-              কোন আয়াত পাওয়া যায়নি
+              {selectedLanguage === 'bn' ? 'কোন আয়াত পাওয়া যায়নি' : 
+               selectedLanguage === 'en' ? 'No verses found' : 
+               'No verses found'}
             </ThemedText>
           )
         )}

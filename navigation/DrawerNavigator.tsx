@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
+import QuranReaderScreenV2 from '@/screens/QuranReaderScreenV2';
 import { ThemedText } from '@/components/ThemedText';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
@@ -234,6 +235,13 @@ export default function DrawerNavigator() {
         component={MainTabNavigator}
         options={{
           title: 'Smart Muslim',
+        }}
+      />
+      <Drawer.Screen
+        name="QuranReaderV2"
+        component={QuranReaderScreenV2}
+        options={{
+          title: 'Quran Reader',
         }}
       />
     </Drawer.Navigator>
