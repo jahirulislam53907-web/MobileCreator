@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+// Use Replit's proxy or fallback to localhost for backend
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (() => {
+  // In Replit web preview, use localhost:3000 for backend
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    // If on Replit preview (localhost or replit domain), use localhost:3000
+    if (hostname === 'localhost' || hostname.includes('replit')) {
+      return `${protocol}//localhost:3000`;
+    }
+  }
+  return 'http://localhost:3000';
+})();
 
 export const useQuranTranslations = () => {
   const [loading, setLoading] = useState(false);
@@ -14,16 +26,26 @@ export const useQuranTranslations = () => {
       setError(null);
 
       // Try to fetch from server
-      const response = await fetch(
-        `${API_BASE_URL}/api/quran/surah/${surahNumber}/translations/${language}`
-      );
+      const url = `${API_BASE_URL}/api/quran/surah/${surahNumber}/translations/${language}`;
+      console.log('📡 Fetching translations from:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-      if (!response.ok) throw new Error('Failed to fetch translations');
+      if (!response.ok) {
+        console.error('❌ Translation fetch failed:', response.status, response.statusText);
+        throw new Error(`Failed to fetch translations: ${response.statusText}`);
+      }
 
       const data = await response.json();
+      console.log('✅ Translations received:', data.totalAyahs, 'ayahs');
       return data.translations || [];
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error fetching translations');
+      const errorMsg = err instanceof Error ? err.message : 'Error fetching translations';
+      console.error('🔴 Translation error:', errorMsg);
+      setError(errorMsg);
       return [];
     } finally {
       setLoading(false);
@@ -37,14 +59,21 @@ export const useQuranTranslations = () => {
       setError(null);
 
       // Fetch from server
-      const response = await fetch(
-        `${API_BASE_URL}/api/quran/surah/${surahNumber}/translations/${language}`
-      );
+      const url = `${API_BASE_URL}/api/quran/surah/${surahNumber}/translations/${language}`;
+      console.log('📥 Downloading surah from:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-      if (!response.ok) throw new Error('Failed to download surah');
+      if (!response.ok) {
+        throw new Error(`Failed to download surah: ${response.statusText}`);
+      }
 
       const data = await response.json();
       const translations = data.translations || [];
+      console.log('✅ Surah downloaded:', translations.length, 'ayahs');
 
       // Save ONLY selected language translations + arabic to local storage
       const storageKey = `quran_surah_${surahNumber}_${language}`;
