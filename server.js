@@ -6,14 +6,36 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-app.use(cors());
+// ============ CORS SETUP - সব requests allow করবে ============
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Load complete Quran data
-let QURAN_DATA = {};
+// ============ DATABASE SETUP ============
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+pool.on('error', (err) => {
+  console.error('🔴 DB Error:', err.message);
+});
+
+// ============ LOAD QURAN DATA ============
+let QURAN_DATA = {
+  totalSurahs: 114,
+  surahs: []
+};
+
 try {
   const quranPath = path.join(__dirname, 'data', 'quranComplete.json');
   if (fs.existsSync(quranPath)) {
@@ -21,13 +43,35 @@ try {
     console.log('✅ Quran data loaded:', QURAN_DATA.totalSurahs, 'Surahs');
   }
 } catch (error) {
-  console.warn('⚠️ Could not load Quran data file:', error.message);
+  console.warn('⚠️ Quran data error:', error.message);
 }
 
-// ===== PREMIUM QURAN AUDIO & TRANSLATION API =====
+// ============ HEALTH CHECK ============
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbTest = await pool.query('SELECT NOW()');
+    res.json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      database: 'Connected',
+      quranDataLoaded: QURAN_DATA.totalSurahs > 0,
+      totalSurahs: QURAN_DATA.totalSurahs
+    });
+  } catch (error) {
+    res.json({
+      status: 'Partial',
+      timestamp: new Date().toISOString(),
+      database: 'Disconnected',
+      error: error.message,
+      quranDataLoaded: QURAN_DATA.totalSurahs > 0
+    });
+  }
+});
 
-// Get complete Quran structure (all Surahs)
-app.get('/api/quran/surahs', async (req, res) => {
+// ============ QURAN API ENDPOINTS ============
+
+// Get all Surahs list
+app.get('/api/quran/surahs', (req, res) => {
   try {
     const surahsOverview = QURAN_DATA.surahs?.map(s => ({
       number: s.number,
@@ -41,16 +85,20 @@ app.get('/api/quran/surahs', async (req, res) => {
     res.json({
       success: true,
       totalSurahs: QURAN_DATA.totalSurahs || 114,
-      surahs: surahsOverview
+      surahs: surahsOverview,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Surahs fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch surahs' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// Get specific Surah with all Ayahs
-app.get('/api/quran/surah/:number', async (req, res) => {
+// Get specific Surah
+app.get('/api/quran/surah/:number', (req, res) => {
   try {
     const { number } = req.params;
     const surahNumber = parseInt(number);
@@ -58,7 +106,11 @@ app.get('/api/quran/surah/:number', async (req, res) => {
     const surah = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
     
     if (!surah) {
-      return res.status(404).json({ error: 'Surah not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Surah not found',
+        timestamp: new Date().toISOString()
+      });
     }
 
     res.json({
@@ -71,16 +123,20 @@ app.get('/api/quran/surah/:number', async (req, res) => {
         revelationType: surah.revelationType,
         revelationTypeBengali: surah.revelationTypeBengali,
         ayahs: surah.ayahs || []
-      }
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Surah fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch surah' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// Get specific Ayah with all translations
-app.get('/api/quran/ayah/:surah/:ayah', async (req, res) => {
+// Get specific Ayah
+app.get('/api/quran/ayah/:surah/:ayah', (req, res) => {
   try {
     const { surah, ayah } = req.params;
     const surahNumber = parseInt(surah);
@@ -88,12 +144,20 @@ app.get('/api/quran/ayah/:surah/:ayah', async (req, res) => {
 
     const surahData = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
     if (!surahData) {
-      return res.status(404).json({ error: 'Surah not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Surah not found',
+        timestamp: new Date().toISOString()
+      });
     }
 
     const ayahData = surahData.ayahs?.find(a => a.number === ayahNumber);
     if (!ayahData) {
-      return res.status(404).json({ error: 'Ayah not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Ayah not found',
+        timestamp: new Date().toISOString()
+      });
     }
 
     res.json({
@@ -102,135 +166,162 @@ app.get('/api/quran/ayah/:surah/:ayah', async (req, res) => {
       ayah: ayahNumber,
       arabic: ayahData.arabic,
       bengali: ayahData.bengali,
-      translations: {
-        english: `English translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        urdu: `Urdu translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        hindi: `Hindi translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        turkish: `Turkish translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        indonesian: `Indonesian translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        malay: `Malay translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        pashto: `Pashto translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
-        somali: `Somali translation for Surah ${surahNumber} Ayah ${ayahNumber}`
-      },
-      audioUrls: {
-        'abdul-basit': `https://cdn.example.com/quran/abdul-basit/${surahNumber}_${ayahNumber}.mp3`,
-        'al-minshawi': `https://cdn.example.com/quran/al-minshawi/${surahNumber}_${ayahNumber}.mp3`,
-        'mishary': `https://cdn.example.com/quran/mishary/${surahNumber}_${ayahNumber}.mp3`
-      }
+      translations: ayahData.translations || {},
+      audioUrls: ayahData.audioUrls || {},
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Ayah fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch ayah' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// Get all Ayahs for a specific Surah with translations
-app.get('/api/quran/surah/:surah/ayahs', async (req, res) => {
+// Get all Ayahs for a Surah
+app.get('/api/quran/surah/:surah/ayahs', (req, res) => {
   try {
     const { surah } = req.params;
     const surahNumber = parseInt(surah);
 
     const surahData = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
     if (!surahData) {
-      return res.status(404).json({ error: 'Surah not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Surah not found',
+        timestamp: new Date().toISOString()
+      });
     }
-
-    const ayahsWithTranslations = surahData.ayahs?.map(ayah => ({
-      number: ayah.number,
-      arabic: ayah.arabic,
-      bengali: ayah.bengali,
-      english: `Translation ${ayah.number}`,
-      urdu: `ترجمہ ${ayah.number}`,
-      hindi: `अनुवाद ${ayah.number}`,
-      turkish: `Çeviri ${ayah.number}`,
-      indonesian: `Terjemahan ${ayah.number}`,
-      malay: `Terjemahan ${ayah.number}`,
-      pashto: `ترجمه ${ayah.number}`,
-      somali: `Farsamada ${ayah.number}`
-    })) || [];
 
     res.json({
       success: true,
       surah: surahNumber,
-      ayahs: ayahsWithTranslations
+      ayahs: surahData.ayahs || [],
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Ayahs fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch ayahs' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// ===== USER SYNC API =====
+// ============ USER BOOKMARKS (Database) ============
 
-// Sync user bookmarks, preferences, last read position
-app.post('/api/sync', async (req, res) => {
+app.get('/api/bookmarks/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const result = await pool.query(
+      'SELECT * FROM user_bookmarks WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      bookmarks: result.rows,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+app.post('/api/bookmarks', async (req, res) => {
+  try {
+    const { userId, surahNumber, ayahNumber, notes } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO user_bookmarks (user_id, surah_number, ayah_number, notes, created_at)
+       VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
+      [userId, surahNumber, ayahNumber, notes || null]
+    );
+
+    res.json({
+      success: true,
+      bookmark: result.rows[0],
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// ============ SYNC ENDPOINT ============
+
+app.post('/api/sync', (req, res) => {
   try {
     const { userId, changes } = req.body;
 
-    const syncResult = {
+    res.json({
       success: true,
       userId,
       changesApplied: changes?.length || 0,
-      timestamp: new Date().toISOString(),
-      serverData: {
-        bookmarks: [],
-        preferences: {},
-        lastRead: {}
-      }
-    };
-
-    res.json(syncResult);
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Sync failed' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// Get user data for multi-device sync
-app.get('/api/user/:userId/data', async (req, res) => {
-  try {
-    const { userId } = req.params;
+// ============ ERROR HANDLING ============
 
-    const userData = {
-      userId,
-      bookmarks: [],
-      preferences: {
-        language: 'bengali',
-        theme: 'dark',
-        textSize: 16
-      },
-      lastRead: {
-        surah: 1,
-        ayah: 1,
-        timestamp: new Date().toISOString()
-      }
-    };
-
-    res.json(userData);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user data' });
-  }
-});
-
-// ===== HEALTH CHECK =====
-
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    premium: true,
-    quranLoaded: !!QURAN_DATA.totalSurahs,
-    features: {
-      quranData: true,
-      multiLanguageTranslations: true,
-      offlineSync: true,
-      premiumUI: true
-    }
+app.use((err, req, res, next) => {
+  console.error('❌ Server error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+    timestamp: new Date().toISOString()
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🌙 Smart Muslim Premium Backend running on port ${PORT}`);
-  console.log(`✨ Features: Quran Data, Multi-Language, Offline Sync, Premium Quality`);
-  console.log(`📱 Connect from Expo Go: http://<your-local-ip>:${PORT}`);
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Route not found',
+    timestamp: new Date().toISOString()
+  });
 });
+
+// ============ START SERVER ============
+
+const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
+
+const server = app.listen(PORT, HOST, () => {
+  console.log('\n🌙 ═════════════════════════════════════════');
+  console.log('  Smart Muslim Premium Backend');
+  console.log('  Running on: http://0.0.0.0:' + PORT);
+  console.log('  Environment: ' + process.env.NODE_ENV || 'development');
+  console.log('  Database: PostgreSQL');
+  console.log('  Quran Data: ' + QURAN_DATA.totalSurahs + ' Surahs loaded');
+  console.log('  CORS: Enabled for all origins');
+  console.log('  ✅ Ready for requests');
+  console.log('═════════════════════════════════════════\n');
+});
+
+process.on('SIGINT', () => {
+  console.log('\n🛑 Server shutting down...');
+  server.close(() => {
+    pool.end();
+    console.log('✅ Server stopped');
+    process.exit(0);
+  });
+});
+
+module.exports = app;

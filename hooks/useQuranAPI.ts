@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://localhost:3000'; // localhost দিয়ে test করুন
+// Production URL সাথে fallback থাকবে
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 export interface QuranSurah {
   number: number;
