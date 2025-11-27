@@ -133,7 +133,7 @@ app.get('/api/quran/surah/:surahNumber/translations/:language', async (req, res)
           [parseInt(surahNumber), language]
         );
 
-        const translations = surah.ayahs?.map((ayah: any) => {
+        const translations = surah.ayahs?.map((ayah) => {
           const dbTranslation = result.rows.find(r => r.ayah_number === ayah.number);
           return {
             number: ayah.number,
