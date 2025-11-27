@@ -1036,6 +1036,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 18,
   },
+  verseBengaliBox: {
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  verseBengali: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
   verseActions: {
     flexDirection: 'row',
     justifyContent: 'center',
