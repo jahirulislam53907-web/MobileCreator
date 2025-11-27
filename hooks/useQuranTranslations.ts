@@ -1,8 +1,19 @@
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Backend API always on localhost:3000
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+// Use Replit's proxy or fallback to localhost for backend
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (() => {
+  // In Replit web preview, use localhost:3000 for backend
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    // If on Replit preview (localhost or replit domain), use localhost:3000
+    if (hostname === 'localhost' || hostname.includes('replit')) {
+      return `${protocol}//localhost:3000`;
+    }
+  }
+  return 'http://localhost:3000';
+})();
 
 export const useQuranTranslations = () => {
   const [loading, setLoading] = useState(false);
