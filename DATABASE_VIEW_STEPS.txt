@@ -1,0 +1,95 @@
+════════════════════════════════════════════════════════════
+  আপনার Database দেখতে কিভাবে
+════════════════════════════════════════════════════════════
+
+আপনার Database এ এখন কি আছে?
+─────────────────────────────────
+
+1️⃣ LOCAL JSON FILE (এখন ব্যবহার)
+   └─ /home/runner/workspace/data/quranComplete.json
+      └─ Quran সব Surah + Ayahs
+
+2️⃣ POSTGRESQL DATABASE (Replit built-in)
+   └─ Replit যে database দিয়েছে
+   └─ Empty আছে (এখনও ব্যবহার হচ্ছে না)
+   └─ শুধু Server Connection Setup আছে
+
+
+JSON File দেখতে:
+─────────────────
+
+Option A - Terminal এ:
+  cat /home/runner/workspace/data/quranComplete.json | head -50
+
+Option B - Replit File Browser এ:
+  1. Left panel → Files
+  2. "data" folder খোলুন
+  3. "quranComplete.json" click করুন
+  4. সব content দেখা যাবে
+
+
+PostgreSQL Database দেখতে:
+──────────────────────────
+
+Option A - Replit Database Panel:
+  1. Replit website এ Project open করুন
+  2. Right side এ "Database" Panel খোলুন
+  3. Connection Info দেখবেন
+
+Option B - Terminal থেকে:
+  psql $DATABASE_URL
+  \dt (show tables)
+  SELECT * FROM surahs; (if table exists)
+
+Option C - Backend থেকে Test করুন:
+  1. node server.js চালু করুন
+  2. Browser এ খুলুন: http://localhost:3000/api/health
+  3. দেখবেন: { "status": "OK", "quranLoaded": true }
+
+
+Server এ কি কি Data আছে?
+──────────────────────────
+
+Terminal এ:
+  curl http://localhost:3000/api/quran/surahs
+  
+Output:
+  {
+    "success": true,
+    "totalSurahs": 114,
+    "surahs": [
+      {
+        "number": 1,
+        "nameBengali": "সূরা ফাতিহা",
+        "numberOfAyahs": 7
+      },
+      ...
+    ]
+  }
+
+
+Database Architecture:
+─────────────────────
+
+এখন:
+  ✓ JSON File (data/quranComplete.json)
+        ↓
+     Server Load করে (RAM এ)
+        ↓
+     API endpoints দিয়ে send করে
+
+ভবিষ্যতে:
+  ✓ PostgreSQL Database
+        ↓
+     Direct query করবে
+        ↓
+     Frontend এ send করবে
+
+
+সারাংশ:
+────────
+Database = Replit built-in PostgreSQL
+Data Location = /home/runner/workspace/data/quranComplete.json
+Access = Backend Server through /api/quran/... endpoints
+
+════════════════════════════════════════════════════════════
