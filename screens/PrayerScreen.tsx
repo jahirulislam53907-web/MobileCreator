@@ -1,301 +1,610 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Switch, Modal, TextInput, Alert } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { ScreenScrollView } from "@/components/ScreenScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { Card } from "@/components/Card";
-import { TopNavigationBar } from "@/components/TopNavigationBar";
-import { useAppTheme } from "@/hooks/useAppTheme";
-import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Pressable, ScrollView, Dimensions } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Feather from '@expo/vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemedText } from '@/components/ThemedText';
+import { TopNavigationBar } from '@/components/TopNavigationBar';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { Spacing, BorderRadius } from '@/constants/theme';
 
-const PRAYER_TIMES = [
-  { name: "ফজর", karachi_start: "04:30", mosque_time: "05:15", karachi_end: "06:30", completed: true },
-  { name: "যোহর", karachi_start: "12:00", mosque_time: "12:30", karachi_end: "14:00", completed: true },
-  { name: "আসর", karachi_start: "15:30", mosque_time: "15:45", karachi_end: "17:45", completed: false },
-  { name: "মাগরিব", karachi_start: "17:45", mosque_time: "18:10", karachi_end: "19:00", completed: false },
-  { name: "এশা", karachi_start: "19:00", mosque_time: "19:30", karachi_end: "23:59", completed: false },
+interface PrayerStatus {
+  fajr: boolean;
+  dhuhr: boolean;
+  asr: boolean;
+  maghrib: boolean;
+  isha: boolean;
+}
+
+const PRAYERS = [
+  { id: 'fajr', name: 'ফজর', time: '০৫:১৫ AM', icon: 'light-mode', color: '#FFB800' },
+  { id: 'dhuhr', name: 'যোহর', time: '১২:৩০ PM', icon: 'wb-sunny', color: '#FF6B35' },
+  { id: 'asr', name: 'আসর', time: '০৪:৪৫ PM', icon: 'cloud', color: '#FF8C42' },
+  { id: 'maghrib', name: 'মাগরিব', time: '০৬:৩০ PM', icon: 'wb-twilight', color: '#FFA500' },
+  { id: 'isha', name: 'এশা', time: '০৮:০০ PM', icon: 'nights-stay', color: '#1E90FF' },
 ];
-
-// Helper function to convert 24-hour format to 12-hour AM/PM format
-const convertTo12Hour = (time24: string): string => {
-  const [hours, minutes] = time24.split(':');
-  let hour = parseInt(hours);
-  const isAM = hour < 12;
-  
-  if (hour === 0) hour = 12;
-  else if (hour > 12) hour -= 12;
-  
-  const period = isAM ? 'AM' : 'PM';
-  return `${String(hour).padStart(2, '0')}:${minutes} ${period}`;
-};
 
 export default function PrayerScreen() {
   const { theme } = useAppTheme();
-  const [prayerTimes, setPrayerTimes] = useState(PRAYER_TIMES);
-  const [prayerCompletions, setPrayerCompletions] = useState<Record<string, boolean>>(
-    PRAYER_TIMES.reduce((acc, p) => ({ ...acc, [p.name]: p.completed }), {})
-  );
-  const [editingPrayer, setEditingPrayer] = useState<string | null>(null);
-  const [editingTime, setEditingTime] = useState("");
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [prayerStatus, setPrayerStatus] = useState<PrayerStatus>({
+    fajr: true,
+    dhuhr: true,
+    asr: false,
+    maghrib: false,
+    isha: false,
+  });
+  const [streak, setStreak] = useState(27);
 
-  const togglePrayer = (name: string) => {
-    setPrayerCompletions(prev => ({ ...prev, [name]: !prev[name] }));
-  };
+  useEffect(() => {
+    loadPrayerStatus();
+  }, []);
 
-  const handleEditPrayerTime = (prayerName: string, currentTime: string) => {
-    setEditingPrayer(prayerName);
-    setEditingTime(currentTime);
-    setShowEditModal(true);
-  };
-
-  const savePrayerTime = async () => {
-    if (!editingTime.match(/^\d{2}:\d{2}$/)) {
-      Alert.alert("ত্রুটি", "সঠিক সময় ফরম্যাট ব্যবহার করুন (HH:MM)");
-      return;
+  const loadPrayerStatus = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('prayerStatus');
+      if (saved) setPrayerStatus(JSON.parse(saved));
+    } catch (error) {
+      console.log('Error loading prayer status:', error);
     }
-
-    const updatedTimes = prayerTimes.map(p =>
-      p.name === editingPrayer ? { ...p, mosque_time: editingTime } : p
-    );
-    setPrayerTimes(updatedTimes);
-    await AsyncStorage.setItem('prayerTimes', JSON.stringify(updatedTimes));
-    
-    setShowEditModal(false);
-    setEditingPrayer(null);
-    setEditingTime("");
-    Alert.alert("সফল", "নামাজের সময় আপডেট হয়েছে");
   };
+
+  const togglePrayer = async (prayer: string) => {
+    const updated = { ...prayerStatus, [prayer]: !prayerStatus[prayer as keyof PrayerStatus] };
+    setPrayerStatus(updated);
+    await AsyncStorage.setItem('prayerStatus', JSON.stringify(updated));
+  };
+
+  const todayPrayers = Object.values(prayerStatus).filter(Boolean).length;
+  const completionPercentage = (todayPrayers / 5) * 100;
+  const weeklyTotal = 32;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[styles.container, { backgroundColor: theme.backgroundRoot }]}>
       <TopNavigationBar activeTab="Prayer" />
-      <ScreenScrollView>
-        <View style={{ paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }}>
-          {prayerTimes.map((prayer, idx) => (
-            <Card
-              key={idx}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        
+        {/* Premium Header */}
+        <View style={[styles.headerCard, { backgroundColor: theme.backgroundDefault }]}>
+          <ThemedText style={styles.headerTitle}>প্রার্থনা</ThemedText>
+          <ThemedText style={[styles.headerSubtitle, { color: theme.textSecondary }]}>
+            আপনার আধ্যাত্মিক যাত্রা
+          </ThemedText>
+        </View>
+
+        {/* Daily Progress Card */}
+        <View style={[styles.progressCard, { backgroundColor: theme.backgroundDefault }]}>
+          <View style={styles.progressHeader}>
+            <View>
+              <ThemedText style={styles.progressLabel}>আজকের অগ্রগতি</ThemedText>
+              <ThemedText style={[styles.progressPercentage, { color: theme.primary }]}>
+                {Math.round(completionPercentage)}%
+              </ThemedText>
+            </View>
+            <View style={[styles.progressCircle, { backgroundColor: theme.primary + '15' }]}>
+              <MaterialIcons name="check-circle" size={48} color={theme.primary} />
+            </View>
+          </View>
+          
+          {/* Progress Bar */}
+          <View style={[styles.progressBarContainer, { backgroundColor: theme.backgroundSecondary }]}>
+            <View
               style={[
-                styles.prayerCard,
-                { ...Shadows.md, borderTopColor: prayerCompletions[prayer.name] ? theme.secondary : theme.primary, borderTopWidth: 3 }
+                styles.progressBarFill,
+                {
+                  width: `${completionPercentage}%`,
+                  backgroundColor: theme.primary,
+                },
               ]}
-            >
-              <View style={styles.prayerContent}>
-                <View style={{ flex: 1 }}>
-                  <ThemedText style={[styles.prayerName, { color: theme.primary }]}>{prayer.name}</ThemedText>
-                  
-                  {/* তিনটি সময়ের লাইন - 12 hour format with AM/PM */}
-                  <View style={styles.timeLines}>
-                    {/* করাচি শুরুর সময় */}
-                    <ThemedText style={[styles.timeLine, { color: theme.textSecondary }]}>
-                      {convertTo12Hour(prayer.karachi_start)}
-                    </ThemedText>
+            />
+          </View>
+          
+          <ThemedText style={[styles.progressText, { color: theme.textSecondary }]}>
+            {todayPrayers} এর ৫ সম্পন্ন
+          </ThemedText>
+        </View>
 
-                    {/* মসজিদ অনুযায়ী সময় - Editable */}
-                    <Pressable
-                      onPress={() => handleEditPrayerTime(prayer.name, prayer.mosque_time)}
-                      style={[styles.editableTimeLine, { borderBottomColor: theme.primary }]}
-                    >
-                      <ThemedText style={[styles.timeLine, { color: theme.primary, fontWeight: '600' }]}>
-                        {convertTo12Hour(prayer.mosque_time)}
-                      </ThemedText>
-                      <Feather name="edit-2" size={12} color={theme.primary} style={{ marginLeft: Spacing.xs }} />
-                    </Pressable>
-
-                    {/* করাচি শেষের সময় */}
-                    <ThemedText style={[styles.timeLine, { color: theme.textSecondary }]}>
-                      {convertTo12Hour(prayer.karachi_end)}
+        {/* Prayer Times Grid */}
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>আজকের নামাজের সময়</ThemedText>
+          <View style={styles.prayerGrid}>
+            {PRAYERS.map((prayer) => (
+              <Pressable
+                key={prayer.id}
+                onPress={() => togglePrayer(prayer.id)}
+                style={[
+                  styles.prayerCard,
+                  {
+                    backgroundColor: theme.backgroundDefault,
+                    borderLeftColor: prayerStatus[prayer.id as keyof PrayerStatus]
+                      ? theme.primary
+                      : theme.backgroundSecondary,
+                  },
+                ]}
+              >
+                <View style={styles.prayerCardTop}>
+                  <View
+                    style={[
+                      styles.prayerIconBox,
+                      {
+                        backgroundColor: prayerStatus[prayer.id as keyof PrayerStatus]
+                          ? theme.primary + '20'
+                          : theme.backgroundSecondary,
+                      },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name={prayer.icon as any}
+                      size={24}
+                      color={prayerStatus[prayer.id as keyof PrayerStatus] ? theme.primary : theme.textSecondary}
+                    />
+                  </View>
+                  <View style={styles.prayerInfo}>
+                    <ThemedText style={styles.prayerName}>{prayer.name}</ThemedText>
+                    <ThemedText style={[styles.prayerTime, { color: theme.textSecondary }]}>
+                      {prayer.time}
                     </ThemedText>
                   </View>
                 </View>
+                
+                <View
+                  style={[
+                    styles.prayerCheckbox,
+                    {
+                      borderColor: prayerStatus[prayer.id as keyof PrayerStatus]
+                        ? theme.primary
+                        : theme.backgroundSecondary,
+                      backgroundColor: prayerStatus[prayer.id as keyof PrayerStatus]
+                        ? theme.primary
+                        : 'transparent',
+                    },
+                  ]}
+                >
+                  {prayerStatus[prayer.id as keyof PrayerStatus] && (
+                    <MaterialIcons name="check" size={14} color={theme.buttonText} />
+                  )}
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        </View>
 
-                <Switch
-                  value={prayerCompletions[prayer.name]}
-                  onValueChange={() => togglePrayer(prayer.name)}
-                  trackColor={{ false: theme.border, true: theme.secondary + '40' }}
-                  thumbColor={prayerCompletions[prayer.name] ? theme.secondary : theme.textSecondary}
-                />
+        {/* Statistics Section */}
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>পরিসংখ্যান</ThemedText>
+          <View style={[styles.statsCard, { backgroundColor: theme.backgroundDefault }]}>
+            <View style={styles.statItem}>
+              <View style={[styles.statIconBox, { backgroundColor: theme.primary + '20' }]}>
+                <MaterialIcons name="today" size={24} color={theme.primary} />
               </View>
-            </Card>
-          ))}
-        </View>
-
-        <ThemedText style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>অতিরিক্ত</ThemedText>
-
-        <Card style={[styles.card, { ...Shadows.sm }]}>
-          <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.accent + "15" }]}>
-              <Feather name="compass" size={24} color={theme.accent} />
+              <View style={{ marginLeft: Spacing.md }}>
+                <ThemedText style={[styles.statValue, { color: theme.primary }]}>
+                  {todayPrayers}/৫
+                </ThemedText>
+                <ThemedText style={[styles.statLabel, { color: theme.textSecondary }]}>আজ</ThemedText>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কিবলা দিক</ThemedText>
-              <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার দিকনির্দেশনা দেখুন</ThemedText>
+
+            <View style={[styles.divider, { backgroundColor: theme.backgroundSecondary }]} />
+
+            <View style={styles.statItem}>
+              <View style={[styles.statIconBox, { backgroundColor: theme.secondary + '20' }]}>
+                <MaterialIcons name="date-range" size={24} color={theme.secondary} />
+              </View>
+              <View style={{ marginLeft: Spacing.md }}>
+                <ThemedText style={[styles.statValue, { color: theme.secondary }]}>
+                  {weeklyTotal}/৩৫
+                </ThemedText>
+                <ThemedText style={[styles.statLabel, { color: theme.textSecondary }]}>এই সপ্তাহ</ThemedText>
+              </View>
             </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-          </View>
-        </Card>
 
-        <Card style={[styles.card, { ...Shadows.sm }]}>
-          <View style={styles.cardRow}>
-            <View style={[styles.iconBox, { backgroundColor: theme.secondary + "15" }]}>
-              <Feather name="map-pin" size={24} color={theme.secondary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={[styles.cardTitle, { color: theme.text }]}>কাছের মসজিদ</ThemedText>
-              <ThemedText style={[styles.cardSubtitle, { color: theme.textSecondary }]}>আপনার কাছাকাছি মসজিদ খুঁজুন</ThemedText>
-            </View>
-            <Feather name="chevron-right" size={20} color={theme.textSecondary} />
-          </View>
-        </Card>
+            <View style={[styles.divider, { backgroundColor: theme.backgroundSecondary }]} />
 
-        <View style={{ height: 30 }} />
-      </ScreenScrollView>
-
-      {/* Edit Modal */}
-      <Modal
-        visible={showEditModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowEditModal(false)}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
-            <ThemedText style={styles.modalTitle}>নামাজের সময় সম্পাদন করুন</ThemedText>
-            <ThemedText style={[styles.modalLabel, { color: theme.textSecondary }]}>
-              {editingPrayer}
-            </ThemedText>
-
-            <TextInput
-              style={[styles.timeInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }]}
-              placeholder="HH:MM"
-              value={editingTime}
-              onChangeText={setEditingTime}
-              maxLength={5}
-            />
-
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.modalButton, { backgroundColor: theme.border }]}
-                onPress={() => setShowEditModal(false)}
-              >
-                <ThemedText style={styles.modalButtonText}>বাতিল করুন</ThemedText>
-              </Pressable>
-
-              <Pressable
-                style={[styles.modalButton, { backgroundColor: theme.primary }]}
-                onPress={savePrayerTime}
-              >
-                <ThemedText style={[styles.modalButtonText, { color: theme.surface }]}>সংরক্ষণ করুন</ThemedText>
-              </Pressable>
+            <View style={styles.statItem}>
+              <View style={[styles.statIconBox, { backgroundColor: theme.accent + '20' }]}>
+                <MaterialIcons name="calendar-today" size={24} color={theme.accent} />
+              </View>
+              <View style={{ marginLeft: Spacing.md }}>
+                <ThemedText style={[styles.statValue, { color: theme.accent }]}>
+                  ১৪০/১৫০
+                </ThemedText>
+                <ThemedText style={[styles.statLabel, { color: theme.textSecondary }]}>এই মাস</ThemedText>
+              </View>
             </View>
           </View>
         </View>
-      </Modal>
+
+        {/* Streak Section */}
+        <View style={styles.section}>
+          <View
+            style={[
+              styles.streakCard,
+              {
+                backgroundColor: theme.backgroundDefault,
+                borderTopColor: theme.primary,
+                borderTopWidth: 3,
+              },
+            ]}
+          >
+            <View style={styles.streakContent}>
+              <View style={[styles.streakIconBox, { backgroundColor: theme.primary + '20' }]}>
+                <MaterialIcons name="local-fire-department" size={40} color={theme.primary} />
+              </View>
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <ThemedText style={[styles.streakLabel, { color: theme.textSecondary }]}>
+                  বর্তমান স্ট্রিক
+                </ThemedText>
+                <ThemedText style={[styles.streakValue, { color: theme.primary }]}>
+                  {streak} দিন
+                </ThemedText>
+                <ThemedText style={[styles.streakMotivation, { color: theme.textSecondary }]}>
+                  অসাধারণ! এই গতি বজায় রাখুন 🙏
+                </ThemedText>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Prayer Guidelines */}
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>নামাজের নিয়ম</ThemedText>
+          <View style={[styles.guideCard, { backgroundColor: theme.backgroundDefault }]}>
+            {[
+              {
+                num: '১',
+                title: 'ওযু করুন',
+                desc: 'শরীরের প্রয়োজনীয় অংশ পবিত্র করুন',
+                color: theme.primary,
+              },
+              {
+                num: '२',
+                title: 'কিবলার দিকে মুখ করুন',
+                desc: 'আল্লাহর গৃহ কাবার দিকে দাঁড়ান',
+                color: theme.secondary,
+              },
+              {
+                num: '३',
+                title: 'নিয়ত করুন',
+                desc: 'হৃদয় দিয়ে নামাজের নিয়ত নিন',
+                color: theme.accent,
+              },
+            ].map((step, idx) => (
+              <View key={idx} style={styles.guideItem}>
+                <View
+                  style={[
+                    styles.guideNumber,
+                    { backgroundColor: step.color + '20', borderColor: step.color, borderWidth: 1.5 },
+                  ]}
+                >
+                  <ThemedText style={[styles.guideNumberText, { color: step.color }]}>
+                    {step.num}
+                  </ThemedText>
+                </View>
+                <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                  <ThemedText style={styles.guideTitle}>{step.title}</ThemedText>
+                  <ThemedText style={[styles.guideDesc, { color: theme.textSecondary }]}>
+                    {step.desc}
+                  </ThemedText>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>দ্রুত শর্টকাট</ThemedText>
+          <View style={styles.quickActionGrid}>
+            <Pressable style={[styles.quickActionCard, { backgroundColor: theme.backgroundDefault }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: theme.primary + '20' }]}>
+                <MaterialIcons name="explore" size={28} color={theme.primary} />
+              </View>
+              <ThemedText style={styles.quickActionLabel}>কিবলা</ThemedText>
+            </Pressable>
+
+            <Pressable style={[styles.quickActionCard, { backgroundColor: theme.backgroundDefault }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: theme.secondary + '20' }]}>
+                <Feather name="map-pin" size={28} color={theme.secondary} />
+              </View>
+              <ThemedText style={styles.quickActionLabel}>মসজিদ</ThemedText>
+            </Pressable>
+
+            <Pressable style={[styles.quickActionCard, { backgroundColor: theme.backgroundDefault }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: theme.accent + '20' }]}>
+                <MaterialIcons name="school" size={28} color={theme.accent} />
+              </View>
+              <ThemedText style={styles.quickActionLabel}>শিক্ষা</ThemedText>
+            </Pressable>
+
+            <Pressable style={[styles.quickActionCard, { backgroundColor: theme.backgroundDefault }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: theme.primary + '20' }]}>
+                <MaterialIcons name="notifications-active" size={28} color={theme.primary} />
+              </View>
+              <ThemedText style={styles.quickActionLabel}>নোটিফিকেশন</ThemedText>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Inspirational Quote */}
+        <View
+          style={[
+            styles.quoteCard,
+            {
+              backgroundColor: theme.primary + '15',
+              borderLeftColor: theme.primary,
+              borderLeftWidth: 4,
+            },
+          ]}
+        >
+          <Feather name="quote" size={24} color={theme.primary} style={{ marginBottom: Spacing.sm }} />
+          <ThemedText style={[styles.quoteText, { color: theme.text }]}>
+            "নামাজ হল ঈমান এবং কাফরের মধ্যে পার্থক্য।"
+          </ThemedText>
+          <ThemedText style={[styles.quoteAuthor, { color: theme.textSecondary }]}>
+            - সহীহ মুসলিম
+          </ThemedText>
+        </View>
+
+        <View style={{ height: Spacing.xl }} />
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  prayerGrid: {
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
+  },
+  headerCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.lg,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#ffffff',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    marginTop: Spacing.xs,
+  },
+  progressCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.lg,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  progressLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ffffff',
+    opacity: 0.8,
+    marginBottom: Spacing.xs,
+  },
+  progressPercentage: {
+    fontSize: 32,
+    fontWeight: '800',
+  },
+  progressCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressBarContainer: {
+    height: 10,
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginBottom: Spacing.md,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  section: {
     marginBottom: Spacing.xl,
-  },
-  prayerCard: {
-    marginBottom: Spacing.md,
-    borderRadius: BorderRadius.md,
-  },
-  prayerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  prayerName: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: Spacing.md,
-  },
-  timeLines: {
-    gap: Spacing.xs,
-  },
-  timeLine: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  editableTimeLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: Spacing.xs,
-    borderBottomWidth: 1,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#ffffff',
     marginBottom: Spacing.md,
   },
-  card: {
-    marginBottom: Spacing.md,
-    borderRadius: BorderRadius.md,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  prayerGrid: {
     gap: Spacing.md,
   },
-  iconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  cardSubtitle: {
-    fontSize: 12,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalBox: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: Spacing.md,
-  },
-  modalLabel: {
-    fontSize: 13,
-    marginBottom: Spacing.md,
-  },
-  timeInput: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: Spacing.lg,
-  },
-  modalButtons: {
+  prayerCard: {
     flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  modalButton: {
-    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.md,
+    borderLeftWidth: 4,
+  },
+  prayerCardTop: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  modalButtonText: {
+  prayerIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.md,
+  },
+  prayerInfo: {
+    flex: 1,
+  },
+  prayerName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  prayerTime: {
+    fontSize: 12,
+  },
+  prayerCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  divider: {
+    width: 1,
+    height: 40,
+  },
+  streakCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+  },
+  streakContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  streakIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  streakLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  streakValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  streakMotivation: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  guideCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    gap: Spacing.lg,
+  },
+  guideItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  guideNumber: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  guideNumberText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  guideTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  guideDesc: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  quickActionGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  quickActionCard: {
+    width: '48%',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  quickActionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  quickActionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  quoteCard: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.lg,
+  },
+  quoteText: {
     fontSize: 14,
     fontWeight: '600',
+    lineHeight: 20,
+    marginBottom: Spacing.md,
+  },
+  quoteAuthor: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
