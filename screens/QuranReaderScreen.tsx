@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Pressable, TextInput, ScrollView } from "react-native";
+import { View, StyleSheet, Pressable, TextInput, ActivityIndicator } from "react-native";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { ScreenKeyboardAwareScrollView } from "@/components/ScreenKeyboardAwareScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { Card } from "@/components/Card";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { Spacing, Typography, BorderRadius } from "@/constants/theme";
-import { QURAN_SURAHS } from "@/data/quranData";
-import { getAyahsBySurah } from "@/data/quranAyahs";
-import { getQuranPreferences, updateLastRead, addBookmark, removeBookmark, isBookmarked, saveQuranPreferences } from "@/utils/quranReaderPreferences";
+import { Spacing, BorderRadius } from "@/constants/theme";
+import { getQuranPreferences, updateLastRead, addBookmark, removeBookmark, saveQuranPreferences } from "@/utils/quranReaderPreferences";
+import { useQuranAPI, QuranSurahData, QuranAyah } from "@/hooks/useQuranAPI";
 
 interface Props {
   surahNumber: number;
@@ -16,6 +15,8 @@ interface Props {
 
 export default function QuranReaderScreen({ surahNumber }: Props) {
   const { theme } = useAppTheme();
+  const { fetchSurah, loading, error } = useQuranAPI();
+  
   const [textSize, setTextSize] = useState(16);
   const [displayMode, setDisplayMode] = useState<'arabic-only' | 'with-translation' | 'arabic-bengali-split'>('with-translation');
   const [search, setSearch] = useState("");
@@ -23,13 +24,19 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('bengali');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAyahAudio, setCurrentAyahAudio] = useState<number | null>(null);
-  
-  const surah = QURAN_SURAHS.find(s => s.number === surahNumber);
-  const ayahs = getAyahsBySurah(surahNumber);
+  const [surahData, setSurahData] = useState<QuranSurahData | null>(null);
   
   useEffect(() => {
     loadPreferences();
-  }, []);
+    loadSurahData();
+  }, [surahNumber]);
+
+  const loadSurahData = async () => {
+    const data = await fetchSurah(surahNumber);
+    if (data) {
+      setSurahData(data);
+    }
+  };
 
   const loadPreferences = async () => {
     const prefs = await getQuranPreferences();
@@ -69,9 +76,29 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
     await saveQuranPreferences(prefs);
   };
 
+  const ayahs = surahData?.ayahs || [];
   const filteredAyahs = ayahs.filter(ayah =>
-    ayah.arabic.includes(search) || ayah.bengali.toLowerCase().includes(search.toLowerCase())
+    ayah.arabic.toLowerCase().includes(search.toLowerCase()) || 
+    ayah.bengali.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading && !surahData) {
+    return (
+      <View style={[styles.centerContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+        <ThemedText style={styles.loadingText}>সূরা লোড হচ্ছে...</ThemedText>
+      </View>
+    );
+  }
+
+  if (error && !surahData) {
+    return (
+      <View style={[styles.centerContainer, { backgroundColor: theme.background }]}>
+        <ThemedText style={[styles.errorText, { color: 'red' }]}>❌ ত্রুটি: {error}</ThemedText>
+        <ThemedText style={styles.errorHint}>ব্যাকএন্ড সার্ভার চেক করুন</ThemedText>
+      </View>
+    );
+  }
 
   return (
     <ScreenKeyboardAwareScrollView>
@@ -79,10 +106,10 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
       <View style={[styles.header, { backgroundColor: theme.primary }]}>
         <View style={styles.headerContent}>
           <ThemedText style={[styles.surahName, { color: theme.buttonText }]}>
-            {surah?.nameBengali}
+            {surahData?.nameBengali}
           </ThemedText>
           <ThemedText style={[styles.surahInfo, { color: theme.buttonText }]}>
-            {surah?.numberOfAyahs} আয়াত • {surah?.revelationTypeBengali}
+            {surahData?.numberOfAyahs} আয়াত • {surahData?.revelationTypeBengali}
           </ThemedText>
         </View>
       </View>
@@ -197,6 +224,24 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  loadingText: {
+    fontSize: 16,
+    marginTop: Spacing.md,
+  },
+  errorText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorHint: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
   header: {
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,

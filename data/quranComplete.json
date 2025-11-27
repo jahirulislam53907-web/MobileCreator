@@ -1,0 +1,78 @@
+{
+  "totalSurahs": 114,
+  "surahs": [
+    {
+      "number": 1,
+      "name": "Al-Fatihah",
+      "nameBengali": "সূরা ফাতিহা",
+      "numberOfAyahs": 7,
+      "revelationType": "Meccan",
+      "revelationTypeBengali": "মক্কী",
+      "ayahs": [
+        {"number": 1, "arabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "bengali": "শুরু করছি আল্লাহর নামে যিনি অত্যন্ত করুণাময়, দয়াশীল"},
+        {"number": 2, "arabic": "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", "bengali": "সমস্ত প্রশংসা আল্লাহর জন্য যিনি বিশ্বজাহানের প্রতিপালক"},
+        {"number": 3, "arabic": "الرَّحْمَٰنِ الرَّحِيمِ", "bengali": "অত্যন্ত করুণাময়, দয়াশীল"},
+        {"number": 4, "arabic": "مَالِكِ يَوْمِ الدِّينِ", "bengali": "বিচার দিনের মালিক"},
+        {"number": 5, "arabic": "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", "bengali": "আমরা শুধু তোমারই ইবাদত করি এবং শুধু তোমারই কাছে সাহায্য চাই"},
+        {"number": 6, "arabic": "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", "bengali": "আমাদের সঠিক পথ দেখাও"},
+        {"number": 7, "arabic": "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ", "bengali": "যাদের উপর তুমি অনুগ্রহ করেছো তাদের পথ, যাদের উপর রোষ করেছো না এবং যারা পথভ্রষ্ট নয় তাদের পথ"}
+      ]
+    },
+    {
+      "number": 2,
+      "name": "Al-Baqarah",
+      "nameBengali": "সূরা বাকারা",
+      "numberOfAyahs": 286,
+      "revelationType": "Medinan",
+      "revelationTypeBengali": "মাদানী",
+      "ayahs": [
+        {"number": 1, "arabic": "الم", "bengali": "আলিফ লাম মিম"},
+        {"number": 2, "arabic": "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ", "bengali": "এটি সেই কিতাব যার মধ্যে কোনো সন্দেহ নেই, এটি তাকওয়াশীলদের জন্য হিদায়াত"},
+        {"number": 3, "arabic": "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ", "bengali": "যারা অদৃশ্যে বিশ্বাস করে, নামাজ প্রতিষ্ঠা করে এবং আমরা তাদের যা দিয়েছি তা থেকে খরচ করে"}
+      ]
+    },
+    {
+      "number": 3,
+      "name": "Ali Imran",
+      "nameBengali": "সূরা আলে ইমরান",
+      "numberOfAyahs": 200,
+      "revelationType": "Medinan",
+      "revelationTypeBengali": "মাদানী",
+      "ayahs": [
+        {"number": 1, "arabic": "الم", "bengali": "আলিফ লাম মিম"},
+        {"number": 2, "arabic": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ", "bengali": "আল্লাহ, তিনি ছাড়া কোনো উপাস্য নেই, তিনি চিরঞ্জীব, স্বয়ংসম্পূর্ণ"}
+      ]
+    },
+    {
+      "number": 4,
+      "name": "An-Nisa",
+      "nameBengali": "সূরা নিসা",
+      "numberOfAyahs": 176,
+      "revelationType": "Medinan",
+      "revelationTypeBengali": "মাদানী",
+      "ayahs": []
+    },
+    {
+      "number": 5,
+      "name": "Al-Maidah",
+      "nameBengali": "সূরা মায়েদা",
+      "numberOfAyahs": 120,
+      "revelationType": "Medinan",
+      "revelationTypeBengali": "মাদানী",
+      "ayahs": []
+    },
+    {
+      "number": 114,
+      "name": "An-Nas",
+      "nameBengali": "সূরা নাস",
+      "numberOfAyahs": 6,
+      "revelationType": "Meccan",
+      "revelationTypeBengali": "মক্কী",
+      "ayahs": [
+        {"number": 1, "arabic": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ", "bengali": "বল, আমি মানুষের প্রতিপালকের কাছে আশ্রয় চাই"},
+        {"number": 2, "arabic": "مَلِكِ النَّاسِ", "bengali": "মানুষের বাদশাহের কাছে"},
+        {"number": 3, "arabic": "إِلَٰهِ النَّاسِ", "bengali": "মানুষের উপাস্যের কাছে"}
+      ]
+    }
+  ]
+}

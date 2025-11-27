@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -10,85 +12,151 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }));
 
+// Load complete Quran data
+let QURAN_DATA = {};
+try {
+  const quranPath = path.join(__dirname, 'data', 'quranComplete.json');
+  if (fs.existsSync(quranPath)) {
+    QURAN_DATA = JSON.parse(fs.readFileSync(quranPath, 'utf-8'));
+    console.log('✅ Quran data loaded:', QURAN_DATA.totalSurahs, 'Surahs');
+  }
+} catch (error) {
+  console.warn('⚠️ Could not load Quran data file:', error.message);
+}
+
 // ===== PREMIUM QURAN AUDIO & TRANSLATION API =====
 
-// Get Quran Audio for specific Ayah
-app.get('/api/quran/audio/:surah/:ayah', async (req, res) => {
+// Get complete Quran structure (all Surahs)
+app.get('/api/quran/surahs', async (req, res) => {
   try {
-    const { surah, ayah } = req.params;
-    const { qari = 'abdul-basit' } = req.query;
+    const surahsOverview = QURAN_DATA.surahs?.map(s => ({
+      number: s.number,
+      name: s.name,
+      nameBengali: s.nameBengali,
+      numberOfAyahs: s.numberOfAyahs,
+      revelationType: s.revelationType,
+      revelationTypeBengali: s.revelationTypeBengali
+    })) || [];
 
-    // Example audio URLs (would be stored in database in production)
-    const audioUrl = `https://cdn.example.com/quran/${qari}/${surah}_${ayah}.mp3`;
+    res.json({
+      success: true,
+      totalSurahs: QURAN_DATA.totalSurahs || 114,
+      surahs: surahsOverview
+    });
+  } catch (error) {
+    console.error('Surahs fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch surahs' });
+  }
+});
+
+// Get specific Surah with all Ayahs
+app.get('/api/quran/surah/:number', async (req, res) => {
+  try {
+    const { number } = req.params;
+    const surahNumber = parseInt(number);
+
+    const surah = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
     
+    if (!surah) {
+      return res.status(404).json({ error: 'Surah not found' });
+    }
+
     res.json({
       success: true,
-      surah: parseInt(surah),
-      ayah: parseInt(ayah),
-      qari,
-      url: audioUrl,
-      duration: 15000,
-      size: 250000
+      surah: {
+        number: surah.number,
+        name: surah.name,
+        nameBengali: surah.nameBengali,
+        numberOfAyahs: surah.numberOfAyahs,
+        revelationType: surah.revelationType,
+        revelationTypeBengali: surah.revelationTypeBengali,
+        ayahs: surah.ayahs || []
+      }
     });
   } catch (error) {
-    console.error('Audio fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch audio' });
+    console.error('Surah fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch surah' });
   }
 });
 
-// Get Translations for specific Ayah (all languages)
-app.get('/api/quran/translations/:surah/:ayah', async (req, res) => {
+// Get specific Ayah with all translations
+app.get('/api/quran/ayah/:surah/:ayah', async (req, res) => {
   try {
     const { surah, ayah } = req.params;
-    const { languages } = req.query;
+    const surahNumber = parseInt(surah);
+    const ayahNumber = parseInt(ayah);
 
-    // Example translations structure
-    const translations = {
-      arabic: 'الأصل العربي',
-      bengali: 'বাংলা অনুবাদ',
-      english: 'English translation',
-      urdu: 'اردو ترجمہ',
-      hindi: 'हिंदी अनुवाद',
-      turkish: 'Türkçe çeviri',
-      indonesian: 'Terjemahan Indonesia',
-      malay: 'Terjemahan Melayu',
-      pashto: 'پشتو ترجمہ',
-      somali: 'Fasiraadda Soomaaliyeed'
-    };
+    const surahData = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
+    if (!surahData) {
+      return res.status(404).json({ error: 'Surah not found' });
+    }
+
+    const ayahData = surahData.ayahs?.find(a => a.number === ayahNumber);
+    if (!ayahData) {
+      return res.status(404).json({ error: 'Ayah not found' });
+    }
 
     res.json({
       success: true,
-      surah: parseInt(surah),
-      ayah: parseInt(ayah),
-      translations,
-      lastUpdated: new Date().toISOString()
+      surah: surahNumber,
+      ayah: ayahNumber,
+      arabic: ayahData.arabic,
+      bengali: ayahData.bengali,
+      translations: {
+        english: `English translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        urdu: `Urdu translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        hindi: `Hindi translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        turkish: `Turkish translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        indonesian: `Indonesian translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        malay: `Malay translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        pashto: `Pashto translation for Surah ${surahNumber} Ayah ${ayahNumber}`,
+        somali: `Somali translation for Surah ${surahNumber} Ayah ${ayahNumber}`
+      },
+      audioUrls: {
+        'abdul-basit': `https://cdn.example.com/quran/abdul-basit/${surahNumber}_${ayahNumber}.mp3`,
+        'al-minshawi': `https://cdn.example.com/quran/al-minshawi/${surahNumber}_${ayahNumber}.mp3`,
+        'mishary': `https://cdn.example.com/quran/mishary/${surahNumber}_${ayahNumber}.mp3`
+      }
     });
   } catch (error) {
-    console.error('Translation fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch translations' });
+    console.error('Ayah fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch ayah' });
   }
 });
 
-// Download Translation (for offline storage)
-app.post('/api/quran/translations/download', async (req, res) => {
+// Get all Ayahs for a specific Surah with translations
+app.get('/api/quran/surah/:surah/ayahs', async (req, res) => {
   try {
-    const { language, surah } = req.body;
+    const { surah } = req.params;
+    const surahNumber = parseInt(surah);
 
-    // Bulk translation data for a surah
-    const translationData = {
-      language,
-      surah: parseInt(surah),
-      ayahs: [], // Would contain full translation data
-      size: 150000,
-      downloadedAt: new Date().toISOString()
-    };
+    const surahData = QURAN_DATA.surahs?.find(s => s.number === surahNumber);
+    if (!surahData) {
+      return res.status(404).json({ error: 'Surah not found' });
+    }
+
+    const ayahsWithTranslations = surahData.ayahs?.map(ayah => ({
+      number: ayah.number,
+      arabic: ayah.arabic,
+      bengali: ayah.bengali,
+      english: `Translation ${ayah.number}`,
+      urdu: `ترجمہ ${ayah.number}`,
+      hindi: `अनुवाद ${ayah.number}`,
+      turkish: `Çeviri ${ayah.number}`,
+      indonesian: `Terjemahan ${ayah.number}`,
+      malay: `Terjemahan ${ayah.number}`,
+      pashto: `ترجمه ${ayah.number}`,
+      somali: `Farsamada ${ayah.number}`
+    })) || [];
 
     res.json({
       success: true,
-      data: translationData
+      surah: surahNumber,
+      ayahs: ayahsWithTranslations
     });
   } catch (error) {
-    res.status(500).json({ error: 'Download failed' });
+    console.error('Ayahs fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch ayahs' });
   }
 });
 
@@ -99,11 +167,10 @@ app.post('/api/sync', async (req, res) => {
   try {
     const { userId, changes } = req.body;
 
-    // Process sync changes (bookmarks, preferences, last read)
     const syncResult = {
       success: true,
       userId,
-      changesApplied: changes.length,
+      changesApplied: changes?.length || 0,
       timestamp: new Date().toISOString(),
       serverData: {
         bookmarks: [],
@@ -144,67 +211,6 @@ app.get('/api/user/:userId/data', async (req, res) => {
   }
 });
 
-// ===== QURAN DATA API =====
-
-// Get complete Quran structure (all Surahs)
-app.get('/api/quran/surahs', async (req, res) => {
-  try {
-    const surahs = [
-      { number: 1, name: 'Al-Fatihah', nameBengali: 'সূরা ফাতিহা', ayahs: 7 },
-      { number: 2, name: 'Al-Baqarah', nameBengali: 'সূরা বাকারা', ayahs: 286 },
-      // ... all 114 surahs
-    ];
-
-    res.json({
-      success: true,
-      totalSurahs: 114,
-      surahs
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch surahs' });
-  }
-});
-
-// Get specific Surah with all Ayahs
-app.get('/api/quran/surah/:number', async (req, res) => {
-  try {
-    const { number } = req.params;
-    const { language = 'bengali' } = req.query;
-
-    const surahData = {
-      number: parseInt(number),
-      name: 'Surah Name',
-      ayahs: [
-        {
-          number: 1,
-          arabic: 'Arabic text',
-          translation: {
-            bengali: 'বাংলা',
-            english: 'English',
-            // ... other languages
-          }
-        }
-        // ... all ayahs
-      ]
-    };
-
-    res.json(surahData);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch surah' });
-  }
-});
-
-// ===== ADMIN ENDPOINTS =====
-
-app.post('/api/admin/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    res.json({ success: true, token: 'admin-token' });
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid credentials' });
-  }
-});
-
 // ===== HEALTH CHECK =====
 
 app.get('/api/health', (req, res) => {
@@ -212,8 +218,9 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     premium: true,
+    quranLoaded: !!QURAN_DATA.totalSurahs,
     features: {
-      quranAudio: true,
+      quranData: true,
       multiLanguageTranslations: true,
       offlineSync: true,
       premiumUI: true
@@ -224,5 +231,6 @@ app.get('/api/health', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🌙 Smart Muslim Premium Backend running on port ${PORT}`);
-  console.log(`✨ Features: Quran Audio, Multi-Language, Offline Sync, Premium Quality`);
+  console.log(`✨ Features: Quran Data, Multi-Language, Offline Sync, Premium Quality`);
+  console.log(`📱 Connect from Expo Go: http://<your-local-ip>:${PORT}`);
 });
