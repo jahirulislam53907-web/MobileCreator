@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://192.168.1.100:3000'; // Change to your local IP
+const API_BASE_URL = 'http://localhost:3000'; // localhost দিয়ে test করুন
 
 export interface QuranSurah {
   number: number;
