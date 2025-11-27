@@ -73,34 +73,33 @@ export default function PrayerScreen() {
 
         {/* Daily Progress Card */}
         <View style={[styles.progressCard, { backgroundColor: theme.backgroundDefault }]}>
-          <View style={styles.progressHeader}>
-            <View>
-              <ThemedText style={styles.progressLabel}>আজকের অগ্রগতি</ThemedText>
-              <ThemedText style={[styles.progressPercentage, { color: theme.primary }]}>
-                {Math.round(completionPercentage)}%
+          <ThemedText style={styles.progressLabel}>আজকের অগ্রগতি</ThemedText>
+          <View style={styles.progressContentRow}>
+            <View style={styles.circularProgressContainer}>
+              <View style={[styles.circularProgress, { borderColor: theme.primary }]}>
+                <View style={[styles.circularProgressFill, { 
+                  borderColor: theme.primary,
+                  borderTopColor: theme.primary,
+                  borderRightColor: theme.primary,
+                  borderBottomColor: 'transparent',
+                  transform: [{ rotate: `${(completionPercentage / 100) * 360}deg` }]
+                }]} />
+              </View>
+              <View style={styles.circularProgressInner}>
+                <ThemedText style={[styles.circularProgressText, { color: theme.primary }]}>
+                  {Math.round(completionPercentage)}%
+                </ThemedText>
+              </View>
+            </View>
+            <View style={{ flex: 1, marginLeft: Spacing.lg }}>
+              <ThemedText style={[styles.progressStats, { color: theme.primary }]}>
+                {todayPrayers} সম্পন্ন
+              </ThemedText>
+              <ThemedText style={[styles.progressStatsDesc, { color: theme.textSecondary }]}>
+                ৫ এর মধ্যে
               </ThemedText>
             </View>
-            <View style={[styles.progressCircle, { backgroundColor: theme.primary + '15' }]}>
-              <MaterialIcons name="check-circle" size={48} color={theme.primary} />
-            </View>
           </View>
-          
-          {/* Progress Bar */}
-          <View style={[styles.progressBarContainer, { backgroundColor: theme.backgroundSecondary }]}>
-            <View
-              style={[
-                styles.progressBarFill,
-                {
-                  width: `${completionPercentage}%`,
-                  backgroundColor: theme.primary,
-                },
-              ]}
-            />
-          </View>
-          
-          <ThemedText style={[styles.progressText, { color: theme.textSecondary }]}>
-            {todayPrayers} এর ৫ সম্পন্ন
-          </ThemedText>
         </View>
 
         {/* Prayer Times Grid */}
