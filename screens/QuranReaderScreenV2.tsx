@@ -51,14 +51,27 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
 
       // Try online first
       const onlineTranslations = await fetchTranslations(surahNumber, selectedLanguage);
-      if (onlineTranslations.length > 0) {
+      if (onlineTranslations && onlineTranslations.length > 0) {
         setTranslations(onlineTranslations);
         setIsOnline(true);
         return;
       }
 
-      // Fallback to offline
-      setTranslations(surahData.ayahs || []);
+      // Fallback to offline (use local surah data)
+      const offlineTranslations = surahData.ayahs?.map((ayah: any) => ({
+        number: ayah.number,
+        arabic: ayah.arabic,
+        bengali: ayah.bengali,
+        english: ayah.english,
+        urdu: ayah.urdu,
+        hindi: ayah.hindi,
+        turkish: ayah.turkish,
+        indonesian: ayah.indonesian,
+        malay: ayah.malay,
+        pashto: ayah.pashto,
+        somali: ayah.somali
+      })) || [];
+      setTranslations(offlineTranslations);
       setIsOnline(false);
     };
 
@@ -165,38 +178,39 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
         {translationLoading ? (
           <ActivityIndicator size="large" color={theme.primary} />
         ) : (
-          surahData.ayahs?.map((ayah: any, idx: number) => {
-            const translation = translations[idx];
-            return (
-              <Card key={ayah.number} style={{ marginBottom: Spacing.md }}>
-                {/* Arabic */}
-                <ThemedText style={{ fontSize: 18, lineHeight: 32, marginBottom: Spacing.md, textAlign: 'right' }}>
-                  {ayah.arabic}
-                </ThemedText>
+          translations.length > 0 ? translations.map((translation: any) => (
+            <Card key={translation.number} style={{ marginBottom: Spacing.md }}>
+              {/* Arabic */}
+              <ThemedText style={{ fontSize: 18, lineHeight: 32, marginBottom: Spacing.md, textAlign: 'right' }}>
+                {translation.arabic}
+              </ThemedText>
 
-                {/* Ayah Number */}
-                <View
-                  style={{
-                    paddingHorizontal: Spacing.sm,
-                    paddingVertical: 2,
-                    backgroundColor: theme.primary,
-                    borderRadius: 4,
-                    alignSelf: 'flex-start',
-                    marginBottom: Spacing.md
-                  }}
-                >
-                  <ThemedText style={{ color: theme.buttonText, fontSize: 12, fontWeight: '600' }}>
-                    آية {ayah.number}
-                  </ThemedText>
-                </View>
-
-                {/* Translation */}
-                <ThemedText style={{ fontSize: 14, lineHeight: 22, color: theme.textSecondary }}>
-                  {translation?.[selectedLanguage] || translation?.bengali || 'অনুবাদ উপলব্ধ নয়'}
+              {/* Ayah Number */}
+              <View
+                style={{
+                  paddingHorizontal: Spacing.sm,
+                  paddingVertical: 2,
+                  backgroundColor: theme.primary,
+                  borderRadius: 4,
+                  alignSelf: 'flex-start',
+                  marginBottom: Spacing.md
+                }}
+              >
+                <ThemedText style={{ color: theme.buttonText, fontSize: 12, fontWeight: '600' }}>
+                  آية {translation.number}
                 </ThemedText>
-              </Card>
-            );
-          })
+              </View>
+
+              {/* Translation */}
+              <ThemedText style={{ fontSize: 14, lineHeight: 22, color: theme.textSecondary }}>
+                {translation[selectedLanguage] || translation.bengali || 'অনুবাদ উপলব্ধ নয়'}
+              </ThemedText>
+            </Card>
+          )) : (
+            <ThemedText style={{ textAlign: 'center', marginTop: Spacing.lg }}>
+              কোন আয়াত পাওয়া যায়নি
+            </ThemedText>
+          )
         )}
       </View>
     </ScrollView>

@@ -120,7 +120,7 @@ app.get('/api/quran/surah/:surahNumber/translations/:language', (req, res) => {
     
     if (!surah) return res.status(404).json({ success: false, error: 'Surah not found' });
 
-    // Map language codes
+    // Map language codes to data keys
     const langMap = {
       'bn': 'bengali',
       'en': 'english',
@@ -138,7 +138,16 @@ app.get('/api/quran/surah/:surahNumber/translations/:language', (req, res) => {
     const translations = surah.ayahs?.map(ayah => ({
       number: ayah.number,
       arabic: ayah.arabic,
-      translation: ayah[langKey] || 'Translation not available'
+      bengali: ayah.bengali,
+      english: ayah.english,
+      urdu: ayah.urdu,
+      hindi: ayah.hindi,
+      turkish: ayah.turkish,
+      indonesian: ayah.indonesian,
+      malay: ayah.malay,
+      pashto: ayah.pashto,
+      somali: ayah.somali,
+      [langKey]: ayah[langKey]
     })) || [];
 
     res.json({

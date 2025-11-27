@@ -17,6 +17,7 @@ import { MENU_ICONS } from '@/constants/menuIcons';
 
 export type DrawerParamList = {
   Main: undefined;
+  QuranReaderV2: { surahNumber?: number };
 };
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
