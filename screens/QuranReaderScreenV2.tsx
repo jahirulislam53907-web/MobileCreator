@@ -18,11 +18,6 @@ interface LanguageItem {
   name: string;
 }
 
-interface LanguageItem {
-  code: 'bn' | 'en' | 'ur' | 'hi' | 'tr' | 'id' | 'ms' | 'ps' | 'so';
-  name: string;
-}
-
 const LANGUAGES: LanguageItem[] = [
   { code: 'bn', name: 'Bengali' },
   { code: 'en', name: 'English' },
