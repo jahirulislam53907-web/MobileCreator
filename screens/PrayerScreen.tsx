@@ -74,30 +74,62 @@ export default function PrayerScreen() {
         {/* Daily Progress Card */}
         <View style={[styles.progressCard, { backgroundColor: theme.backgroundDefault }]}>
           <ThemedText style={styles.progressLabel}>আজকের অগ্রগতি</ThemedText>
-          <View style={styles.progressContentRow}>
-            <View style={styles.circularProgressContainer}>
-              <View style={[styles.circularProgress, { borderColor: theme.primary }]}>
-                <View style={[styles.circularProgressFill, { 
-                  borderColor: theme.primary,
-                  borderTopColor: theme.primary,
-                  borderRightColor: theme.primary,
-                  borderBottomColor: 'transparent',
-                  transform: [{ rotate: `${(completionPercentage / 100) * 360}deg` }]
-                }]} />
+          <View style={styles.threeCirclesRow}>
+            {/* Today Circle */}
+            <View style={styles.circleWrapper}>
+              <View style={styles.circularProgressContainer}>
+                <View style={[styles.circularProgress, { borderColor: theme.primary }]}>
+                  <View style={[styles.circularProgressFill, { 
+                    borderTopColor: theme.primary,
+                    borderRightColor: theme.primary,
+                    transform: [{ rotate: `${(completionPercentage / 100) * 360}deg` }]
+                  }]} />
+                </View>
+                <View style={styles.circularProgressInner}>
+                  <ThemedText style={[styles.circularProgressText, { color: theme.primary }]}>
+                    {Math.round(completionPercentage)}%
+                  </ThemedText>
+                </View>
               </View>
-              <View style={styles.circularProgressInner}>
-                <ThemedText style={[styles.circularProgressText, { color: theme.primary }]}>
-                  {Math.round(completionPercentage)}%
-                </ThemedText>
-              </View>
+              <ThemedText style={[styles.circleLabel, { color: theme.textSecondary }]}>আজ</ThemedText>
             </View>
-            <View style={{ flex: 1, marginLeft: Spacing.lg }}>
-              <ThemedText style={[styles.progressStats, { color: theme.primary }]}>
-                {todayPrayers} সম্পন্ন
-              </ThemedText>
-              <ThemedText style={[styles.progressStatsDesc, { color: theme.textSecondary }]}>
-                ৫ এর মধ্যে
-              </ThemedText>
+
+            {/* Weekly Circle */}
+            <View style={styles.circleWrapper}>
+              <View style={styles.circularProgressContainer}>
+                <View style={[styles.circularProgress, { borderColor: theme.secondary }]}>
+                  <View style={[styles.circularProgressFill, { 
+                    borderTopColor: theme.secondary,
+                    borderRightColor: theme.secondary,
+                    transform: [{ rotate: '329deg' }]
+                  }]} />
+                </View>
+                <View style={styles.circularProgressInner}>
+                  <ThemedText style={[styles.circularProgressText, { color: theme.secondary }]}>
+                    91%
+                  </ThemedText>
+                </View>
+              </View>
+              <ThemedText style={[styles.circleLabel, { color: theme.textSecondary }]}>সপ্তাহ</ThemedText>
+            </View>
+
+            {/* Monthly Circle */}
+            <View style={styles.circleWrapper}>
+              <View style={styles.circularProgressContainer}>
+                <View style={[styles.circularProgress, { borderColor: theme.accent }]}>
+                  <View style={[styles.circularProgressFill, { 
+                    borderTopColor: theme.accent,
+                    borderRightColor: theme.accent,
+                    transform: [{ rotate: '336deg' }]
+                  }]} />
+                </View>
+                <View style={styles.circularProgressInner}>
+                  <ThemedText style={[styles.circularProgressText, { color: theme.accent }]}>
+                    93%
+                  </ThemedText>
+                </View>
+              </View>
+              <ThemedText style={[styles.circleLabel, { color: theme.textSecondary }]}>মাস</ThemedText>
             </View>
           </View>
         </View>
@@ -422,40 +454,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.lg,
   },
+  threeCirclesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: Spacing.lg,
+    gap: Spacing.md,
+  },
+  circleWrapper: {
+    alignItems: 'center',
+    flex: 1,
+  },
   circularProgressContainer: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: Spacing.sm,
   },
   circularProgress: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 8,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 6,
     borderColor: '#transparent',
   },
   circularProgressFill: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 8,
-    borderTopColor: '#2d936c',
-    borderRightColor: '#2d936c',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 6,
     borderBottomColor: 'transparent',
     borderLeftColor: 'transparent',
   },
   circularProgressInner: {
     position: 'absolute',
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
   },
   circularProgressText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '800',
+  },
+  circleLabel: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   progressStats: {
     fontSize: 18,
