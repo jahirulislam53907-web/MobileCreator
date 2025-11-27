@@ -113,50 +113,75 @@ app.get('/api/quran/surah/:number', (req, res) => {
 });
 
 // Get Translations for specific language - CRITICAL ENDPOINT
-app.get('/api/quran/surah/:surahNumber/translations/:language', (req, res) => {
+app.get('/api/quran/surah/:surahNumber/translations/:language', async (req, res) => {
   try {
     const { surahNumber, language } = req.params;
     const surah = QURAN_DATA.surahs?.find(s => s.number === parseInt(surahNumber));
     
     if (!surah) return res.status(404).json({ success: false, error: 'Surah not found' });
 
-    // Map language codes to data keys
-    const langMap = {
-      'bn': 'bengali',
-      'en': 'english',
-      'ur': 'urdu',
-      'hi': 'hindi',
-      'tr': 'turkish',
-      'id': 'indonesian',
-      'ms': 'malay',
-      'ps': 'pashto',
-      'so': 'somali'
-    };
+    // Only Bengali and English have database translations
+    const supportedDBLanguages = ['bn', 'en'];
+    
+    // If language has database translations, fetch from DB
+    if (supportedDBLanguages.includes(language)) {
+      try {
+        const result = await pool.query(
+          `SELECT ayah_number, translation FROM quran_translations 
+           WHERE surah_number = $1 AND language = $2 
+           ORDER BY ayah_number ASC`,
+          [parseInt(surahNumber), language]
+        );
 
-    const langKey = langMap[language] || language;
+        const translations = surah.ayahs?.map((ayah: any) => {
+          const dbTranslation = result.rows.find(r => r.ayah_number === ayah.number);
+          return {
+            number: ayah.number,
+            arabic: ayah.arabic,
+            [language === 'bn' ? 'bn' : 'en']: dbTranslation?.translation || 'Translation not available'
+          };
+        }) || [];
 
-    const translations = surah.ayahs?.map(ayah => ({
-      number: ayah.number,
-      arabic: ayah.arabic,
-      bengali: ayah.bengali,
-      english: ayah.english,
-      urdu: ayah.urdu,
-      hindi: ayah.hindi,
-      turkish: ayah.turkish,
-      indonesian: ayah.indonesian,
-      malay: ayah.malay,
-      pashto: ayah.pashto,
-      somali: ayah.somali,
-      [langKey]: ayah[langKey]
-    })) || [];
+        res.json({
+          success: true,
+          surah: surahNumber,
+          language: language,
+          translations: translations,
+          totalAyahs: translations.length,
+          source: 'database'
+        });
+      } catch (dbError) {
+        console.warn('DB translation fetch failed:', dbError.message);
+        // Fallback to Arabic only
+        const arabicOnly = surah.ayahs?.map(ayah => ({
+          number: ayah.number,
+          arabic: ayah.arabic
+        })) || [];
+        res.json({
+          success: true,
+          surah: surahNumber,
+          language: language,
+          translations: arabicOnly,
+          totalAyahs: arabicOnly.length,
+          source: 'arabic_only'
+        });
+      }
+    } else {
+      // For other languages, return Arabic only
+      const arabicOnly = surah.ayahs?.map(ayah => ({
+        number: ayah.number,
+        arabic: ayah.arabic
+      })) || [];
 
-    res.json({
-      success: true,
-      surah: surahNumber,
-      language: language,
-      translations: translations,
-      totalAyahs: translations.length
-    });
+      res.json({
+        success: true,
+        surah: surahNumber,
+        language: language,
+        translations: arabicOnly,
+        totalAyahs: arabicOnly.length,
+        source: 'arabic_only'
+      });
+    }
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

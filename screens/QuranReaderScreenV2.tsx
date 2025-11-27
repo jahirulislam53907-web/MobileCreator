@@ -191,35 +191,42 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
         {translationLoading ? (
           <ActivityIndicator size="large" color={theme.primary} />
         ) : (
-          translations.length > 0 ? translations.map((translation: any) => (
-            <Card key={translation.number} style={{ marginBottom: Spacing.md }}>
-              {/* Arabic */}
-              <ThemedText style={{ fontSize: 18, lineHeight: 32, marginBottom: Spacing.md, textAlign: 'right' }}>
-                {translation.arabic}
-              </ThemedText>
-
-              {/* Ayah Number */}
-              <View
-                style={{
-                  paddingHorizontal: Spacing.sm,
-                  paddingVertical: 2,
-                  backgroundColor: theme.primary,
-                  borderRadius: 4,
-                  alignSelf: 'flex-start',
-                  marginBottom: Spacing.md
-                }}
-              >
-                <ThemedText style={{ color: theme.buttonText, fontSize: 12, fontWeight: '600' }}>
-                  آية {translation.number}
+          translations.length > 0 ? translations.map((translation: any) => {
+            // Only show translation for Bengali and English languages
+            const hasTranslation = ['bn', 'en'].includes(selectedLanguage) && translation[selectedLanguage];
+            
+            return (
+              <Card key={translation.number} style={{ marginBottom: Spacing.md }}>
+                {/* Arabic */}
+                <ThemedText style={{ fontSize: 18, lineHeight: 32, marginBottom: Spacing.md, textAlign: 'right' }}>
+                  {translation.arabic}
                 </ThemedText>
-              </View>
 
-              {/* Translation */}
-              <ThemedText style={{ fontSize: 14, lineHeight: 22, color: theme.textSecondary }}>
-                {translation[selectedLanguage] || 'Translation not available'}
-              </ThemedText>
-            </Card>
-          )) : (
+                {/* Ayah Number */}
+                <View
+                  style={{
+                    paddingHorizontal: Spacing.sm,
+                    paddingVertical: 2,
+                    backgroundColor: theme.primary,
+                    borderRadius: 4,
+                    alignSelf: 'flex-start',
+                    marginBottom: hasTranslation ? Spacing.md : 0
+                  }}
+                >
+                  <ThemedText style={{ color: theme.buttonText, fontSize: 12, fontWeight: '600' }}>
+                    آية {translation.number}
+                  </ThemedText>
+                </View>
+
+                {/* Translation - Only show for Bengali and English */}
+                {hasTranslation ? (
+                  <ThemedText style={{ fontSize: 14, lineHeight: 22, color: theme.textSecondary, marginTop: Spacing.sm }}>
+                    {translation[selectedLanguage]}
+                  </ThemedText>
+                ) : null}
+              </Card>
+            );
+          }) : (
             <ThemedText style={{ textAlign: 'center', marginTop: Spacing.lg }}>
               {t('quran.noVerses')}
             </ThemedText>
