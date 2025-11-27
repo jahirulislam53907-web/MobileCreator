@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -20,6 +20,8 @@ function AppContent() {
 
   useEffect(() => {
     const setupNotifications = async () => {
+      if (Platform.OS === 'web') return;
+      
       await initializeNotifications();
       await createNotificationChannel();
       
