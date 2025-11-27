@@ -17,9 +17,12 @@ interface Props {
 export default function QuranReaderScreen({ surahNumber }: Props) {
   const { theme } = useAppTheme();
   const [textSize, setTextSize] = useState(16);
-  const [displayMode, setDisplayMode] = useState<'arabic-only' | 'with-translation' | 'split'>('with-translation');
+  const [displayMode, setDisplayMode] = useState<'arabic-only' | 'with-translation' | 'arabic-bengali-split'>('with-translation');
   const [search, setSearch] = useState("");
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('bengali');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAyahAudio, setCurrentAyahAudio] = useState<number | null>(null);
   
   const surah = QURAN_SURAHS.find(s => s.number === surahNumber);
   const ayahs = getAyahsBySurah(surahNumber);
@@ -59,7 +62,7 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
     await saveQuranPreferences(prefs);
   };
 
-  const changeDisplayMode = async (mode: 'arabic-only' | 'with-translation' | 'split') => {
+  const changeDisplayMode = async (mode: 'arabic-only' | 'with-translation' | 'arabic-bengali-split') => {
     setDisplayMode(mode);
     const prefs = await getQuranPreferences();
     prefs.displayMode = mode;
@@ -202,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   surahName: {
-    ...Typography.heading1,
+    fontSize: 28,
     fontWeight: '700',
     marginBottom: Spacing.sm,
   },

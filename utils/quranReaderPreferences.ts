@@ -6,6 +6,10 @@ export interface QuranPreferences {
   lastAyahNumber: number;
   bookmarks: Array<{ surahNumber: number; ayahNumber: number }>;
   displayMode: 'arabic-only' | 'with-translation' | 'arabic-bengali-split';
+  selectedLanguage: string;
+  playbackRate: number;
+  selectedQari: string;
+  downloadedLanguages: string[];
 }
 
 const STORAGE_KEY = 'QURAN_PREFERENCES';
@@ -16,6 +20,10 @@ export const defaultPreferences: QuranPreferences = {
   lastAyahNumber: 1,
   bookmarks: [],
   displayMode: 'with-translation',
+  selectedLanguage: 'bengali',
+  playbackRate: 1.0,
+  selectedQari: 'abdul-basit',
+  downloadedLanguages: ['bengali']
 };
 
 export async function getQuranPreferences(): Promise<QuranPreferences> {
