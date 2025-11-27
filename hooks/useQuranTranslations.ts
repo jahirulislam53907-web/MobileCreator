@@ -30,7 +30,7 @@ export const useQuranTranslations = () => {
     }
   };
 
-  // Download and save translations locally
+  // Download and save translations locally - ONLY selected language + Arabic
   const downloadSurah = async (surahNumber: number, language: string, surahName: string) => {
     try {
       setLoading(true);
@@ -38,21 +38,27 @@ export const useQuranTranslations = () => {
 
       // Fetch from server
       const response = await fetch(
-        `${API_BASE_URL}/api/quran/surah/${surahNumber}/download`
+        `${API_BASE_URL}/api/quran/surah/${surahNumber}/translations/${language}`
       );
 
       if (!response.ok) throw new Error('Failed to download surah');
 
-      const surahData = await response.json();
+      const data = await response.json();
+      const translations = data.translations || [];
 
-      // Save to local storage
+      // Save ONLY selected language translations + arabic to local storage
       const storageKey = `quran_surah_${surahNumber}_${language}`;
-      await AsyncStorage.setItem(storageKey, JSON.stringify(surahData));
+      const filteredData = {
+        number: surahNumber,
+        ayahs: translations
+      };
+      
+      await AsyncStorage.setItem(storageKey, JSON.stringify(filteredData));
 
       return {
         success: true,
         message: `${surahName} downloaded successfully`,
-        surah: surahData
+        surah: filteredData
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Download failed';

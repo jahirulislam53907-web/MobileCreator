@@ -18,6 +18,11 @@ interface LanguageItem {
   name: string;
 }
 
+interface LanguageItem {
+  code: 'bn' | 'en' | 'ur' | 'hi' | 'tr' | 'id' | 'ms' | 'ps' | 'so';
+  name: string;
+}
+
 const LANGUAGES: LanguageItem[] = [
   { code: 'bn', name: 'Bengali' },
   { code: 'en', name: 'English' },
@@ -33,8 +38,8 @@ const LANGUAGES: LanguageItem[] = [
 export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
   const { theme } = useAppTheme();
   const { fetchSurah } = useQuranAPI();
-  const { fetchTranslations, downloadSurah, loading: translationLoading } = useQuranTranslations();
-  const { language } = useTranslation();
+  const { fetchTranslations, downloadSurah, loading: translationLoading, getDownloadedSurah } = useQuranTranslations();
+  const { language, t } = useTranslation();
 
   const [surahData, setSurahData] = useState<any>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
@@ -56,12 +61,20 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
     loadArabic();
   }, [surahNumber]);
 
-  // Load translations when language changes
+  // Load translations - OFFLINE FIRST, then ONLINE
   useEffect(() => {
     const loadTranslations = async () => {
       if (!surahData) return;
 
-      // Try online first
+      // 1. Check offline (AsyncStorage)
+      const downloadedSurah = await getDownloadedSurah(surahNumber, selectedLanguage);
+      if (downloadedSurah?.ayahs) {
+        setTranslations(downloadedSurah.ayahs);
+        setIsOnline(false);
+        return;
+      }
+
+      // 2. Try online from server
       const onlineTranslations = await fetchTranslations(surahNumber, selectedLanguage);
       if (onlineTranslations && onlineTranslations.length > 0) {
         setTranslations(onlineTranslations);
@@ -69,35 +82,26 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
         return;
       }
 
-      // Fallback to offline (use local surah data)
-      const offlineTranslations = surahData.ayahs?.map((ayah: any) => ({
+      // 3. Fallback to local Arabic only (no translation)
+      const arabicOnly = surahData.ayahs?.map((ayah: any) => ({
         number: ayah.number,
-        arabic: ayah.arabic,
-        bengali: ayah.bengali,
-        english: ayah.english,
-        urdu: ayah.urdu,
-        hindi: ayah.hindi,
-        turkish: ayah.turkish,
-        indonesian: ayah.indonesian,
-        malay: ayah.malay,
-        pashto: ayah.pashto,
-        somali: ayah.somali
+        arabic: ayah.arabic
       })) || [];
-      setTranslations(offlineTranslations);
+      setTranslations(arabicOnly);
       setIsOnline(false);
     };
 
     loadTranslations();
-  }, [surahNumber, selectedLanguage, surahData]);
+  }, [surahNumber, selectedLanguage, surahData, getDownloadedSurah]);
 
   const handleDownload = async () => {
     setDownloading(true);
     const result = await downloadSurah(surahNumber, selectedLanguage, surahData?.nameBengali);
 
     if (result.success) {
-      Alert.alert('Success', result.message);
+      Alert.alert(t('quran.success'), result.message);
     } else {
-      Alert.alert('Error', result.message);
+      Alert.alert(t('quran.error'), result.message);
     }
     setDownloading(false);
   };
@@ -127,11 +131,7 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
       {/* Language Selector */}
       <Card style={{ marginHorizontal: Spacing.md, marginVertical: Spacing.md }}>
         <ThemedText style={{ fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm }}>
-          {selectedLanguage === 'bn' ? 'ভাষা নির্বাচন করুন:' : 
-           selectedLanguage === 'en' ? 'Select Language:' :
-           selectedLanguage === 'ur' ? 'زبان منتخب کریں:' :
-           selectedLanguage === 'hi' ? 'भाषा चुनें:' :
-           'Select Language:'}
+          {t('quran.selectLanguage')}
         </ThemedText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {LANGUAGES.map(lang => (
@@ -179,17 +179,14 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
           <Feather name="download" size={16} color={theme.buttonText} style={{ marginRight: Spacing.sm }} />
           <ThemedText style={{ color: theme.buttonText, fontWeight: '600' }}>
             {downloading ? 
-              (selectedLanguage === 'bn' ? 'ডাউনলোড হচ্ছে...' : 
-               selectedLanguage === 'en' ? 'Downloading...' : 'Downloading...') : 
-              `${languageName} ${selectedLanguage === 'bn' ? 'ডাউনলোড করুন' : selectedLanguage === 'en' ? 'Download' : 'Download'}`}
+              t('quran.downloading') : 
+              `${languageName} ${t('quran.downloadLanguage')}`}
           </ThemedText>
         </Pressable>
 
         {!isOnline && (
           <ThemedText style={{ marginTop: Spacing.sm, fontSize: 12, color: '#FF9500' }}>
-            {selectedLanguage === 'bn' ? '📱 অফলাইন মোড - স্থানীয় ডেটা দেখাচ্ছে' : 
-             selectedLanguage === 'en' ? '📱 Offline Mode - Showing local data' : 
-             '📱 Offline Mode - Showing local data'}
+            {t('quran.offlineMode')}
           </ThemedText>
         )}
       </Card>
@@ -224,14 +221,12 @@ export default function QuranReaderScreenV2({ surahNumber = 1 }: Props) {
 
               {/* Translation */}
               <ThemedText style={{ fontSize: 14, lineHeight: 22, color: theme.textSecondary }}>
-                {translation[selectedLanguage] || translation.bengali || 'অনুবাদ উপলব্ধ নয়'}
+                {translation[selectedLanguage] || 'Translation not available'}
               </ThemedText>
             </Card>
           )) : (
             <ThemedText style={{ textAlign: 'center', marginTop: Spacing.lg }}>
-              {selectedLanguage === 'bn' ? 'কোন আয়াত পাওয়া যায়নি' : 
-               selectedLanguage === 'en' ? 'No verses found' : 
-               'No verses found'}
+              {t('quran.noVerses')}
             </ThemedText>
           )
         )}
