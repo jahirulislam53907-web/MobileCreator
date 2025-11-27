@@ -108,10 +108,10 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
             </ThemedText>
           </Pressable>
           <Pressable
-            style={[styles.modeBtn, displayMode === 'split' && { backgroundColor: theme.primary }]}
-            onPress={() => changeDisplayMode('split')}
+            style={[styles.modeBtn, displayMode === 'arabic-bengali-split' && { backgroundColor: theme.primary }]}
+            onPress={() => changeDisplayMode('arabic-bengali-split')}
           >
-            <ThemedText style={[{ color: displayMode === 'split' ? theme.buttonText : theme.text, fontSize: 12 }]}>
+            <ThemedText style={[{ color: displayMode === 'arabic-bengali-split' ? theme.buttonText : theme.text, fontSize: 12 }]}>
               বিভাজিত
             </ThemedText>
           </Pressable>
@@ -174,14 +174,14 @@ export default function QuranReaderScreen({ surahNumber }: Props) {
               </View>
 
               {/* Arabic Text */}
-              {(displayMode === 'arabic-only' || displayMode === 'with-translation' || displayMode === 'split') && (
+              {(displayMode === 'arabic-only' || displayMode === 'with-translation' || displayMode === 'arabic-bengali-split') && (
                 <ThemedText style={[styles.arabicText, { fontSize: textSize, color: theme.text, marginTop: Spacing.md }]}>
                   {ayah.arabic}
                 </ThemedText>
               )}
 
               {/* Bengali Translation */}
-              {(displayMode === 'with-translation' || displayMode === 'split') && (
+              {(displayMode === 'with-translation' || displayMode === 'arabic-bengali-split') && (
                 <ThemedText style={[styles.bengaliText, { fontSize: textSize - 2, color: theme.textSecondary, marginTop: Spacing.md }]}>
                   {ayah.bengali}
                 </ThemedText>

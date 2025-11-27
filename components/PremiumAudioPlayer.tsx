@@ -63,12 +63,13 @@ export const PremiumAudioPlayer = ({
       <View style={styles.progressContainer}>
         <Pressable
           style={[styles.progressBar, { backgroundColor: theme.backgroundSecondary }]}
-          onPress={(e) => {
-            const layout = e.currentTarget;
-            const width = layout.offsetWidth;
-            const x = e.nativeEvent.locationX;
-            const newPosition = (x / width) * duration;
-            onSeek(newPosition);
+          onPress={(e: any) => {
+            if (e.currentTarget && typeof e.currentTarget.offsetWidth === 'number') {
+              const width = e.currentTarget.offsetWidth;
+              const x = e.nativeEvent.locationX;
+              const newPosition = (x / width) * duration;
+              onSeek(newPosition);
+            }
           }}
         >
           <View
