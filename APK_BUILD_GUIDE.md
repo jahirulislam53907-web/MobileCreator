@@ -27,8 +27,12 @@ npx expo login
 ```bash
 # Replit terminal এ এই কমান্ড চালান
 cd /home/runner/workspace
-npx eas build --platform android --local
+npx eas build --platform android --loca
 ```
+npx expo login
+npx eas build --platform android --local
+
+
 
 **এই কমান্ডটি:**
 - আপনার Android APK তৈরি করবে
