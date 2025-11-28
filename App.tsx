@@ -25,7 +25,7 @@ function AppContent() {
       await initializeNotifications();
       await createNotificationChannel();
       
-      // Start polling for server notifications
+      // Start polling for server notifications নতুন পরিবর্তন
       const pollInterval = startNotificationPolling();
       
       return () => clearInterval(pollInterval);
